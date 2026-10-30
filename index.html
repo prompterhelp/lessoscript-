@@ -700,7 +700,7 @@ body.presenter #pip{border-color:var(--good)}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
       <strong style="font:700 1.05rem var(--font-display)">Rephrase Helper</strong>
       <div>
-        <button class="btn small" id="rpSpeak" type="button" title="Listen pronunciation">🔊 Speak</button> <button class="btn small" id="rpUndo" type="button" hidden title="Undo last replacement">↩ Undo</button>
+        <button class="btn small" id="rpSpeak" type="button" title="Listen pronunciation">🔊 Speak</button> <button class="btn small" id="rpUndo" type="button" hidden title="Undo last replacement">↩ Undo</button> <button class="btn small" id="rpRedo" type="button" title="Redo">↪ Redo</button>
         <button class="btn small" id="rpClose" type="button">Close</button>
       </div>
     </div>
@@ -1276,7 +1276,8 @@ function dictate(){
 function editLine(){
   const st=S.model.steps[S.pos]; if(!st || st.kind==='pause') return;
   const v=prompt('Edit this line:', st.text); if(v===null || !v.trim() || v===st.text) return;
-  S.script=S.script.replace(st.text, v.trim()); st.text=v.trim();
+  pushUndo(S.script, S.pos);
+  S.script=S.script.replace(st.text, () => v.trim()); st.text=v.trim();
   lsSet('lp.script', S.script); $('scriptInput').value=S.script; renderFollow(); toast('Line updated ✓');
 }
 function confetti(){ const e=['🎉','✨','🌟','🎊','💚']; for(let i=0;i<36;i++){ const d=document.createElement('div'); d.className='conf'; d.textContent=e[i%e.length]; d.style.left=Math.random()*100+'vw'; d.style.animationDelay=(Math.random()*.8)+'s'; document.body.appendChild(d); setTimeout(()=>d.remove(),3800); } }
@@ -1393,7 +1394,8 @@ function applyScript(text, forceKey){
   S.model = model;
   S.script = text;
   lsSet('lp.script', text);
-  S.key = forceKey || ('lp.s.' + hash(text));
+  S.key = forceKey || ('lp.s.' + hash(text)); lsSet('lp.scriptkey', S.key);
+  if(!forceKey){ S.undoStack = []; S.redoStack = []; try{ persistUndo(); }catch(e){} }
   
   let saved = null;
   try { saved = JSON.parse(lsGet(S.key) || 'null'); }catch(e){}
@@ -1926,6 +1928,7 @@ function renderFollow(){
   // RESTORE ALL ORIGINAL TOOLBAR BUTTONS: A-, A+, Theme, Wide, Fullscreen, Rephrase
   $('toolbar').innerHTML = '<div class="ttl"><div class="eyebrow">' + (S.full ? 'Full script · whole lesson on one page' : 'Slide ' + sl.n + '/' + m.slides.length + win) + '</div><div class="name">' + esc(sl.title) + '</div></div>'
     + '<div class="tools"><span class="count">' + (S.pos + 1) + ' / ' + m.steps.length + '</span>'
+    + '<button class="btn small" type="button" id="undoBtn" title="Undo last text change (Ctrl+Z)" aria-label="Undo"' + (S.undoStack.length ? '' : ' disabled') + '>↩</button><button class="btn small" type="button" id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo"' + (S.redoStack.length ? '' : ' disabled') + '>↪</button>'
     + '<button class="btn small" type="button" id="fsDown" aria-label="Smaller text">A−</button><button class="btn small" type="button" id="fsUp" aria-label="Larger text">A+</button>'
     + '<button class="btn small" type="button" id="readBtn" title="Read aloud / pause (R)">🔊</button><button class="btn small primary" type="button" id="fullTxtBtn" title="Switch Full page / Slides (W)">' + (S.full ? '📜 Full page' : '🗂 Slides') + '</button><button class="btn small" type="button" id="toolsMore" aria-label="More tools">⋯</button><span class="tools-extra' + (window.__to ? ' open' : '') + '"><button class="btn small" type="button" id="thmBtn" aria-label="Change theme" title="Cycle theme">🎨</button>'
     + '<button class="btn small" type="button" id="wideBtn" aria-label="Wide mode" title="Full wide mode" aria-pressed="' + S.wide + '">↔</button>'
@@ -2403,7 +2406,7 @@ function openRP(info, mode){
   const isWord = !/\s/.test(info.text);
   document.querySelectorAll('#rpModes [data-long]').forEach(b => b.hidden = isWord);
   $('selChip').hidden = true; $('rp').hidden = false;
-  $('rpUndo').hidden = !S.replacementsHistory.length;
+  $('rpUndo').hidden = !S.undoStack.length;
   runRP(mode || (isWord ? 'synonyms' : 'simpler'));
 }
 
@@ -2446,27 +2449,116 @@ $('rpOut').addEventListener('click', e => {
   if(b.dataset.act === 'use') applyReplace(t);
 });
 
-function applyReplace(newText){
-  const st = RP.pos >= 0 ? S.model.steps[RP.pos] : null;
-  if(st){
-    S.replacementsHistory.push({ oldText: st.text, script: S.script, pos: S.pos });
-    S.script = S.script.replace(RP.text, newText);
-    st.text = st.text.replace(RP.text, newText);
-    lsSet('lp.script', S.script);
-    $('scriptInput').value = S.script;
-    $('rp').hidden = true;
-    renderFollow();
-  }
+/* ===== Undo / Redo for every script change (rephrase, edit line) ===== */
+S.undoStack = []; S.redoStack = [];
+try{ S.undoStack = JSON.parse(lsGet('lp.undo')||'[]'); S.redoStack = JSON.parse(lsGet('lp.redo')||'[]'); }catch(e){}
+function persistUndo(){ lsSet('lp.undo', JSON.stringify(S.undoStack.slice(-30))); lsSet('lp.redo', JSON.stringify(S.redoStack.slice(-30))); }
+function pushUndo(script, pos){
+  S.undoStack.push({ script, pos }); if(S.undoStack.length > 30) S.undoStack.shift();
+  S.redoStack = []; persistUndo();
+}
+function restoreSnap(snap){
+  const wasRunning = S.running; saveState();
+  applyScript(snap.script, S.key);
+  S.pos = Math.min(Math.max(snap.pos||0, 0), S.model.steps.length - 1);
+  if(wasRunning){ S.elapsed = elapsedMs(); startTimer(); }
+  saveState();
+  $('scriptInput').value = S.script;
+  $('rp').hidden = true;
+  persistUndo();
+  renderStrip(); renderFollow(); renderFoot(); tick();
+  if(S.view === 'script') renderScript();
+}
+function undoScript(){
+  if(!S.undoStack.length){ toast('Nothing to undo'); return; }
+  const snap = S.undoStack.pop();
+  S.redoStack.push({ script: S.script, pos: S.pos });
+  restoreSnap(snap); toast('↩ Undone (' + S.undoStack.length + ' more)');
+}
+function redoScript(){
+  if(!S.redoStack.length){ toast('Nothing to redo'); return; }
+  const snap = S.redoStack.pop();
+  S.undoStack.push({ script: S.script, pos: S.pos });
+  restoreSnap(snap); toast('↪ Redone');
 }
 
-$('rpUndo').addEventListener('click', () => {
-  if(!S.replacementsHistory.length) return;
-  const last = S.replacementsHistory.pop();
-  S.script = last.script;
-  applyScript(S.script);
-  renderAll();
+/* Map rendered (plain) text back to the raw markdown line so the REAL script text changes */
+function plainMap(raw){
+  const chars=[], idx=[];
+  let i=0, lastSpace=true;
+  while(i<raw.length){
+    const rest=raw.slice(i);
+    const cm=/^\s?\[\d+(?:\s*,\s*\d+)*\]/.exec(rest);
+    if(cm){ i+=cm[0].length; continue; }
+    const ch=raw[i];
+    if(ch==='*'||ch==='`'){ i++; continue; }
+    if(/\s/.test(ch)){ if(!lastSpace){ chars.push(' '); idx.push(i); lastSpace=true; } i++; continue; }
+    chars.push(ch); idx.push(i); lastSpace=false; i++;
+  }
+  return { plain: chars.join(''), idx };
+}
+function findInRaw(raw, sel){
+  const q=String(sel||'').replace(/\*/g,'').replace(/\s+/g,' ').trim();
+  if(!q) return null;
+  const m=plainMap(raw);
+  let at=m.plain.indexOf(q);
+  if(at<0) at=m.plain.toLowerCase().indexOf(q.toLowerCase());
+  if(at<0) return null;
+  const start=m.idx[at];
+  let end=m.idx[at+q.length-1]+1;
+  return { start, end };
+}
+function replaceInRaw(raw, sel, newText){
+  const f=findInRaw(raw, sel); if(!f) return null;
+  const removed=raw.slice(f.start,f.end);
+  const odd=((removed.match(/\*\*/g)||[]).length%2)===1;
+  const clean=String(newText).replace(/\s*\n\s*/g,' ').replace(/\*/g,'').trim() + (odd?'**':'');
+  return raw.slice(0,f.start)+clean+raw.slice(f.end);
+}
+function applyReplace(newText){
+  if(!S.model) return;
+  const st = RP.pos >= 0 ? S.model.steps[RP.pos] : null;
+  const lines = S.script.split('\n');
+  let hit=-1, out=null;
+  const tryLine=(li)=>{
+    const raw=lines[li];
+    if(RP.whole && st && st.text && raw.includes(st.text)){
+      const c=String(newText).replace(/\s*\n\s*/g,' ').replace(/\*/g,'').trim();
+      return raw.replace(st.text, () => c);
+    }
+    return replaceInRaw(raw, RP.text, newText);
+  };
+  // pass 1: the line(s) that belong to the selected step
+  if(st){
+    const keys=[st.text].concat(st.items||[]).filter(Boolean);
+    for(let li=0; li<lines.length && out===null; li++){
+      if(keys.some(k => lines[li].includes(k))){ const r=tryLine(li); if(r!==null){ hit=li; out=r; } }
+    }
+  }
+  // pass 2: any line containing the selection
+  for(let li=0; li<lines.length && out===null; li++){
+    const r=tryLine(li); if(r!==null){ hit=li; out=r; }
+  }
+  if(out===null){ toast("⚠️ Couldn't find that text in the script — try selecting a smaller piece"); return; }
+  const wasRunning=S.running, oldScript=S.script, oldPos=S.pos;
+  saveState();
+  lines[hit]=out;
+  pushUndo(oldScript, oldPos);
+  const ok = applyScript(lines.join('\n'), S.key);
+  if(!ok){ S.undoStack.pop(); persistUndo(); S.script=oldScript; applyScript(oldScript, S.key); toast('Replacement produced an invalid script — undone'); return; }
+  S.pos=Math.min(oldPos, S.model.steps.length-1);
+  if(wasRunning){ S.elapsed=elapsedMs(); startTimer(); }
+  saveState();
+  $('scriptInput').value = S.script;
   $('rp').hidden = true;
-});
+  persistUndo(); $('rpUndo').hidden = false;
+  renderStrip(); renderFollow(); renderFoot(); tick();
+  if(S.view==='script') renderScript();
+  toast('✓ Script text replaced');
+}
+
+$('rpUndo').addEventListener('click', undoScript);
+$('rpRedo').addEventListener('click', redoScript);
 
 
 /* Double-tap any word: meaning + pronunciation */
@@ -2594,7 +2686,9 @@ $('stage').addEventListener('click', e => {
 $('toolbar').addEventListener('click', e => {
   if(S.locked) return;
   const id = e.target.closest('button')?.id;
-  if(id === 'toolsMore'){ window.__to = !window.__to; const x = document.querySelector('.tools-extra'); if(x) x.classList.toggle('open', window.__to); }
+  if(id === 'undoBtn'){ undoScript(); }
+  else if(id === 'redoBtn'){ redoScript(); }
+  else if(id === 'toolsMore'){ window.__to = !window.__to; const x = document.querySelector('.tools-extra'); if(x) x.classList.toggle('open', window.__to); }
   else if(id === 'readBtn') { toggleRead(); }
   else if(id === 'fsUp') { S.fs = Math.min(1.6, +(S.fs + 0.1).toFixed(2)); applyLook(); savePrefs(); scrollToCurrent(false); }
   else if(id === 'fsDown') { S.fs = Math.max(0.85, +(S.fs - 0.1).toFixed(2)); applyLook(); savePrefs(); scrollToCurrent(false); }
@@ -2777,6 +2871,7 @@ $('resetLesson').addEventListener('click', () => {
 
 /* Keyboard Navigation */
 document.addEventListener('keydown', e => {
+  { const tg = e.target?.tagName; if((e.ctrlKey||e.metaKey) && !e.altKey && tg !== 'INPUT' && tg !== 'TEXTAREA' && S.model && (e.key === 'z' || e.key === 'Z' || e.key === 'y')){ e.preventDefault(); (e.shiftKey || e.key === 'y') ? redoScript() : undoScript(); return; } }
   const tag = e.target?.tagName;
   if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.ctrlKey || e.metaKey || e.altKey) return;
   if(!S.model) return;
