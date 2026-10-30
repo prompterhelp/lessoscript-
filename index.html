@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F6F66">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Prompter">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Lesson Prompter Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -484,6 +491,7 @@ body.has-fw .stage .line .txt strong{font-weight:var(--fwb)!important}
     </div>
     <div class="menu" id="moreMenu" hidden>
       <span class="pace" id="timeLeft" title="Estimated reading time left">~0 min left</span>
+      <button class="btn icon" id="installBtn" type="button" hidden title="Install as app">⬇️ Install app</button>
       <button class="btn icon" id="editTimer" type="button" title="Edit timer length">⏱ Timer</button>
       <button class="btn icon" id="camBtn" type="button" aria-pressed="false" title="Camera column (C)">🎥 Camera column</button>
       <button class="btn icon" id="focusBtn" type="button" aria-pressed="false" title="Focus mode (F)">◐ Focus mode</button>
@@ -2763,6 +2771,27 @@ function renderAll(){
 $('moreBtn').addEventListener('click', e => { e.stopPropagation(); const m = $('moreMenu'); m.hidden = !m.hidden; $('moreBtn').setAttribute('aria-expanded', String(!m.hidden)); });
 $('moreMenu').addEventListener('click', e => { if(e.target.closest('button') && e.target.closest('button').id !== 'lockBtn' && !e.target.closest('button').hasAttribute('data-keep')) { setTimeout(() => { $('moreMenu').hidden = true; $('moreBtn').setAttribute('aria-expanded','false'); }, 120); } });
 document.addEventListener('click', e => { if(!e.target.closest('#moreMenu,#moreBtn')){ $('moreMenu').hidden = true; $('moreBtn').setAttribute('aria-expanded','false'); } });
+
+/* ===== PWA: service worker + install prompt ===== */
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstall = e;
+  const b = $('installBtn');
+  if(b){ b.hidden = false; b.textContent = '⬇️ Install app'; }
+});
+$('installBtn').addEventListener('click', async () => {
+  if(!deferredInstall){ toast('Use your browser menu: Add to Home Screen / Install app'); return; }
+  deferredInstall.prompt();
+  const { outcome } = await deferredInstall.userChoice;
+  if(outcome === 'accepted'){ toast('Installing… open it from your home screen / apps list'); }
+  deferredInstall = null;
+  $('installBtn').hidden = true;
+});
+window.addEventListener('appinstalled', () => { $('installBtn').hidden = true; toast('✅ App installed'); });
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
 
 /* Boot Initialization (Strictly NO auto-microphone access) */
 (function boot(){
