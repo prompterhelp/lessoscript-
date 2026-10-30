@@ -1,0 +1,2781 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lesson Prompter Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:wght@600;700;800&family=Noto+Naskh+Arabic:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Merriweather:wght@400;700&family=Literata:wght@400;600&family=Lexend:wght@400;600&family=Nunito:wght@400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap">
+<style>
+:root[data-theme="paper"]{--bg:#F3EEE3;--surface:#FAF6EC;--surface-2:#E7E0CF;--fg:#2E2C28;--muted:#6F6A5E;--line:#D8CFBA;--accent:#5C7A6B;--on-accent:#FFFFFF;--mark:#E8E0C4;--mark-ink:#2E2C28;--speak:#5C7A6B;--ask:#5B6BA8;--pause:#A5642C;--other:#7B6A9A;--on-kind:#FFFFFF;--good:#2F6B3C;--warn:#8F5400;--bad:#A3281E;color-scheme:light}
+[hidden]{display:none!important}
+:root{
+  --bg:#F1F5F4; --surface:#FFFFFF; --surface-2:#E3EBE9; --fg:#12201E; --muted:#556866; --line:#CFDAD7;
+  --accent:#0F6F66; --on-accent:#FFFFFF;
+  --mark:#FFE9A8; --mark-ink:#1B1600;
+  --speak:#0F6F66; --ask:#3A4BC2; --pause:#A8480C; --other:#6A4FA3; --on-kind:#FFFFFF;
+  --good:#146C43; --warn:#9A5B00; --bad:#B3261E;
+  --font-display:'Bricolage Grotesque','Atkinson Hyperlegible',system-ui,sans-serif;
+  --font-body:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-ar:'Noto Naskh Arabic','Amiri','Traditional Arabic',serif;
+  --fs:1;
+  --ar-fs:1.25;
+  --lh:1.55;
+  --max-w:860px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme]){
+    --bg:#0C1413; --surface:#131E1C; --surface-2:#1C2B28; --fg:#E4EEEB; --muted:#93A8A3; --line:#26383A;
+    --accent:#4FC3B5; --on-accent:#05201C;
+    --mark:#3A2F0B; --mark-ink:#FBF0CB;
+    --speak:#4FC3B5; --ask:#97A3FF; --pause:#F0A15E; --other:#BCA8EA; --on-kind:#0B1210;
+    --good:#5FD29A; --warn:#F0B35E; --bad:#FF8F86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1413; --surface:#131E1C; --surface-2:#1C2B28; --fg:#E4EEEB; --muted:#93A8A3; --line:#26383A;
+  --accent:#4FC3B5; --on-accent:#05201C;
+  --mark:#3A2F0B; --mark-ink:#FBF0CB;
+  --speak:#4FC3B5; --ask:#97A3FF; --pause:#F0A15E; --other:#BCA8EA; --on-kind:#0B1210;
+  --good:#5FD29A; --warn:#F0B35E; --bad:#FF8F86;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="sepia"]{
+  --bg:#F4ECD8; --surface:#FBF5E6; --surface-2:#E8DCC0; --fg:#3B2F1E; --muted:#74644A; --line:#D9C9A5;
+  --accent:#8A5A1F; --on-accent:#FFFFFF; --mark:#F6D98B; --mark-ink:#2A1D00;
+  --speak:#7A5A1A; --ask:#3F4F9A; --pause:#A8480C; --other:#6A4FA3; --on-kind:#FFFFFF;
+  --good:#2F6B3C; --warn:#8F5400; --bad:#A3281E; color-scheme:light;
+}
+:root[data-theme="night"]{
+  --bg:#14110F; --surface:#1D1916; --surface-2:#2A241F; --fg:#D9CBB8; --muted:#9C8F7E; --line:#38302A;
+  --accent:#D89A4A; --on-accent:#1A1004; --mark:#3A2A12; --mark-ink:#F5E3C0;
+  --speak:#D89A4A; --ask:#A9B4E8; --pause:#E8A36B; --other:#C4B0E8; --on-kind:#1A1004;
+  --good:#8FCB9B; --warn:#E8B36B; --bad:#F28F86; color-scheme:dark;
+}
+:root[data-theme="blue"]{
+  --bg:#E8EEF5; --surface:#F6F9FC; --surface-2:#D6E0EC; --fg:#1B2733; --muted:#566879; --line:#C3D0DE;
+  --accent:#2F5FA8; --on-accent:#FFFFFF; --mark:#FFE9A8; --mark-ink:#1B1600;
+  --speak:#2F5FA8; --ask:#5B3FA8; --pause:#A8480C; --other:#2F7A6A; --on-kind:#FFFFFF;
+  --good:#146C43; --warn:#8F5400; --bad:#B3261E; color-scheme:light;
+}
+:root[data-theme="contrast"]{
+  --bg:#000000; --surface:#000000; --surface-2:#1A1A1A; --fg:#FFFFFF; --muted:#D0D0D0; --line:#FFFFFF;
+  --accent:#FFD400; --on-accent:#000000; --mark:#FFD400; --mark-ink:#000000;
+  --speak:#00E5FF; --ask:#8FB0FF; --pause:#FFB347; --other:#E0A8FF; --on-kind:#000000;
+  --good:#5CFF9D; --warn:#FFD400; --bad:#FF6B6B; color-scheme:dark;
+}
+:root[data-theme="midnight"]{
+  --bg:#0F1620; --surface:#17212E; --surface-2:#1F2C3C; --fg:#DCE6F2; --muted:#8FA3B8; --line:#2A3A4D;
+  --accent:#7FB2F0; --on-accent:#07182B; --mark:#26405F; --mark-ink:#EAF3FF;
+  --speak:#7FB2F0; --ask:#B3A6F2; --pause:#F0A87A; --other:#8FD6C4; --on-kind:#08121E;
+  --good:#7AD7A4; --warn:#EEC274; --bad:#F59A92; color-scheme:dark;
+}
+:root[data-theme="graphite"]{
+  --bg:#1B1C1E; --surface:#242629; --surface-2:#2F3236; --fg:#D6D9DD; --muted:#9097A0; --line:#3A3E43;
+  --accent:#9CC0E0; --on-accent:#0B1620; --mark:#3E4450; --mark-ink:#F2F4F7;
+  --speak:#9CC0E0; --ask:#B7B0F0; --pause:#E9A878; --other:#A5D6C2; --on-kind:#0C1218;
+  --good:#86D3A2; --warn:#E5C07A; --bad:#F29C94; color-scheme:dark;
+}
+:root[data-theme="forest"]{
+  --bg:#111A16; --surface:#18241F; --surface-2:#20302A; --fg:#DDEBE1; --muted:#93AB9C; --line:#2B3F36;
+  --accent:#86CBA0; --on-accent:#07200F; --mark:#36513A; --mark-ink:#EAF8EC;
+  --speak:#86CBA0; --ask:#9FB5F0; --pause:#EBA877; --other:#C6B0E8; --on-kind:#08140D;
+  --good:#86D6A0; --warn:#E6C070; --bad:#F29A90; color-scheme:dark;
+}
+:root[data-theme="reddim"]{
+  --bg:#120A09; --surface:#1B0F0D; --surface-2:#261512; --fg:#E0A59B; --muted:#A8706A; --line:#3A201C;
+  --accent:#E5806F; --on-accent:#1A0805; --mark:#3F1A15; --mark-ink:#F4C2B9;
+  --speak:#E5806F; --ask:#D99A90; --pause:#E8A07A; --other:#D08A9A; --on-kind:#1A0805;
+  --good:#D0A878; --warn:#E8B070; --bad:#FF8A7A; color-scheme:dark;
+}
+:root[data-theme="gray"]{
+  --bg:#E9E9E6; --surface:#F3F3F0; --surface-2:#DADAD6; --fg:#26292B; --muted:#5E6366; --line:#C8C9C4;
+  --accent:#3C6E71; --on-accent:#FFFFFF; --mark:#F3E2A6; --mark-ink:#231B00;
+  --speak:#3C6E71; --ask:#4A55A8; --pause:#9A4A12; --other:#6A4FA3; --on-kind:#FFFFFF;
+  --good:#1F6B44; --warn:#8F5400; --bad:#A8281E; color-scheme:light;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; display:flex; flex-direction:column;
+  padding-block:0;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  background:var(--bg); color:var(--fg);
+  font:16px/1.55 var(--font-body);
+  -webkit-text-size-adjust:100%;
+}
+button,input,textarea,select{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.ar{font-family:var(--font-ar); font-size:calc(1.15em * var(--ar-fs)); line-height:1.95; unicode-bidi:isolate; font-weight:600}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+
+/* Shell */
+.shell{display:flex; flex-direction:column; flex:1; min-height:0; min-width:0; width:100%; max-width:var(--max-w); margin-inline:auto; transition:max-width .2s}
+body.wide{--max-w:none; padding-inline:12px}
+body.camera-mode{--max-w:430px}
+body.camera-mode .stage{text-align:center}
+body.camera-mode .items{text-align:left}
+
+/* Header */
+.top{display:flex; align-items:center; justify-content:space-between; gap:10px; padding-block:10px 8px; flex-wrap:wrap}
+.lesson{min-width:0; flex:1 1 180px}
+.eyebrow{font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lesson h1{margin:0; font:700 1.05rem/1.25 var(--font-display); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
+.clock{display:flex; align-items:center; gap:8px; flex:none}
+.timebox{text-align:right}
+.time{font:700 1.45rem/1 var(--font-display); font-variant-numeric:tabular-nums; letter-spacing:-.01em}
+.time .of{font:400 .78rem var(--font-body); color:var(--muted); margin-left:4px}
+.pace{display:inline-block; margin-top:3px; font-size:.75rem; font-weight:800; padding:2px 8px; border-radius:999px; border:1.5px solid currentColor; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap}
+.pace.good{color:var(--good); background:color-mix(in srgb,var(--good) 14%,transparent)}
+.pace.warn{color:var(--warn); background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.pace.bad{color:var(--bad); background:color-mix(in srgb,var(--bad) 14%,transparent)}
+
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:38px; padding:6px 12px; border-radius:10px; border:1px solid var(--line); background:var(--surface); font-weight:700; font-size:.88rem; transition:transform 0.1s}
+.btn:hover{border-color:var(--muted)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
+.btn.small{min-height:32px; padding:3px 9px; font-size:.8rem}
+.btn.icon{min-width:38px; padding:6px 4px; font-size:1.05rem}
+.btn.icon[aria-pressed="true"]{background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
+#toggleTimer{min-width:72px}
+
+/* Voice Indicator Badge */
+.voice-live-badge{display:inline-flex; align-items:center; gap:4px; font-size:.72rem; font-weight:800; padding:2px 8px; border-radius:999px; background:var(--good); color:#fff; animation:pulse 1.5s infinite}
+@keyframes pulse{0%{opacity:0.8}50%{opacity:1}100%{opacity:0.8}}
+
+/* Slide Strip */
+.strip{position:relative; display:flex; gap:3px; height:32px; margin-top:2px}
+.seg{flex:var(--w,1) 1 0; min-width:0; border:1px solid transparent; border-radius:7px; background:var(--surface-2); color:var(--muted); font:700 .8rem var(--font-display); padding:0}
+.seg.done{background:var(--accent); color:var(--on-accent)}
+.seg.cur{background:var(--surface); color:var(--fg); border-color:var(--accent); box-shadow:inset 0 0 0 1.5px var(--accent)}
+.cursor{position:absolute; top:-4px; bottom:-4px; width:2px; border-radius:1px; background:var(--fg); left:0; pointer-events:none; display:none}
+.cursor::before{content:""; position:absolute; top:-1px; left:-3px; width:8px; height:8px; border-radius:50%; background:var(--fg)}
+
+/* Tabs */
+.tabs{display:flex; margin-top:8px; border-bottom:1px solid var(--line)}
+.tab{flex:1; padding:9px 2px 8px; background:none; border:0; border-bottom:3px solid transparent; color:var(--muted); font-weight:700; font-size:.9rem}
+.tab[aria-selected="true"]{color:var(--fg); border-bottom-color:var(--accent)}
+
+/* Main stage */
+main{position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding-bottom:16px; scroll-behavior:auto}
+section.view{min-width:0}
+.toolbar{position:sticky; top:0; z-index:3; background:var(--bg); display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:8px 10px; padding:8px 0 10px}
+.toolbar .ttl{min-width:0; flex:1 1 140px}
+.toolbar .name{font:600 1.05rem/1.25 var(--font-display); text-wrap:balance}
+.toolbar .tools{display:flex; flex-wrap:wrap; gap:5px; align-items:center; justify-content:flex-end}
+.count{font-size:.8rem; color:var(--muted); font-variant-numeric:tabular-nums; margin-right:2px}
+.stage{display:flex; flex-direction:column; gap:10px; padding-bottom:28vh}
+
+/* Line Articles */
+.line{--kind:var(--other); border-radius:14px; padding:12px 14px; min-width:0; position:relative}
+.k-speak{--kind:var(--speak)} .k-ask{--kind:var(--ask)} .k-pause{--kind:var(--pause)} .k-other{--kind:var(--other)}
+.line-top{display:flex; align-items:center; justify-content:space-between; gap:8px}
+.badge{display:inline-flex; align-items:center; max-width:100%; font:700 .66rem/1 var(--font-body); letter-spacing:.09em; text-transform:uppercase; padding:4px 8px; border-radius:999px; background:var(--kind); color:var(--on-kind); white-space:nowrap}
+.opt-tag{font-size:.65rem; font-weight:800; padding:2px 6px; border-radius:6px; background:var(--surface-2); color:var(--muted); text-transform:uppercase}
+.txt{margin:8px 0 0; overflow-wrap:anywhere}
+.txt strong{font-weight:700}
+.txt strong.lead{text-decoration:underline; text-decoration-thickness:2px; text-decoration-color:var(--kind); text-underline-offset:4px}
+.items{margin:.6em 0 0; padding-left:1.4em}
+.items li{margin:.3em 0}
+
+.line.done{opacity:.48; cursor:pointer; padding-block:8px}
+.line.done .txt{font-size:.92rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.line.done .items{display:none}
+.line.next{background:var(--surface); border:1px solid var(--line); cursor:pointer; opacity:.78}
+.line.next.after{opacity:1}
+.line.next .txt{font-size:calc(1.02rem * var(--fs)); line-height:var(--lh,1.5)}
+
+.line.now{background:var(--mark); color:var(--mark-ink); padding:18px 16px 20px; box-shadow:0 1px 0 rgba(0,0,0,.06), 0 10px 28px -16px rgba(0,0,0,.35)}
+.line.now .txt{font-size:calc(1.48rem * var(--fs)); line-height:var(--lh,1.5); margin-top:10px}
+.line.now .items{font-size:calc(1.25rem * var(--fs)); line-height:var(--lh,1.5)}
+.wait{display:inline-flex; align-items:baseline; gap:8px; font:700 1.5rem var(--font-display); font-variant-numeric:tabular-nums}
+.wait .lbl,.expect .lbl{font:700 .66rem var(--font-body); letter-spacing:.09em; text-transform:uppercase; opacity:.75}
+.expect{margin-top:12px; padding-top:10px; border-top:2px dashed color-mix(in srgb, currentColor 30%, transparent)}
+.expect p{margin:4px 0 0; font-size:calc(1.1rem * var(--fs)); font-style:italic}
+
+/* Audio Pronunciation Button */
+.w{border-radius:5px; transition:background-color .1s, opacity .15s}
+body.tracking .line.now .w.said{opacity:.5}
+body.tracking .line.now .w.cur{opacity:1; background:var(--accent); color:var(--on-accent); box-shadow:0 0 0 .14em var(--accent)}
+body.tracking .line.now .w.nxt{text-decoration:underline; text-decoration-thickness:.12em; text-underline-offset:.2em}
+.audio-btn{border:none; background:color-mix(in srgb, currentColor 12%, transparent); color:inherit; border-radius:6px; padding:2px 6px; font-size:.85rem; cursor:pointer; vertical-align:middle; margin-left:4px}
+.audio-btn:hover{background:color-mix(in srgb, currentColor 22%, transparent)}
+
+/* Quick Assessment Buttons */
+.qa-chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; align-items:center}
+.btn-q{min-height:34px; padding:3px 10px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); font-weight:700; font-size:.82rem}
+.btn-q[data-status="got"][aria-pressed="true"]{background:var(--good); color:#fff; border-color:var(--good)}
+.btn-q[data-status="partly"][aria-pressed="true"]{background:var(--warn); color:#fff; border-color:var(--warn)}
+.btn-q[data-status="review"][aria-pressed="true"]{background:var(--bad); color:#fff; border-color:var(--bad)}
+
+/* Catch-up Skip Highlighter */
+.line.skippable{border:2px dashed var(--warn)}
+.skip-action{margin-top:10px; display:flex; gap:8px}
+
+/* Controls */
+.controls{display:grid; grid-template-columns:1fr 2.3fr; gap:10px; padding-block:8px; border-top:1px solid var(--line)}
+.back,.go{min-height:56px; border-radius:14px; border:1px solid var(--line); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font:700 1.05rem var(--font-display)}
+.back{background:var(--surface-2); color:var(--fg)}
+.go{background:var(--accent); border-color:var(--accent); color:var(--on-accent); font-size:1.18rem}
+.go .sub{font:400 .74rem var(--font-body); opacity:.88; letter-spacing:.02em}
+.back:disabled{opacity:.45; cursor:default}
+
+/* Timer Edit & History Banner */
+.tedit{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; padding:10px 14px; margin:4px 0 6px; border:1px solid var(--line); border-radius:12px; background:var(--surface)}
+.history-banner{margin:6px 0 10px; padding:10px 14px; border-radius:12px; background:var(--surface-2); border-left:4px solid var(--accent); font-size:.88rem}
+
+/* Focus Mode */
+body.focus .tabs, body.focus .toolbar, body.focus #editTimer, body.focus .tedit{display:none!important}
+body.focus .strip{height:8px; margin-top:0}
+body.focus .strip .seg{font-size:0; border-radius:4px}
+body.focus .lesson .eyebrow{color:var(--accent)}
+body.focus .stage{padding-top:10px}
+body.locked #editTimer{display:none}
+
+/* Script & Panels */
+.filters{display:flex; gap:6px; padding:12px 0 6px; flex-wrap:wrap}
+.chip{padding:6px 12px; border-radius:999px; border:1px solid var(--line); background:var(--surface); font-weight:700; font-size:.82rem}
+.chip[aria-pressed="true"]{background:var(--fg); color:var(--bg); border-color:var(--fg)}
+.sl-head{margin:18px 0 4px; display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+.sl-head h2{margin:0; font:700 1rem var(--font-display)}
+.sl-head span{font-size:.78rem; color:var(--muted); white-space:nowrap}
+.row{display:grid; grid-template-columns:5.4rem minmax(0,1fr); gap:10px; padding:10px 8px; border-bottom:1px solid var(--line); cursor:pointer; border-radius:8px; --kind:var(--other)}
+.row.k-speak{--kind:var(--speak)} .row.k-ask{--kind:var(--ask)} .row.k-pause{--kind:var(--pause)}
+.row .txt{margin:0; font-size:.95rem}
+.row.cur{background:var(--mark); color:var(--mark-ink)}
+.row.past{opacity:.55}
+.row .badge{justify-self:start; margin-top:2px}
+
+.panel{padding-top:14px}
+.panel h2{margin:20px 0 6px; font:700 1.05rem var(--font-display)}
+.panel h2:first-child{margin-top:4px}
+.panel p.help{margin:0 0 8px; color:var(--muted); font-size:.9rem}
+.field{display:block; width:100%; margin-top:12px; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--fg); font-size:1rem}
+textarea.field{min-height:84px; resize:vertical; margin-top:6px}
+.row-actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; align-items:center}
+.report{margin-top:10px; padding:10px 12px; border-radius:10px; background:var(--surface); border:1px solid var(--line); font-size:.9rem}
+.report.bad{border-color:var(--bad); color:var(--bad)}
+.report.good{border-color:var(--good); color:var(--good)}
+.opt{display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); min-height:46px}
+.opt input[type=checkbox]{width:22px; height:22px; accent-color:var(--accent); flex:none}
+.opt input[type=range]{flex:1; accent-color:var(--accent); min-width:0}
+.opt label{flex:1; min-width:0}
+.opt small{display:block; color:var(--muted); font-size:.82rem}
+.banner{margin:6px 0 12px; padding:12px 14px; border-radius:12px; background:var(--mark); color:var(--mark-ink); font-weight:700}
+.drop{margin-top:10px; padding:16px; border:2px dashed var(--line); border-radius:12px; text-align:center; color:var(--muted); font-size:.9rem}
+details{margin-top:14px; border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:2px 14px}
+summary{cursor:pointer; padding:12px 0; font-weight:700}
+details pre{margin:0 0 12px; padding:10px; border-radius:8px; background:var(--surface-2); overflow-x:auto; font:.8rem/1.5 ui-monospace,Menlo,Consolas,monospace; white-space:pre}
+
+/* History */
+.hist-item{padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); margin-bottom:8px}
+.hist-item .h-top{display:flex; justify-content:space-between; font-weight:700}
+.hist-item .h-sub{font-size:.82rem; color:var(--muted); margin-top:3px}
+
+/* Rephrase Sheet */
+.selchip{position:fixed; z-index:60; box-shadow:0 8px 24px -8px rgba(0,0,0,.5)}
+.rp{position:fixed; left:0; right:0; bottom:0; z-index:70; max-height:68vh; overflow:auto; background:var(--surface); color:var(--fg); border-top:2px solid var(--accent); border-radius:16px 16px 0 0; padding:14px max(16px, env(safe-area-inset-left,0px)) calc(14px + env(safe-area-inset-bottom,0px)); box-shadow:0 -12px 40px -12px rgba(0,0,0,.45)}
+.rp-in{max-width:860px; margin:0 auto}
+.rp-sel{font-weight:700; padding:8px 10px; border-radius:8px; background:var(--surface-2); margin:8px 0; overflow-wrap:anywhere; max-height:96px; overflow:auto}
+.rp-modes{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px}
+.ritem{display:flex; gap:10px; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line)}
+.ritem .t{flex:1; min-width:0; overflow-wrap:anywhere}
+.chips{display:flex; flex-wrap:wrap; gap:8px; padding:8px 0}
+
+@media print {
+  body{background:#fff; color:#000; padding:0}
+  header, nav, .controls, .toolbar, .strip, #tedit, #themeChips, .row-actions button{display:none!important}
+  main, section{overflow:visible; display:block!important}
+  #summary{border:none; font-size:12pt; height:auto}
+}
+.selchip{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--surface);border:2px solid var(--accent)}
+.dict{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--surface);color:var(--fg);border-top:3px solid var(--accent);border-radius:16px 16px 0 0;padding:14px 18px calc(14px + env(safe-area-inset-bottom,0px));max-height:55vh;overflow:auto;box-shadow:0 -12px 40px -12px rgba(0,0,0,.5)}
+.dict-in{max-width:860px;margin:0 auto}.dict h3{margin:0;font:700 1.5rem var(--font-display)}.dict .ph{color:var(--muted);margin-left:8px;font-weight:400;font-size:1rem}
+.dict li{margin:.35em 0}.dict .acts{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.conf{position:fixed;top:-30px;z-index:99;font-size:1.6rem;pointer-events:none;animation:fall 2.4s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.9}}
+#timeLeft{margin-left:4px}
+.hint{font-size:.7rem;opacity:.7;font-weight:400}
+
+.lesson h1{background:linear-gradient(90deg,var(--fg),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.prog{height:4px;border-radius:4px;background:var(--surface-2);margin-top:6px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--speak));transition:width .35s}
+.line.now{animation:pop .25s ease-out,glow 3s ease-in-out infinite}
+@keyframes pop{from{transform:scale(.985);opacity:.4}to{transform:none;opacity:1}}
+@keyframes glow{50%{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent),0 10px 28px -16px rgba(0,0,0,.35)}}
+.go{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#000));box-shadow:0 6px 18px -8px var(--accent)}
+.btn:hover{transform:translateY(-1px)}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:90;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#help{position:fixed;inset:0;z-index:95;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+#help>div{background:var(--surface);color:var(--fg);border-radius:16px;padding:18px 22px;max-width:420px;width:100%;border:2px solid var(--accent)}
+#help kbd{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-weight:700}
+#help p{margin:6px 0}
+body.mirror .stage{transform:scaleX(-1)}
+
+body{background:radial-gradient(circle at 15% -10%,color-mix(in srgb,var(--accent) 20%,var(--bg)),var(--bg) 55%) fixed}
+.top{position:sticky;top:0;z-index:5;backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg) 70%,transparent);border-radius:0 0 14px 14px}
+.stage.slide-in{animation:slin .35s ease-out}
+@keyframes slin{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:8px 0 14px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.stat b{display:block;font:800 1.5rem var(--font-display);color:var(--accent)}
+.stat span{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.conf{position:fixed;top:-30px;z-index:99;font-size:1.6rem;pointer-events:none;animation:fall 2.6s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.8}}
+
+/* ===== FULL TEXT MODE: continuous script, no boxes ===== */
+body.fulltext .stage{gap:0; padding-bottom:45vh}
+body.fulltext .fl-head{margin:26px 0 8px; padding:8px 0 6px; border-bottom:2px solid var(--accent); display:flex; justify-content:space-between; gap:10px; align-items:baseline}
+body.fulltext .fl-head:first-child{margin-top:4px}
+body.fulltext .fl-head b{font:700 1.1rem var(--font-display); color:var(--accent)}
+body.fulltext .fl-head span{font-size:.78rem; color:var(--muted); white-space:nowrap}
+body.fulltext .line{background:none; border:0; box-shadow:none; border-radius:10px; padding:8px 10px; opacity:1; cursor:pointer; animation:none; border-left:4px solid transparent}
+body.fulltext .line.done{opacity:.5; padding:8px 10px}
+body.fulltext .line.done .txt{display:block; -webkit-line-clamp:unset; font-size:calc(1.3rem * var(--fs)); overflow:visible}
+body.fulltext .line.done .items{display:block}
+body.fulltext .line.next{background:none; border:0; border-left:4px solid transparent; opacity:1}
+body.fulltext .line .txt{font-size:calc(1.3rem * var(--fs)); line-height:var(--lh,1.55); margin-top:2px}
+body.fulltext .line.next .txt{font-size:calc(1.3rem * var(--fs))}
+body.fulltext .line .items{font-size:calc(1.15rem * var(--fs)); line-height:var(--lh,1.55)}
+body.fulltext .line .badge{font-size:.58rem; padding:3px 7px; opacity:.85}
+body.fulltext .line.now{background:var(--mark); color:var(--mark-ink); border-left-color:var(--kind); padding:12px 12px 14px; box-shadow:0 6px 20px -14px rgba(0,0,0,.4)}
+body.fulltext .line.now .txt{font-size:calc(1.3rem * var(--fs)); margin-top:6px}
+body.fulltext .line.now .items{font-size:calc(1.15rem * var(--fs))}
+body.fulltext .line.k-pause:not(.now){padding-block:4px}
+body.fulltext .line.k-pause:not(.now) .txt{font-size:.9rem!important; color:var(--muted); font-style:italic}
+body.fulltext .line.k-ask .txt{font-weight:600}
+
+/* ===== Compact modern header ===== */
+.top{flex-wrap:wrap; gap:6px 8px; padding-block:6px 4px}
+.lesson h1{font-size:.95rem; -webkit-line-clamp:1}
+.eyebrow{font-size:.6rem}
+.time{font-size:1.15rem}
+.time .of{font-size:.68rem}
+.pace{font-size:.66rem; padding:1px 7px; margin-top:2px}
+.clock{gap:6px}
+#toggleTimer{min-height:34px; min-width:64px; padding:4px 12px}
+.btn.icon{min-height:34px; min-width:34px}
+.strip{height:24px}
+.seg{font-size:.72rem; border-radius:6px}
+.tab{padding:7px 2px 6px; font-size:.85rem}
+.menu{position:absolute; right:0; top:calc(100% + 4px); z-index:30; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:8px; display:grid; grid-template-columns:1fr 1fr; gap:6px; min-width:min(300px,92vw); box-shadow:0 14px 40px -10px rgba(0,0,0,.55)}
+.menu .pace{grid-column:1/-1; text-align:center; margin:0; padding:4px}
+.menu .btn.icon{justify-content:flex-start; padding:6px 10px; font-size:.82rem; width:100%}
+.toolbar{padding:4px 0 6px; align-items:center}
+.toolbar .tools{gap:4px}
+.toolbar .btn.small{min-height:30px; padding:2px 8px}
+.tools-extra{display:none; flex-basis:100%; justify-content:flex-end; gap:4px; flex-wrap:wrap; order:9}
+.tools-extra.open{display:flex}
+body.fulltext .toolbar .ttl .name{display:none}
+body.fulltext .toolbar .ttl{flex:1 1 90px}
+
+/* ===== BOOK LAYOUT ===== */
+body.fulltext{--font-book:var(--font-body)}
+body.fulltext .stage{max-width:720px; width:100%; margin-inline:auto; font-family:var(--font-book); padding-bottom:55vh}
+body.fulltext .line{padding:3px 10px; margin:0 0 .3em; border-left:0}
+body.fulltext .line .txt,body.fulltext .line .items{font-family:var(--font-book)}
+body.fulltext .line .txt,body.fulltext .line.done .txt,body.fulltext .line.next .txt,body.fulltext .line.now .txt{font-size:calc(1.3rem * var(--fs)); line-height:1.9; margin:0}
+body.fulltext .line.k-speak:not(.now) .line-top{display:none}
+body.fulltext .line.k-speak .badge{display:none}
+body.fulltext .line.now .line-top{justify-content:flex-end; margin-bottom:2px}
+body.fulltext .line.now{padding:8px 12px 10px; border-radius:12px}
+body.fulltext .line.k-ask:not(.now){border-left:3px solid var(--ask); margin:.9em 0; padding-left:14px}
+body.fulltext .line.k-ask:not(.now) .txt{font-style:italic}
+body.fulltext .line.k-ask .badge{font-size:.55rem}
+body.fulltext .line.k-pause:not(.now) .badge{display:none}
+body.fulltext .line.k-pause:not(.now) .txt{font-size:.85rem!important; line-height:1.4}
+body.fulltext .fl-head{display:block; text-align:center; border:0; margin:46px 0 16px; padding:0}
+body.fulltext .fl-head:first-child{margin-top:10px}
+body.fulltext .fl-head b{display:block; font:700 1.45rem/1.3 var(--font-book); color:var(--fg)}
+body.fulltext .fl-head b::before{content:"❖"; display:block; color:var(--accent); font-size:1rem; margin-bottom:6px}
+body.fulltext .fl-head span{display:block; margin-top:4px}
+
+body.fulltext .fl-head.mini{display:flex; align-items:center; gap:10px; text-align:left; margin:20px 0 8px}
+body.fulltext .fl-head.mini:first-child{margin-top:4px}
+body.fulltext .fl-head.mini::after{content:""; flex:1; height:1px; background:var(--line)}
+body.fulltext .fl-head.mini b{display:inline; font:700 .68rem var(--font-body); letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+body.fulltext .fl-head.mini b::before{content:none}
+
+/* ===== TRUE ONE-PAGE FLOW: spoken lines run together like book paragraphs ===== */
+body.fulltext .stage{display:block}
+body.fulltext .stage .fl-gap{height:.9em}
+body.fulltext .stage .fl-gap:first-child{display:none}
+body.fulltext .stage .line.k-speak,body.fulltext .stage .line.k-other{display:inline; padding:0; margin:0; border-radius:6px; background:none; box-shadow:none; -webkit-box-decoration-break:clone; box-decoration-break:clone}
+body.fulltext .stage .line.k-speak::after,body.fulltext .stage .line.k-other::after{content:" "}
+body.fulltext .stage .line.k-speak .txt,body.fulltext .stage .line.k-other .txt{display:inline; -webkit-line-clamp:unset; overflow:visible; margin:0; font-size:calc(1.3rem * var(--fs)); line-height:1.95}
+body.fulltext .stage .line.k-speak .line-top,body.fulltext .stage .line.k-other .line-top{display:inline; margin:0 6px 0 0}
+body.fulltext .stage .line.k-speak .line-top>div{display:inline}
+body.fulltext .stage .line.now.k-speak,body.fulltext .stage .line.now.k-other{background:var(--mark); color:var(--mark-ink); padding:2px 5px}
+body.fulltext .stage .line.done.k-speak{opacity:.55}
+body.fulltext .stage .line.k-speak .opt-tag{display:none}
+body.fulltext .stage .line.k-ask,body.fulltext .stage .line.k-pause{display:block}
+body.fulltext .stage .line.k-ask:not(.now){margin:.7em 0}
+body.nodiv .strip{display:none}
+body.nodiv .prog{height:5px; margin-top:4px}
+
+/* ===== CALM, STABLE READING (full page) ===== */
+body{background:var(--bg)!important}
+.lesson h1{background:none; -webkit-background-clip:initial; background-clip:initial; color:var(--fg)}
+.go{background:var(--accent); box-shadow:none}
+body.fulltext .stage{max-width:680px; color:color-mix(in srgb,var(--fg) 90%,var(--bg)); font-size:1rem}
+body.fulltext .stage .txt strong{font-weight:inherit; text-decoration:none}
+body.fulltext .stage .txt em{font-style:italic}
+body.fulltext .stage .ar{font-weight:400; line-height:1.6; font-size:1.08em}
+body.fulltext .stage .line,body.fulltext .stage .line.now{animation:none!important; transition:none}
+body.fulltext .stage .line.k-speak .txt,body.fulltext .stage .line.k-other .txt{font-size:calc(1.22rem * var(--fs)); line-height:1.9; letter-spacing:0; word-spacing:0}
+body.fulltext .stage .line.k-speak .line-top,body.fulltext .stage .line.k-other .line-top{display:none}
+body.fulltext .stage .line.now.k-speak,body.fulltext .stage .line.now.k-other{background:color-mix(in srgb,var(--accent) 17%,transparent); color:inherit; padding:0; box-shadow:none}
+body.fulltext .stage .line.done.k-speak,body.fulltext .stage .line.done.k-other{opacity:.62}
+body.tracking .line.now .w.cur{box-shadow:none!important; background:color-mix(in srgb,var(--accent) 38%,transparent)!important; color:inherit!important; border-radius:3px}
+body.tracking .line.now .w.said{opacity:.6}
+body.tracking .line.now .w.nxt{text-decoration:none}
+body.fulltext .stage .line.k-ask{background:none!important; border-left:3px solid var(--ask); padding:2px 0 2px 14px; margin:1em 0; color:inherit; opacity:1}
+body.fulltext .stage .line.k-ask .txt{font-size:calc(1.15rem * var(--fs)); font-style:normal; font-weight:500; line-height:1.7}
+body.fulltext .stage .line.k-ask.now{background:color-mix(in srgb,var(--ask) 12%,transparent)!important}
+body.fulltext .stage .line.k-pause.now{background:color-mix(in srgb,var(--pause) 10%,transparent); color:inherit; padding:10px 14px; margin:.6em 0}
+body.fulltext .stage .line.k-pause.now .txt{font-size:1rem}
+body.fulltext .stage .fl-gap{height:1.1em}
+
+/* ===== ARRANGED + CONSTANT: every line is its own paragraph with identical geometry ===== */
+body.fulltext .stage .line.k-speak,body.fulltext .stage .line.k-other,body.fulltext .stage .line.k-ask,body.fulltext .stage .line.k-pause{display:block; padding:7px 14px; margin:0 0 .4em; border:0; border-left:3px solid transparent; border-radius:8px; background:none; color:inherit; box-decoration-break:slice}
+body.fulltext .stage .line.k-speak::after,body.fulltext .stage .line.k-other::after{content:none}
+body.fulltext .stage .line.k-speak .txt,body.fulltext .stage .line.k-other .txt,body.fulltext .stage .line.k-ask .txt{display:block; margin:0; font-size:calc(1.22rem * var(--fs)); line-height:1.85; font-weight:400; font-style:normal}
+body.fulltext .stage .line.k-ask{border-left-color:var(--ask); margin:.9em 0 .4em}
+body.fulltext .stage .line.k-ask .txt{font-weight:600}
+body.fulltext .stage .line.now.k-speak,body.fulltext .stage .line.now.k-other{background:color-mix(in srgb,var(--accent) 12%,transparent); border-left-color:var(--accent); padding:7px 14px}
+body.fulltext .stage .line.now.k-ask{background:color-mix(in srgb,var(--ask) 12%,transparent)!important}
+body.fulltext .stage .line.k-pause:not(.now){padding:2px 14px}
+body.fulltext .stage .line.k-pause.now{padding:10px 14px}
+/* one font everywhere in the reader */
+body.fulltext .stage,body.fulltext .stage .line,body.fulltext .stage .txt,body.fulltext .stage .txt *:not(.ar),body.fulltext .stage .items,body.fulltext .stage .items *:not(.ar){font-family:var(--font-body)}
+body.fulltext .stage .ar{font-family:var(--font-ar); font-size:1em; line-height:inherit; font-weight:400}
+body.fulltext .stage{padding-bottom:14vh!important}
+body.fulltext .stage::after{content:"— End of script —"; display:block; text-align:center; color:var(--muted); font-size:.8rem; letter-spacing:.08em; padding:22px 0 0}
+/* ===== user text look: colour / boldness (brightness is a filter on the stage) ===== */
+body.has-tc .stage .line .txt, body.has-tc .stage .line .items, body.has-tc .stage .line .items li, body.has-tc .stage .line .txt strong, body.has-tc .stage .line .txt em{color:var(--txt-c)!important}
+body.has-fw .stage .line .txt, body.has-fw .stage .line .txt *:not(strong), body.has-fw .stage .line .items, body.has-fw .stage .line .items li, body.has-fw .stage .line .ar{font-weight:var(--fw)!important}
+body.has-fw .stage .line .txt strong{font-weight:var(--fwb)!important}
+.swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);padding:0}
+.swatch[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<div class="shell" id="appShell">
+  <header class="top">
+    <div class="lesson">
+      <div class="eyebrow" id="kicker">Lesson</div>
+      <h1 id="lessonName">Lesson Prompter</h1>
+    </div>
+    <div class="clock">
+      <div class="timebox">
+        <div class="time"><span id="elapsed">00:00</span><span class="of" id="planned"></span></div>
+        <span class="pace" id="pace">Timer stopped</span>
+      </div>
+      <button class="btn primary" id="toggleTimer" type="button">Start</button>
+      <button class="btn icon" id="voiceBtn" type="button" aria-pressed="false" aria-label="Voice follow" title="Voice Follow Teleprompter (V)">🎙️</button>
+      <button class="btn icon" id="moreBtn" type="button" aria-expanded="false" aria-label="More options" title="More">⋯</button>
+    </div>
+    <div class="menu" id="moreMenu" hidden>
+      <span class="pace" id="timeLeft" title="Estimated reading time left">~0 min left</span>
+      <button class="btn icon" id="editTimer" type="button" title="Edit timer length">⏱ Timer</button>
+      <button class="btn icon" id="camBtn" type="button" aria-pressed="false" title="Camera column (C)">🎥 Camera column</button>
+      <button class="btn icon" id="focusBtn" type="button" aria-pressed="false" title="Focus mode (F)">◐ Focus mode</button>
+      <button class="btn icon" id="lockBtn" type="button" aria-pressed="false" title="Lock taps (L)">🔓 Lock taps</button>
+      <button class="btn icon" id="helpBtn" type="button" title="Shortcuts (?)">? Shortcuts</button>
+      <button class="btn icon" data-keep data-look="br+" type="button">☀ Brighter</button>
+      <button class="btn icon" data-keep data-look="br-" type="button">🌙 Dimmer</button>
+      <button class="btn icon" data-keep data-look="fw+" type="button">𝐁 Bolder</button>
+      <button class="btn icon" data-keep data-look="fw-" type="button">b Lighter</button>
+    </div>
+  </header>
+
+  <div class="tedit" id="tedit" hidden>
+    <label>Lesson length <input id="tePlanned" type="number" min="1" max="600" inputmode="numeric" style="width:68px;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--bg)"> min</label>
+    <span><button class="btn small" type="button" data-d="-5">−5</button> <button class="btn small" type="button" data-d="5">+5</button></span>
+    <label>Clock <input id="teMin" type="number" min="0" inputmode="numeric" style="width:55px;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--bg)"> : <input id="teSec" type="number" min="0" max="59" inputmode="numeric" style="width:55px;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--bg)"></label>
+    <button class="btn primary small" id="teApply" type="button">Apply</button>
+    <button class="btn small" id="teReset" type="button">Reset clock</button>
+    <button class="btn small" id="teRehearse" type="button" title="Start rehearsal practice run">🎙️ Rehearsal Mode</button>
+    <button class="btn small" id="teClose" type="button">Close</button>
+    <small id="wordCountEst" style="flex-basis:100%;color:var(--muted);font-size:.82rem">Calculating reading speed...</small>
+  </div>
+
+  <div class="prog"><i id="progBar"></i></div>
+  <div class="strip" id="strip" title="Each block is a slide, sized by planned minutes. Click any slide to jump."></div>
+
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button class="tab" role="tab" data-view="follow" id="tab-follow" type="button">Follow</button>
+    <button class="tab" role="tab" data-view="script" id="tab-script" type="button">Script</button>
+    <button class="tab" role="tab" data-view="notes" id="tab-notes" type="button">Notes</button>
+    <button class="tab" role="tab" data-view="history" id="tab-history" type="button">History</button>
+    <button class="tab" role="tab" data-view="setup" id="tab-setup" type="button">Setup</button>
+  </nav>
+
+  <main id="main">
+    <section class="view" id="view-follow">
+      <div id="lastTimeBanner" class="history-banner" hidden></div>
+      <div class="toolbar" id="toolbar"></div>
+      <div class="stage" id="stage"></div>
+    </section>
+
+    <section class="view" id="view-script" hidden>
+      <input id="scriptSearch" class="field" type="search" placeholder="🔎 Search the script…" style="margin-top:8px">
+      <div class="filters" role="group" aria-label="Filter lines">
+        <button class="chip" type="button" data-filter="all" aria-pressed="true">All lines</button>
+        <button class="chip" type="button" data-filter="ask" aria-pressed="false" id="chipAsk">Questions</button>
+        <button class="chip" type="button" data-filter="skippable" aria-pressed="false">Skippable (catch-up)</button>
+      </div>
+      <div id="scriptList"></div>
+    </section>
+
+    <section class="view panel" id="view-notes" hidden>
+      <div class="banner" id="finishBanner" hidden></div>
+      <div class="stats" id="stats"></div>
+      <h2>Lesson notes</h2>
+      <p class="help">Private notes for next time. Saved on this device.</p>
+      <textarea class="field" id="notesArea" placeholder="What went well, what to review, homework given"></textarea>
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px">
+        <h2 id="qaHead" style="margin:0">Student progress</h2>
+        <button class="btn small" id="btnQuiz" type="button">⚡ Generate Auto Recap Quiz</button>
+      </div>
+      <div id="quizBox" class="report" hidden style="margin-top:8px"></div>
+      <div id="qaList"></div>
+
+      <h2>Lesson summary</h2>
+      <p class="help">Categorized report ready to share with parents.</p>
+      <textarea class="field" id="summary" readonly style="min-height:190px"></textarea>
+      <div class="row-actions">
+        <button class="btn primary" id="copySummary" type="button">Copy summary</button>
+        <button class="btn" id="shareWhatsApp" type="button">📲 WhatsApp parent</button>
+        <button class="btn" id="printSummary" type="button">🖨️ Print / Save PDF</button>
+        <button class="btn" id="saveHistoryBtn" type="button">💾 Save to History</button>
+        <span id="copyMsg" class="help" role="status"></span>
+      </div>
+    </section>
+
+    <section class="view panel" id="view-history" hidden>
+      <h2>Lesson history & cumulative progress</h2>
+      <p class="help">Review past lessons, pacing records, and masteries over time.</p>
+      <div id="historyList"></div>
+    </section>
+
+    <section class="view panel" id="view-setup" hidden>
+      <h2>Your script</h2>
+      <p class="help">From NotebookLM: copy the script, then tap Paste from clipboard. You can also open a .txt, .md or .docx file. Lines tagged <code>[OPTIONAL]</code> enable Catch-Up skipping when behind.</p>
+      <textarea class="field" id="scriptInput" style="min-height:180px; font-size:.9rem" spellcheck="false" aria-label="Script text"></textarea>
+      <div class="row-actions">
+        <button class="btn primary" id="loadScript" type="button">Load script</button>
+        <button class="btn" id="pasteBtn" type="button">Paste from clipboard</button>
+        <button class="btn" id="cleanBtn" type="button" title="Remove junk, fix tags, convert any style to the standard format">🧹 Clean &amp; standardize</button>
+        <label class="btn" for="fileIn" style="cursor:pointer">Open file</label>
+        <input type="file" id="fileIn" accept=".txt,.md,.docx,text/plain,text/markdown" class="sr">
+        <button class="btn" id="useSample" type="button">Use example</button>
+      </div>
+      <div class="drop" id="drop">Or drop a .txt / .md / .docx file here</div>
+      <div class="report" id="report" role="status" hidden></div>
+
+      <h2>Reading comfort & typography</h2>
+      <div id="themeChips" class="filters" style="flex-wrap:wrap" role="group" aria-label="Theme"></div>
+      <div class="opt"><label for="lhRange">Line spacing</label><input type="range" id="lhRange" min="1.2" max="2.2" step="0.05"></div>
+      <div class="opt"><label for="fontSel">Font</label><select id="fontSel" class="field" style="margin:0;width:auto"><option value="lora">Lora (book)</option><option value="merri">Merriweather (book)</option><option value="literata">Literata (book)</option><option value="serif">Georgia (classic)</option><option value="atk">Atkinson (easy-read)</option><option value="lexend">Lexend (reading)</option><option value="nunito">Nunito (soft)</option><option value="system">System</option></select></div>
+      <div class="opt"><label for="arFontSel">Arabic font</label><select id="arFontSel" class="field" style="margin:0;width:auto"><option value="naskh">Naskh (default)</option><option value="amiri">Amiri (book)</option><option value="schei">Scheherazade</option><option value="cairo">Cairo (modern)</option></select></div>
+      <div class="opt"><input type="checkbox" id="optWide"><label for="optWide">Full wide mode<small>Uses the entire monitor width.</small></label></div>
+      <div class="opt"><input type="checkbox" id="optCam"><label for="optCam">Camera-friendly teleprompter column<small>Centers a narrow column directly beneath your webcam so eyes stay locked on student.</small></label></div>
+      <div class="opt"><label for="divSel">Full-text slide dividers<small>One continuous page. Choose how slide breaks appear.</small></label><select id="divSel" class="field" style="margin:0;width:auto"><option value="none">None (one continuous page)</option><option value="line">Thin line</option><option value="chapter">Chapter heading</option></select></div>
+
+      <h2>Text colour, brightness &amp; boldness</h2>
+      <p class="help">Changes the script text only. Saved on this device.</p>
+      <div class="opt"><label for="tcInput">Text colour<small>Pick any colour, or tap a quick one.</small></label><input type="color" id="tcInput" value="#ffffff" style="width:46px;height:36px;border:0;background:none;padding:0"></div>
+      <div id="tcChips" class="filters" role="group" aria-label="Quick text colours"></div>
+      <div class="opt"><label for="brRange">Brightness<small>Dim for dark rooms, brighten for daylight.</small></label><input type="range" id="brRange" min="0.5" max="1.5" step="0.05"></div>
+      <div class="opt"><label for="fwRange">Boldness<small>400 normal · 800 extra bold.</small></label><input type="range" id="fwRange" min="400" max="800" step="100"></div>
+      <div class="row-actions"><button class="btn" id="resetLook" type="button">Reset colour / brightness / boldness</button></div>
+
+      <h2>Display, voice & timing</h2>
+      <div class="opt"><label for="fsRange">Text size</label><input type="range" id="fsRange" min="0.85" max="1.6" step="0.05"></div>
+      <div class="opt"><label for="arFsRange">Arabic text size multiplier</label><input type="range" id="arFsRange" min="1.0" max="2.0" step="0.05"></div>
+      <div class="opt"><input type="checkbox" id="optCites"><label for="optCites">Show source numbers like [2]<small>Hidden by default for uninterrupted reading.</small></label></div>
+      <div class="opt"><input type="checkbox" id="optFloatRP"><label for="optFloatRP">Show floating ✨ Rephrase button on text selection<small>Uncheck if you only want the ✨ button in the toolbar without popups.</small></label></div>
+      <div class="opt"><input type="checkbox" id="optAuto"><label for="optAuto">Start the timer on the first Next<small>Saves you pressing Start at the beginning.</small></label></div>
+      <div class="opt"><input type="checkbox" id="optReadAuto"><label for="optReadAuto">Auto-continue Read Step<small>After reading a line aloud, move to the next spoken line and keep reading (stops at questions).</small></label></div>
+      <div class="opt"><label for="readRate">Read-aloud speed</label><input type="range" id="readRate" min="0.6" max="1.4" step="0.05"></div>
+      <div class="opt"><label for="voicePace">After I finish reading a line<small>Voice follow highlights each word you say. It moves on only after the whole line is read and you pause.</small></label><select id="voicePace" class="field" style="margin:0;width:auto"><option value="0">Wait for me (tap Next)</option><option value="0.3">Instant (0.3 s)</option><option value="0.7">Fast (0.7 s)</option><option value="1.5">1.5 s</option><option value="2.5">2.5 s</option></select></div>
+      <div class="opt"><input type="checkbox" id="optWake"><label for="optWake">Keep the screen on (WakeLock)<small>Prevents screen sleep during calls.</small></label></div>
+      <div class="opt"><button class="btn small" id="openStudentWindow" type="button">🖥️ Open Student Presentation Window</button><label><small>Opens a synchronized presentation window for Zoom/Meet screen share.</small></label></div>
+
+      <h2>Backup & data protection</h2>
+      <p class="help">Never lose your student records, notes or scripts when browser cache resets.</p>
+      <div class="row-actions">
+        <button class="btn" id="exportScript" type="button">📄 Download script (.txt)</button>
+        <button class="btn" id="exportBackup" type="button">📤 Export Backup File (JSON)</button>
+        <label class="btn" for="importFile" style="cursor:pointer">📥 Restore Backup File</label>
+        <input type="file" id="importFile" accept=".json" class="sr">
+        <button class="btn" id="resetLesson" type="button">Reset this lesson</button>
+        <span class="help" id="resetMsg" role="status"></span>
+      </div>
+
+      <h2>AI assistant & rephrase helper</h2>
+      <p class="help">Select any script text and tap ✨ to rephrase. Groq uses verified <code>openai/gpt-oss-20b</code>.</p>
+      <div class="opt"><label for="aiProv">Provider</label><select id="aiProv" class="field" style="margin:0;width:auto"><option value="groq">Groq (fast, free tier)</option><option value="gemini">Google Gemini (free key)</option><option value="claude">Claude (Anthropic)</option></select></div>
+      <input class="field" id="aiKey" type="password" placeholder="API key" autocomplete="off" aria-label="API key">
+      <div class="opt"><label for="stuName">Student name<small>Used in questions, notes and the summary</small></label><input class="field" id="stuName" type="text" placeholder="e.g. Omar" style="margin:0;max-width:180px"></div>
+      <div class="opt"><label for="aiAge">Target audience</label><input class="field" id="aiAge" type="text" value="11-year-old student" style="margin:0;max-width:180px"></div>
+      <input class="field" id="aiModel" type="text" placeholder="Model override (optional; Groq default: openai/gpt-oss-20b)" autocomplete="off">
+
+      <details>
+        <summary>Script format this tool reads</summary>
+        <p class="help">Every spoken step starts with a tag in square brackets. Slide headers set the timeline.</p>
+<pre>➡️ **SLIDE 2: Title here** *(Minutes 4–7)*
+
+🗣️ **[SPEAK]** **Bold lead-in** then the rest [2]
+🗣️ **[OPTIONAL]** **[SPEAK]** Extra background detail (skipped when behind)
+❓ **[ASK OMAR]** "Your question?"
+🛑 **[PAUSE]** *(Listen: e.g., "likely answer")*
+1. Numbered items attach to the line above</pre>
+        <p class="help"><b>Other formats work too:</b> plain paragraphs, Markdown headings (#, ##), headings like "Part 1: …" or "Section 2 (0–5 min)", ALL-CAPS headings, dialogue labels (Teacher:, Ask:, Student:, Pause:), "(pause)" notes and lines ending with "?" (treated as questions with an automatic listen pause). They are converted automatically on load.</p><p class="help">Keys on a computer: Space, Enter or → for Next. ← for Back. T starts/pauses timer. F toggles focus. C toggles camera column. V toggles voice follow.</p>
+      </details>
+    </section>
+  </main>
+
+  <footer class="controls" id="controls">
+    <button class="back" id="btnPrev" type="button">Back</button>
+    <button class="go" id="btnNext" type="button"><span id="goLabel">Next</span><span class="sub" id="goSub"></span></button>
+  </footer>
+</div>
+
+<div class="selchip" id="selChip" hidden><button class="btn small" type="button" data-sc="read">🔊 Read</button><button class="btn small" type="button" data-sc="rephrase">✨ Rephrase</button><button class="btn small" type="button" data-sc="translate">🌐 Translate</button></div>
+<aside class="dict" id="dict" hidden><div class="dict-in"><div id="dictBody"></div><div class="acts"><button class="btn small" id="dictRead" type="button">🔊 Say it</button><button class="btn small" id="dictTr" type="button">🌐 Translate</button><button class="btn small" id="dictSyn" type="button">✨ Easier words</button><button class="btn small" id="dictX" type="button">Close</button></div></div></aside>
+<aside class="rp" id="rp" role="dialog" aria-label="Rephrase helper" hidden>
+  <div class="rp-in">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <strong style="font:700 1.05rem var(--font-display)">Rephrase Helper</strong>
+      <div>
+        <button class="btn small" id="rpSpeak" type="button" title="Listen pronunciation">🔊 Speak</button> <button class="btn small" id="rpUndo" type="button" hidden title="Undo last replacement">↩ Undo</button>
+        <button class="btn small" id="rpClose" type="button">Close</button>
+      </div>
+    </div>
+    <div class="rp-sel" id="rpSel"></div>
+    <div class="rp-modes" id="rpModes">
+      <button class="btn small" type="button" data-mode="simpler">Easier words</button>
+      <button class="btn small" type="button" data-mode="synonyms">Synonyms</button>
+      <button class="btn small" type="button" data-mode="meanings">Other meanings</button>
+      <button class="btn small" type="button" data-mode="rewrite" data-long="1">Rewrite</button>
+      <button class="btn small" type="button" data-mode="shorter" data-long="1">Shorter</button>
+      <button class="btn small" type="button" data-mode="translate">🌐 Translate</button><select id="rpLang" class="field" style="margin:0;width:auto;padding:4px 8px"><option>Arabic</option><option>English</option><option>French</option><option>Urdu</option><option>Spanish</option></select>
+    </div>
+    <div id="rpOut" role="status" aria-live="polite"></div>
+    <p class="help" id="rpMsg" role="status" style="margin:6px 0 0"></p>
+  </div>
+</aside>
+
+<div id="help" hidden><div><h2 style="margin:0 0 8px;font:700 1.1rem var(--font-display)">⌨ Shortcuts &amp; voice</h2>
+<p><kbd>Space</kbd>/<kbd>→</kbd> next · <kbd>←</kbd> back</p><p><kbd>R</kbd> read / pause · <kbd>Esc</kbd> stop reading</p>
+<p><kbd>1</kbd> ✅ got it · <kbd>2</kbd> 🟡 partly · <kbd>3</kbd> 🔁 review</p><p><kbd>S</kbd> skip optional line</p><p><kbd>V</kbd> voice follow · <kbd>T</kbd> timer · <kbd>F</kbd> focus · <kbd>C</kbd> camera · <kbd>W</kbd> full text · <kbd>L</kbd> lock</p>
+<p>Voice words: “next”, “back”, “skip”, “read”, “got it”, “partly”, “review”</p><p style="color:var(--muted)">Tap anywhere to close</p></div></div>
+<div id="toast" hidden></div>
+<script>
+const SAMPLE = `Here is your presenter-friendly script for **Chapter 22 (Part 2)**.
+
+---
+
+# 📜 LESSON SCRIPT: CHAPTER 22 (PART 2) — Returning Home & Waraqah's Confirmation
+
+#### ════════════════════════════════════
+➡️ **SLIDE 1: Returning Home & Seeking Comfort** *(Minutes 1–3)*
+════════════════════════════════════
+
+🗣️ **[SPEAK]** **Assalamu alaykum, Omar!** **Today we are continuing** Chapter 22 right after Angel Jibreel met Prophet Muhammad (ﷺ) in the Cave of Hira [1].
+
+🗣️ **[SPEAK]** **Still shaking and** overwhelmed from seeing the angel, the Prophet (ﷺ) hurried straight back home [1].
+
+🗣️ **[SPEAK]** **He walked inside**, went to his wife Khadijah (رضي الله عنها), and said: **"Wrap me up! Wrap me up!"** [1]
+
+🗣️ **[SPEAK]** **Khadijah brought a** blanket right away and wrapped him up warmly until he felt safe and calm [1].
+
+🗣️ **[SPEAK]** **Once he felt better**, he told her everything that happened in the cave and admitted that he was deeply worried [1].
+
+❓ **[ASK OMAR]** **"Omar, when you** go through something scary or unexpected, who is the first person you turn to, and why do they make you feel safe?"
+
+🛑 **[PAUSE]** *(Listen to Omar's answer: e.g., "My mom or dad, because they listen and help me.")*
+
+🗣️ **[SPEAK]** **That makes total sense!** **Turn to family for** support when you feel overwhelmed [1].
+
+---
+
+#### ════════════════════════════════════
+➡️ **SLIDE 2: Khadijah's Words of Reassurance** *(Minutes 4–7)*
+════════════════════════════════════
+
+🗣️ **[SPEAK]** **Khadijah knew the** Prophet's character better than anyone else in the world [2].
+
+🗣️ **[SPEAK]** **Instead of panicking**, she gave him great confidence, saying: **"Never! By Allah, Allah will never disgrace you!"** [2]
+
+🗣️ **[SPEAK]** **She reminded him** of the noble things he did every day [2]:
+1. *"You are good to your relatives."* [2]
+2. *"You help people who carry heavy burdens."* [2]
+3. *"You give to the poor and needy."* [2]
+4. *"You welcome guests generously."* [2]
+5. *"You always stand up for the truth."* [2]
+
+🗣️ **[OPTIONAL]** **[SPEAK]** Notice how each of these five daily habits strengthens our communities.
+
+❓ **[ASK OMAR]** **"Omar, why was** Khadijah so certain that Allah would protect the Prophet? What did his daily habits show about him?"
+
+🛑 **[PAUSE]** *(Listen to Omar's answer: e.g., "Because he was always kind, honest, and helped people in need.")*
+
+🗣️ **[SPEAK]** **Spot on! Doing** good deeds builds a strong foundation that Allah blesses and protects [2].
+
+---
+
+#### ════════════════════════════════════
+➡️ **SLIDE 3: Visiting Waraqah ibn Nawfal** *(Minutes 8–10)*
+════════════════════════════════════
+
+🗣️ **[SPEAK]** **To help understand** what happened, Khadijah took him to see her cousin, **Waraqah ibn Nawfal** [2, 3].
+
+🗣️ **[SPEAK]** **Waraqah was an** old, wise scholar who spent years reading ancient religious books [2].
+
+🗣️ **[SPEAK]** **As soon as** the Prophet (ﷺ) described the encounter, Waraqah recognized what happened and said: *"You are the Prophet of this nation!"* [3]
+
+🗣️ **[SPEAK]** **Waraqah explained that** the visitor was Angel Jibreel—the exact same angel Allah sent to Prophet Musa (عليه السلام) long ago [3].
+
+❓ **[ASK OMAR]** **"Omar, why was** it so helpful that Waraqah had studied ancient books before this happened?"
+
+🛑 **[PAUSE]** *(Listen to Omar's answer: e.g., "Because he knew about angels and prophets, so he could explain what it meant.")*
+
+🗣️ **[SPEAK]** **Exactly! Learning and** gaining knowledge helps us understand big moments in life [2, 3].
+
+---
+
+#### ════════════════════════════════════
+➡️ **SLIDE 4: Waraqah's Warning & The Surprise** *(Minutes 11–13)*
+════════════════════════════════════
+
+🗣️ **[SPEAK]** **Waraqah then gave** a serious warning: *"I wish I were young and strong when your people drive you out of Makkah!"* [3]
+
+🗣️ **[SPEAK]** **Prophet Muhammad (ﷺ)** was completely surprised and asked: **"Will my people really drive me out?"** [3, 4]
+
+🗣️ **[SPEAK]** **He was surprised** because the people of Makkah respected him and called him *Al-Amin* (The Trustworthy) and *As-Sadiq* (The Truthful) [4].
+
+🗣️ **[SPEAK]** **Waraqah explained that** whenever a Messenger brings the truth, people who dislike changing their bad habits will fight against him [4].
+
+❓ **[ASK OMAR]** **"Omar, why do** you think people sometimes resist or fight against the truth, even when it comes from an honest person?"
+
+🛑 **[PAUSE]** *(Listen to Omar's answer: e.g., "Because people don't like changing their ways or admitting they were wrong.")*
+
+🗣️ **[SPEAK]** **That is a** very mature answer! Standing for what is right takes real courage [4].
+
+---
+
+#### ════════════════════════════════════
+➡️ **SLIDE 5: Power Takeaways & Action Plan** *(Minutes 14–15)*
+════════════════════════════════════
+
+🗣️ **[SPEAK]** **Omar, here is your** 3-step action plan from today's lesson [1, 2, 4]:
+
+🗣️ **[SPEAK]** **🎯 1. Talk to Family:** When you feel stressed or confused, share your thoughts with your parents or family [1].
+
+🗣️ **[SPEAK]** **🎯 2. Practice Good Habits:** Help others, tell the truth, and be kind—good character earns Allah's love and protection [2].
+
+🗣️ **[SPEAK]** **🎯 3. Stand for Truth:** Always stick to what is right, even if other people find it hard to accept [4].
+
+🗣️ **[SPEAK]** **Great job today, Omar!** **Next time, we will** see how the revelation continued and how secret preaching began [4]!`;
+
+/* Regex Parsers */
+const TAG_RE = /^([^\p{L}\p{N}\[]{0,12}?)\*{0,2}\[([^\]]{2,32})\]\*{0,2}\s*(.*)$/u;
+const HEAD_RE = /^\W*(?:slide|section|part|chapter|step|topic|stage|segment|activity|scene|page)\s*(\d+)\s*[:：.\-–—]\s*(.+?)\s*(?:\(\s*(?:minutes?|mins?)\s*(\d+)\s*(?:[–\-—]|to)\s*(\d+)\s*\))?\s*$/i;
+const TAGGED_RE = /^[^\p{L}\p{N}\[\n]{0,12}\*{0,2}\[(?:optional|speak|say|read|tell|ask(?:\s+[A-Za-z]+)?|question|quiz|check|discuss|pause|wait|listen|teacher|tutor|student|answer|note|explain|intro|summary|recap|story|activity|present\w*|narrat\w*)(?:\s[A-Za-z]+)?\]/imu;
+const ITEM_RE = /^\s*(?:\d+[.)]|[-•])\s+(.*)$/;
+function cleanMd(s){ return String(s||'').replace(/[*_`]/g,'').replace(/^#+\s*/,'').trim(); }
+
+function parseScript(text){
+  const raw = String(text||'').replace(/\r/g,'').split('\n');
+  const hasSlides = raw.some(l => HEAD_RE.test(cleanMd(l)));
+  let title = { kicker:'', name:'' }, slides = [], cur = null, lastAsk = null, student = '', warnings = [];
+  
+  if(!hasSlides && raw.some(l=>l.trim())) warnings.push('No "SLIDE n:" headers found, so the whole script is one slide.');
+
+  for(let line of raw){
+    const t = line.trim();
+    if(!t) continue;
+    if(/^#\s+\S/.test(t) && !title.name){
+      let c = cleanMd(t).replace(/^[^\p{L}\p{N}]+/u,'').replace(/^lesson script\s*[:\-–—]\s*/i,'');
+      const parts = c.split(/\s+[—–]\s+|\s+-\s+/);
+      if(parts.length > 1){ title.kicker = parts[0].trim(); title.name = parts.slice(1).join(' — ').trim(); }
+      else { title.name = c; }
+      continue;
+    }
+    const c = cleanMd(t);
+    if(/^[^\p{L}\p{N}]*$/u.test(c)) continue;
+    const hm = HEAD_RE.exec(c);
+    if(hm){
+      cur = { n:+hm[1], title:hm[2].trim(), start:hm[3]?+hm[3]:null, end:hm[4]?+hm[4]:null, lines:[] };
+      slides.push(cur);
+      lastAsk = null;
+      continue;
+    }
+    if(t.startsWith('💡')) continue;
+    if(!cur){
+      if(hasSlides) continue;
+      cur = { n:1, title:'Lesson', start:null, end:null, lines:[] };
+      slides.push(cur);
+    }
+    const im = ITEM_RE.exec(line);
+    if(im && cur.lines.length){
+      cur.lines[cur.lines.length-1].items.push(im[1].trim());
+      continue;
+    }
+    
+    let isOpt = /\[OPTIONAL\]/i.test(t);
+    let workText = t.replace(/\[OPTIONAL\]/i, '').trim();
+    const tm = TAG_RE.exec(workText);
+    let L;
+    if(tm && /[A-Za-z]{2}/.test(tm[2])){
+      const tag = tm[2].trim().toUpperCase();
+      const kind = /^(SPEAK|SAY|READ|TELL|TEACHER|TUTOR|PRESENT|NARRAT|EXPLAIN|INTRO|SUMMARY|RECAP|STORY|ACTIVITY)/.test(tag) ? 'speak' : /^(ASK|QUESTION|QUIZ|CHECK|DISCUSS|Q\b)/.test(tag) ? 'ask' : /^(PAUSE|WAIT|LISTEN|STUDENT|ANSWER)/.test(tag) ? 'pause' : 'other';
+      L = { kind, tag, text:tm[3].trim(), items:[], optional:isOpt };
+      if(kind === 'ask'){
+        const nm = /^ASK\s+(.+)$/.exec(tag);
+        if(nm && !student) student = nm[1].charAt(0).toUpperCase() + nm[1].slice(1).toLowerCase();
+      }
+      if(kind === 'pause'){
+        let p = tm[3].replace(/\*/g,'').trim().replace(/^\(\s*/,'').replace(/\s*\)$/,'');
+        const eg = /^(.*?)\s*e\.g\.,?\s*(.*)$/i.exec(p);
+        if(eg){ L.label = eg[1].replace(/[:\s]+$/,''); L.expect = eg[2].replace(/^["“”']+|["“”']+$/g,'').trim(); }
+        else { L.label = p; }
+        L.text = p;
+      }
+    } else {
+      L = { kind:'other', tag:'NOTE', text:workText, items:[], optional:isOpt };
+    }
+    cur.lines.push(L);
+    if(L.kind === 'ask') lastAsk = L;
+    if(L.kind === 'pause' && lastAsk){ L.qid = lastAsk; if(L.expect) lastAsk.expect = L.expect; lastAsk = null; }
+  }
+  slides = slides.filter(s => s.lines.length);
+  const steps = [];
+  slides.forEach((s, si) => s.lines.forEach((l, li) => {
+    l.slide = si; l.pos = steps.length; l.id = 's' + si + 'l' + li; steps.push(l);
+  }));
+  steps.forEach(l => { l.qid = (l.kind === 'pause' && l.qid && typeof l.qid === 'object') ? l.qid.id : l.id; });
+  const planned = slides.length && slides.every(s => s.end) ? Math.max(...slides.map(s => s.end)) : null;
+  slides.forEach(s => { s.weight = s.start && s.end ? Math.max(1, s.end - s.start + 1) : 1; });
+  return { title, slides, steps, student:student||'Student', planned, warnings, asks:steps.filter(l => l.kind === 'ask') };
+}
+
+/* ===== Flexible script formats: auto-convert plain / markdown / dialogue scripts ===== */
+function stripMd(x){
+  return String(x||'').replace(/!\[[^\]]*\]\([^)]*\)/g,'').replace(/\[([^\]]+)\]\((?:https?:|mailto:)[^)]*\)/g,'$1').replace(/\\([\\`*_{}\[\]()#+\-.!>|~<])/g,'$1');
+}
+function normalizeScript(text){
+  { const nb = markupConvert(text) || nbConvert(text); if(nb) return nb; }
+  const src = stripMd(String(text||'').replace(/\r/g,''));
+  if(TAGGED_RE.test(src)) return text; // already tagged
+  if(!src.trim()) return text;
+  const KW = 'slide|section|part|chapter|step|topic|stage|segment|activity|scene|page';
+  const kwHead = new RegExp('^\\W*(?:'+KW+')\\s*\\d*\\s*[:：.\\-–—]\\s*(.+)$','i');
+  const kwOnly = new RegExp('^\\W*(?:'+KW+')\\s*\\d+\\s*$','i');
+  const timeRe = /\(?\s*(?:minutes?|mins?)\.?\s*(\d+)\s*(?:[–\-—]|to)\s*(\d+)\s*\)?|\(?\s*(\d+)\s*(?:[–\-—]|to)\s*(\d+)\s*(?:minutes?|mins?)\s*\)?/i;
+  const durRe = /\(\s*(\d+)\s*(?:minutes?|mins?)\s*\)/i;
+  const SKIP = /^(?:\d+\s*[.)]\s*)?(?:references?|sources?|further reading|teaching tips?|teacher'?s? notes?|notes for (?:the )?teacher|answer key)\b/i;
+  const META = /^(?:duration|audience|language|lesson objectives?|objectives?|grade|age(?: group)?|level|topic|subject|goal|materials|class)\s*[:：]/i;
+  const LABELONLY = /^(?:teacher(?: or speaker)?(?: says)?|speaker(?: says)?|say|arabic|transliteration|meaning|translation)\s*[:：]?\s*$/i;
+  const INSTR = /^(?:ask|read|go through) (?:the )?(?:following )?questions\b/i;
+  const STAGE = /^(?:pause\b|wait\b|allow (?:the )?(?:children|students|child|kids|class)|let (?:the )?(?:children|students|child|kids|class) (?:answer|respond|think|share|reply)|give (?:the )?(?:children|students|kids|class) (?:time|a moment|a chance))/i;
+  const EXP = /^(?:expected answers?|possible answers?|likely answers?|model answer|answer)\s*[:：]\s*(.+)$/i;
+  const raw = src.split('\n');
+  const h1 = raw.filter(l => /^#\s+\S/.test(l.trim())).length, h2 = raw.some(l => /^#{2,6}\s+\S/.test(l.trim()));
+  let titleDone = (h1 >= 2 && !h2);
+  const isPlainHead = t => {
+    if(!t || t.length > 70 || /^[\[\(\*>\-•#]/.test(t) || /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFEFF]/.test(t)) return false;
+    const w = t.replace(/\*/g,'').split(/\s+/); if(w.length > 9) return false;
+    if(/[.!?:;,،؟)"”\]]$/.test(t)) return false;
+    const big = w.filter(x => x.replace(/[^\p{L}]/gu,'').length > 3);
+    if(big.length && big.filter(x => /^\p{Lu}/u.test(x.replace(/^[^\p{L}]+/u,''))).length / big.length < 0.7) return false;
+    if(!big.length && w.length > 3) return false;
+    return !LABELONLY.test(cleanMd(t)) && !EXP.test(t);
+  };
+  const L = [];
+  for(let i=0;i<raw.length;i++){
+    let t = raw[i].trim();
+    while(t && !/[.!?…:;"”’')\]*]$/.test(t) && i+1 < raw.length){
+      const nx = raw[i+1].trim();
+      if(nx && /^[a-z]/.test(nx)){ t += ' ' + nx; i++; } else break;
+    }
+    L.push(t);
+  }
+  const mdHeads = raw.filter(l => /^#{2,6}\s+\S/.test(l.trim())).length;
+  const plainHeads = raw.filter(l => isPlainHead(l.trim())).length >= 3 && mdHeads < 3;
+  let durTotal = 0;
+  const items = []; let pendingAsk = false, skipping = false;
+  const flush = () => { if(pendingAsk){ items.push({k:'pause', label:'Listen to the answer', expect:''}); pendingAsk = false; } };
+  const lastLine = () => { const x = items[items.length-1]; return x && (x.k === 'speak' || x.k === 'ask' || x.k === 'item'); };
+  for(let t of L){
+    if(!t || /^[-_=*─━═\s]{3,}$/.test(t)) continue;
+    if(!titleDone && /^#\s+\S/.test(t)){ titleDone = true; items.push({title:t}); continue; }
+    const c = cleanMd(t); let m;
+    if(!items.some(x => x.k) && META.test(c)){ const dm = /duration\s*[:：]\s*(\d+)/i.exec(c); if(dm) durTotal = +dm[1]; continue; }
+    let head = null;
+    let isMd = false;
+    if((m = /^#{1,6}\s+(.+)$/.exec(t))){ head = m[1]; isMd = true; }
+    else if((m = kwHead.exec(c))) head = m[1];
+    else if(kwOnly.test(c)) head = '';
+    else if((m = /^\W*(?:minutes?|mins?)\s*\d+\s*[–\-—]\s*\d+\s*[:\-–—]?\s*(.*)$/i.exec(c))) head = c;
+    else if(timeRe.test(c) && c.split(/\s+/).length <= 9 && !/[.!?]$/.test(c)) head = c;
+    else if(plainHeads && isPlainHead(t)) head = c;
+    else if(/^[A-Z0-9][A-Z0-9 &'’,:\-–—()\/]{3,60}$/.test(t) && /[A-Z]{3}/.test(t) && !/[.!?]$/.test(t)) head = t;
+    else if(/^\*\*[^*]{2,60}\*\*:?$/.test(t) && !/[.!?]\*\*:?$/.test(t)) head = c.replace(/:$/,'');
+    if(head !== null){
+      flush();
+      if(SKIP.test(cleanMd(head).trim())){ skipping = true; continue; }
+      skipping = false; items.push({h:head, md:isMd}); continue;
+    }
+    if(skipping) continue;
+
+    t = t.replace(/^>\s?/,'').trim(); if(!t) continue;
+    let opt = false;
+    if((m = /^\(?\s*optional\s*\)?\s*[:\-–—]?\s*(.+)$/i.exec(t))){ opt = true; t = m[1]; }
+    const bm = /^(?:\d+[.)]|[-•*])\s+(.*)$/.exec(t);
+    if(bm){
+      if(lastLine()){ items.push({k:'item', s:'- ' + bm[1]}); continue; }
+      t = bm[1];
+    }
+    let k = 'speak', label = '', expect = '';
+    if((m = /^(?:teacher|tutor|instructor|presenter|narrator|speak|read|tell|script|me)\s*[:：]\s*(.+)$/i.exec(t))) t = m[1];
+    const ct = cleanMd(t);
+    if(LABELONLY.test(ct) || INSTR.test(ct)) continue;
+    if((m = EXP.exec(t))){
+      const last = items[items.length-1];
+      if(last && last.k === 'pause' && !last.expect){ last.expect = m[1]; }
+      else items.push({k:'pause', label:'Listen', expect:m[1]});
+      pendingAsk = false; continue;
+    }
+    if((m = /^(?:ask(?: the (?:children|students|kids|class|child))?|question|quiz|q\d*|check)\s*\d*\s*[:：.)]\s*(.+)$/i.exec(t))){ k = 'ask'; t = m[1]; }
+    else if((m = /^(student|pupil|child|kid|learner|pause|wait|listen)\s*[:：]\s*(.*)$/i.exec(t))){
+      k = 'pause';
+      if(/^(pause|wait|listen)$/i.test(m[1])) label = m[2] || 'Listen to the answer'; else { label = 'Listen'; expect = m[2]; }
+    }
+    else if(STAGE.test(t)){
+      k = 'pause';
+      const q = /[:：]\s*[“"'‘](.+?)[”"'’]\s*\.?$/.exec(t);
+      if(q){ expect = q[1]; label = t.replace(/[:：].*$/,''); } else label = t;
+    }
+    else if(/^[\(\[\*_]+\s*(pause|wait|listen|silence|let (?:him|her|them|the (?:student|child)) )/i.test(t)){ k = 'pause'; label = /^\W*(pause|wait|listen)\W*$/i.test(t) ? 'Listen to the answer' : t.replace(/[\(\)\[\]\*_]/g,'').trim(); }
+    else if(/[?؟]["”')\]*_]*$/.test(t) && t.split(/\s+/).length <= 45) k = 'ask';
+    if(k === 'pause'){ pendingAsk = false; items.push({k, label, expect}); continue; }
+    flush();
+    items.push({k, s:t, opt});
+    if(k === 'ask') pendingAsk = true;
+  }
+  flush();
+  const hasHead = items.some(x => x.h !== undefined);
+  let body = items.filter(x => !x.title);
+  const out = items.filter(x => x.title).map(x => x.title);
+  // first heading that is really the lesson title (rest are numbered sections)
+  if(!out.length && body[0] && body[0].h !== undefined && !/^\d/.test(cleanMd(body[0].h))){
+    const hs = body.filter(x => x.h !== undefined);
+    if(hs.slice(1).filter(x => /^\d+\s*[.)]/.test(cleanMd(x.h))).length >= 3){ out.push('# ' + cleanMd(body[0].h)); body = body.slice(1); }
+  }
+  if(!out.length && body[0] && body[0].md && body.filter(x => x.md).length === 1){ out.push('# ' + cleanMd(body[0].h)); body = body.slice(1); }
+  let seq = [];
+  if(hasHead){
+    seq = body[0] && body[0].h === undefined ? [{h:'Introduction'}].concat(body) : body;
+  } else {
+    let since = 0; seq = [{h:''}];
+    for(const x of body){
+      if(since >= 12 && (x.k === 'speak' || x.k === 'ask') && !lastItemIsAsk(seq)){ seq.push({h:''}); since = 0; }
+      seq.push(x); if(x.k !== 'item') since++;
+    }
+  }
+  function lastItemIsAsk(a){ const x = a[a.length-1]; return x && x.k === 'ask'; }
+  const parsed = x => {
+    let a = '', b = '', d = null;
+    const title = x.h.replace(timeRe, (mm,a1,b1,a2,b2) => { a = a1||a2; b = b1||b2; return ''; }).replace(durRe, (mm,q) => { d = +q; return ''; })
+      .replace(/^\s*\d+\s*[.)]\s*/,'').replace(/[\s:–—\-|]+$/,'').replace(/\*/g,'').trim();
+    return {title, a, b, d};
+  };
+  const timedCount = seq.filter(x => x.h !== undefined).filter(x => { const q = parsed(x); return q.a || q.d; }).length;
+  const autoT = new Map();
+  if(!timedCount && durTotal){
+    const groups = []; let g = null;
+    for(const x of seq){ if(x.h !== undefined){ g = {x, w:0}; groups.push(g); } else if(g) g.w += x.k === 'pause' ? 25 : String(x.s||'').split(/\s+/).length; }
+    const tot = groups.reduce((q,y) => q + y.w, 0) || 1; let acc = 0, prev = 0;
+    groups.forEach((y,i) => { acc += y.w; let e = i === groups.length-1 ? durTotal : Math.round(acc/tot*durTotal); e = Math.max(prev+1, e); autoT.set(y.x, [prev+1, e]); prev = e; });
+  }
+  let n = 0, cum = 0;
+  for(const x of seq){
+    if(x.h !== undefined){
+      const q = parsed(x);
+      if(timedCount >= 2 && !(q.a || q.d) && n > 0) continue; // untimed sub-heading: stays inside previous slide
+      n++;
+      if(autoT.has(x)){ q.a = autoT.get(x)[0]; q.b = autoT.get(x)[1]; }
+      if(!q.a && q.d){ q.a = cum + 1; q.b = cum + q.d; }
+      if(q.a && q.b) cum = +q.b;
+      out.push(''); out.push('➡️ **SLIDE ' + n + ': ' + (q.title || ('Part ' + n)) + '**' + (q.a && q.b ? ' *(Minutes ' + q.a + '–' + q.b + ')*' : ''));
+    } else if(x.k === 'speak') out.push((x.opt ? '🗣️ **[OPTIONAL]** **[SPEAK]** ' : '🗣️ **[SPEAK]** ') + x.s);
+    else if(x.k === 'ask') out.push((x.opt ? '❓ **[OPTIONAL]** **[ASK]** ' : '❓ **[ASK]** ') + x.s);
+    else if(x.k === 'item') out.push(x.s);
+    else if(x.k === 'pause'){
+      const lb = String(x.label||'').replace(/\*/g,'').replace(/[:\s.]+$/,'');
+      out.push('🛑 **[PAUSE]** *(' + (x.expect ? (lb && lb !== 'Listen to the answer' ? lb : 'Listen') + ': e.g., "' + x.expect.replace(/["*“”]/g,'') + '"' : (lb || 'Listen to the answer')) + ')*');
+    }
+  }
+  return enrichSpeak(out.join('\n')).text;
+}
+
+/* ===== Split long spoken paragraphs into one sentence per line with a bold lead-in ===== */
+function enrichSpeak(text){
+  const out = []; let changed = 0;
+  for(const line of String(text||'').split('\n')){
+    const m = /^(🗣️?\s*\*\*\[SPEAK\]\*\*\s+)(.+)$/.exec(line);
+    if(!m || m[2].includes('**')){ out.push(line); continue; }
+    const sents = m[2].split(/(?<=[.!?…]["”')\]]*)\s+(?=["“'(\[—«]?[\p{Lu}\p{N}؀-ۿ])/u).map(x => x.trim()).filter(Boolean);
+    sents.forEach(q => {
+      const w = q.split(/\s+/), k = Math.min(3, w.length), head = w.slice(0,k).join(' ');
+      out.push(m[1] + (w.length > k && !/[*_`<>\[\]"“”؀-ۿ]/.test(head) ? '**' + head + '** ' + w.slice(k).join(' ') : q));
+    });
+    changed++;
+  }
+  return { text: out.join('\n'), changed };
+}
+
+/* ===== Markup / video-script converter (XML-like tags, [TIMECODE], comments) ===== */
+function markupConvert(text){
+  let t = String(text||'').replace(/\r/g,'');
+  if(!(/\[TIMECODE:/i.test(t) || /^\s*\[\d+:\d+:\d+[^\]]*-->/m.test(t) || /<speaker\b/i.test(t) || (t.match(/<!--/g)||[]).length >= 2)) return null;
+  // repair text that an earlier bad conversion already tagged
+  t = t.replace(/^[^\p{L}\p{N}\[<\n]{0,12}\*{0,2}\[(?:SPEAK|OPTIONAL)\]\*{0,2}\s*/gmu,'')
+       .replace(/^➡️?\s*\*{0,2}SLIDE\s*\d+\s*:\s*(.*?)\*{0,2}\s*$/gimu, (m, x) => /^introduction$/i.test(x.trim()) ? '' : x);
+  const callouts = [];
+  t = t.replace(/<!--[\s\S]*?-->/g,'').replace(/<((?:graphics|anim|overlay|callout|lower_third)(?::[\w-]+)?)\b[^>]*>([\s\S]*?)<\/\1>/gi, (m, tg, inner) => { const c = inner.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim(); if(c && c.split(/\s+/).length <= 8 && !/[.!?]$/.test(c)) callouts.push(c); return ''; })
+       .replace(/<([\w:-]*?(?:director|uuid|tracking|meta|overlay|vfx|audio|music|sfx|camera|graphic|motion|callout|cue|marker|post_roll|video|whisper|lighting|trigger)[\w:-]*)\b[^>]*>[\s\S]*?<\/\1>/gi,'')
+       .replace(/<annotation\b[^>]*>([\s\S]*?)<\/annotation>/gi, (m, x) => { const a = x.replace(/[\[\]]/g,'').trim(); return /[؀-ۿ]/.test(a) ? ' (' + a + ')' : ''; });
+  const dec = x => x.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&nbsp;/g,' ');
+  const tc = (h,m,x) => (+h)*3600 + (+m)*60 + (+x);
+  const slides = []; let cur = null, prevB = 0;
+  const open = title => { cur = { title, s:null, e:null, buf:[] }; slides.push(cur); };
+  open('Introduction');
+  for(const raw of t.split('\n')){
+    const l = raw.trim(); if(!l) continue;
+    let m;
+    if((m = /^\[SCENE_BREAK:\s*([^\]]*)\]/i.exec(l))){
+      const nm = m[1].replace(/^SECTION[_\s-]*/i,'').replace(/[_]+/g,' ').trim().toLowerCase().replace(/\b\p{L}/gu, c => c.toUpperCase());
+      if(cur.buf.length) open(nm || 'Part ' + (slides.length + 1)); else if(nm) cur.title = nm;
+      continue;
+    }
+    if((m = /^\[(?:TIMECODE:\s*)?(\d+):(\d+):(\d+)(?:[.,]\d+)?\s*(?:-->|[-–—])\s*(\d+):(\d+):(\d+)(?:[.,]\d+)?\s*\]/i.exec(l))){
+      const a = tc(m[1],m[2],m[3]), b = tc(m[4],m[5],m[6]);
+      if(cur.s === null) cur.s = a; cur.e = Math.max(cur.e || 0, b); continue;
+    }
+    if(/^\[[A-Z0-9_]+(?::[^\]]*)?\]\s*$/.test(l)) continue;     // [SCENE_START: ..] etc.
+    if((m = /^\*\*([^*]{2,60}?)\*\*:?$/.exec(l)) && !/[.!?]$/.test(m[1]) && m[1].split(/\s+/).length <= 8){ if(cur.buf.length) open(m[1].trim()); else cur.title = m[1].trim(); continue; }
+    const x = dec(l.replace(/<[^>]*\/>/g,' ').replace(/<[^>]*>/g,'')).replace(/\*+/g,'').replace(/\[([\u0600-\u06FF\s]+)\]/g,'($1)').replace(/\s+/g,' ').trim();
+    if(x) cur.buf.push(x);
+  }
+  if(slides.filter(x => x.buf.length).length === 1 && slides[0].title === 'Introduction' && callouts[0]) slides[0].title = callouts[0];
+  const firstT = slides.find(x => x.s !== null), base = firstT ? Math.floor(firstT.s/60)*60 : 0;   // minutes count from the start of this excerpt
+  const out = []; let n = 0, planned = false;
+  for(const sl of slides){
+    const txt = sl.buf.join(' ').replace(/\s+([,.;:!?])/g,'$1').trim();
+    if(!txt) continue;
+    const sents = txt.split(/(?<=[.!?…]["”')\]]*)\s+(?=["“'(\[—«]?[\p{Lu}\p{N}\u0600-\u06FF])/u).map(x => x.trim()).filter(Boolean);
+    n++;
+    let mins = '';
+    if(sl.s !== null){ const o = base || 0; let a = Math.floor((sl.s - o)/60) + 1, b = Math.max(a, Math.ceil((sl.e - o)/60)); a = Math.min(Math.max(a, prevB), b); prevB = b; mins = ' *(Minutes ' + a + '–' + b + ')*'; planned = true; }
+    out.push(''); out.push('➡️ **SLIDE ' + n + ': ' + sl.title + '**' + mins);
+    for(const q of sents){
+      if(/[?؟]["”')\]]*$/.test(q) && q.split(/\s+/).length <= 45){ out.push('❓ **[ASK]** ' + q); out.push('🛑 **[PAUSE]** *(Listen to the answer)*'); continue; }
+      const w = q.split(/\s+/), k = Math.min(3, w.length), head = w.slice(0,k).join(' ');
+      out.push('🗣️ **[SPEAK]** ' + (w.length > k && !/[*_`<>\u0600-\u06FF]/.test(head) ? '**' + head + '** ' + w.slice(k).join(' ') : q));
+    }
+  }
+  return n ? out.join('\n').trim() : null;
+}
+
+/* ===== NotebookLM "What to say / Quick Check-In" converter ===== */
+function nbConvert(text){
+  let t = String(text||'').replace(/\r/g,'');
+  if(!/^\W*[*_]*what to say:?[*_]*|quick check-?in/im.test(t)) return null;
+  // also repair text that an earlier (bad) conversion already tagged
+  t = t.replace(/^[^\p{L}\p{N}\[\n]{0,12}\*{0,2}\[(?:SPEAK|OPTIONAL)\]\*{0,2}\s*(?:\*{0,2}\[SPEAK\]\*{0,2}\s*)?/gmu,'').replace(/^[^\p{L}\p{N}\n]{0,6}(?=\*{0,2}slide\s*\d)/gimu,'');
+  t = t.replace(/\\*\(\s*\\rightarrow\s*\\*\)/g,'→').replace(/\\rightarrow/g,'→').replace(/\s?\[cite:[^\]]*\]/gi,'');
+  let lines = t.split('\n');
+  let first = lines.findIndex(l => /^\s*#{1,6}\s/.test(l));
+  if(first < 0) first = lines.findIndex(l => /^\W*[*_]*\s*(?:⏱️?\s*)?[*_]*slide\s*\d+\s*[:：]/iu.test(l.trim()) && /\(\s*minutes?/i.test(l));
+  if(first > 0) lines = lines.slice(first);   // drop language review / chatter above the script
+  const out = []; let n = 0, hasSlide = false, nestedSeen = false;
+  const stuM = /quick check-?in[^"“]*["“]\s*([A-Z][a-z]+),/i.exec(t), stu = stuM ? stuM[1] : '';
+  const lead = x => { x = String(x||'').trim(); if(/^[\p{L}\p{N}"“'‘]/u.test(x) === false || x.startsWith('**')) return x;
+    const w = x.split(/\s+/); const k = Math.min(3, w.length); const head = w.slice(0,k).join(' ');
+    if(/[*_`\u0600-\u06FF]/.test(head) || w.length <= k) return x; return '**' + head + '** ' + w.slice(k).join(' '); };
+  const unq = s => { s = String(s||'').trim(); const q = (s.match(/["“”]/g)||[]).length, a = /^["“]/.test(s), b = /["”]$/.test(s);
+    if(a && b && q === 2) return s.slice(1,-1).trim(); if(a && q % 2) return s.slice(1).trim(); if(b && q % 2) return s.slice(0,-1).trim(); return s; };
+  for(const raw of lines){
+    const s = raw.trim();
+    if(!s || /^[-_=*─━═\s]{3,}$/.test(s) || s.startsWith('💡')) continue;
+    const c = cleanMd(s), isBullet = /^[*\-•]\s/.test(s);
+    let m;
+    if(/^#{1,6}\s/.test(s) && !/slide\s*\d/i.test(c)){
+      if(!out.length) out.push('# ' + c.replace(/^.*?script\s*[:\-–—]\s*/i,'').replace(/^[^\p{L}\p{N}]+/u,''));
+      continue;
+    }
+    if(!isBullet && (m = /^\W*slide\s*\d+\s*[:：.\-–—]\s*(.+?)\s*(?:\(\s*(?:minutes?|mins?)\s*(\d+)\s*[–\-—]\s*(\d+)\s*\))?\s*$/iu.exec(c))){
+      let ttl = m[1].replace(/^[^\p{L}\p{N}]+/u,'').trim(); const nest = /^slide\s*\d+\s*[:：.\-–—]\s*(.+)$/i.exec(ttl);
+      if(nest){ ttl = nest[1].trim(); if(!nestedSeen){ nestedSeen = true; out.length = 0; n = 0; } }
+      n++; hasSlide = true; out.push('');
+      out.push('➡️ **SLIDE ' + n + ': ' + ttl + '**' + (m[2] ? ' *(Minutes ' + m[2] + '–' + m[3] + ')*' : ''));
+      continue;
+    }
+    let body = s.replace(/^[*\-•]\s+/,'');
+    const num = /^(\d+)[.)]\s+(.*)$/.exec(body);
+    const wts = /^\**what to say:?\**\s*(.*)$/i.exec(body);
+    const qci = /^❓️?\s*\**quick check-?in:?\**\s*(.*)$/i.exec(body);
+    if(qci || (body.includes('→') && /\?/.test(body))){
+      const parts = (qci ? qci[1] : (num ? num[2] : body)).split('→');
+      const qq = unq(cleanMd(parts[0]));
+      const nm = /^([A-Z][a-z]+),/.exec(qq);
+      const exp = unq(cleanMd(parts.slice(1).join(' ')).replace(/^\(\s*/,'').replace(/\s*\)$/,'').replace(/^(?:student|wait for|answer|expected(?: answer)?)\s*:\s*/i,'')).replace(/["“”]/g,'');
+      const who = stu || (nm ? nm[1] : '');
+      out.push('❓ **[ASK' + (who ? ' ' + who.toUpperCase() : '') + ']** ' + lead('"' + qq.replace(/^["“]|["”]$/g,'') + '"').replace(/^\*\*"/,'**"'));
+      out.push('🛑 **[PAUSE]** *(Listen to ' + (who ? who + "'s answer" : 'the answer') + (exp ? ': e.g., "' + exp + '"' : '') + ')*');
+      continue;
+    }
+    if(wts){ const sp = unq(wts[1]); if(sp) out.push('🗣️ **[SPEAK]** ' + lead(sp)); continue; }
+    out.push('🗣️ **[SPEAK]** ' + lead(unq(body)));
+  }
+  return hasSlide ? out.join('\n').trim() : null;
+}
+
+/* ===== Clean & standardize any script ===== */
+function cleanScript(text){
+  { const x = String(text||''), sig = [/^\s*(?:import\s+[\w.]+\s*$|from\s+[\w.]+\s+import\s)/m, /^\s*def\s+\w+\s*\([^)]*\)\s*(?:->[^:]*)?:\s*$/m, /\bre\.(?:sub|split|compile)\(/, /^\s*if\s+__name__\s*==/m, /^\s*(?:for|while|if)\b[^\n]*:\s*$/m, /^\s*return\s+\S+/m].filter(r => r.test(x)).length;
+    if(sig >= 3){
+      // pasted a Python cleaner: clean the sample script embedded in it instead of the code
+      const em = /\b\w+\s*=\s*(?:r|f)?(?:\"\"\"|''')([\s\S]*?)(?:\"\"\"|''')/.exec(x.replace(/^\s*(?:\"\"\"|''')[\s\S]*?(?:\"\"\"|''')/gm, m0 => m0.replace(/\"\"\"|'''/g,'###')));
+      const emb = em && /(?:\"\"\"|''')([\s\S]*?)(?:\"\"\"|''')/.exec(x.slice(x.indexOf(em[0].split('=')[0].trim())));
+      if(emb && emb[1].trim().length > 40){
+        const r = cleanScript(emb[1]); const tt = /slide_title\s*=\s*[\"']([^\"']{2,80})[\"']\s*\)/.exec(x);
+        if(!r.code && tt) r.text = r.text.replace(/(➡️ \*\*SLIDE 1: )[^*]*(\*\*)/, '$1' + tt[1] + '$2');
+        if(!r.code){ r.notes = ['Pasted Python code detected: cleaned the sample script inside it (not the code itself)'].concat(r.notes); return r; }
+      }
+      return { text:x, notes:['This looks like Python code, not a lesson script — paste the script text instead'], code:true };
+    } }
+  { const mk = markupConvert(text); if(mk) return { text: mk, notes:['Video/markup script detected: removed tags, comments, timecodes, sound/graphics cues; kept narration only, split into sentences; scene breaks became slides with minutes from timecodes'] }; }
+  { const nb = nbConvert(text); if(nb) return { text: nb, notes:['NotebookLM format detected: removed language review/intro, [cite] tags and LaTeX arrows; bullets converted to SPEAK / ASK / PAUSE steps'] }; }
+  const notes = []; const imgCount = (String(text||'').match(/!\[[^\]]*\]\([^)]*\)/g) || []).length;
+  let t = stripMd(String(text||'')).replace(/\r/g,'').replace(/[\u00A0\u2007\u202F]/g,' ').replace(/[\u200B\uFEFF]/g,'').replace(/\t/g,' ');
+  if(imgCount) notes.push(imgCount + ' images/links removed');
+  const before = t;
+  const cites = (t.match(/\s?\[\d+(?:\s*,\s*\d+)*\]/g) || []).length;
+  if(cites){ t = t.replace(/[ ]?\[\d+(?:\s*,\s*\d+)*\]/g,''); notes.push(cites + ' source numbers removed'); }
+  let lines = t.split('\n').map(l => l.replace(/[ ]{2,}/g,' ').replace(/\s+$/,''));
+  const n0 = lines.length;
+  lines = lines.filter(l => !/^[\s\-_=*─━═#➡️]*[-_=─━═]{3,}[\s\-_=*─━═]*$/.test(l.trim()) && !/^💡/.test(l.trim()));
+  // drop AI chatter before the script starts
+  const firstReal = lines.findIndex(l => /^\s*#{1,6}\s|slide\s*\d|^\W*(?:section|part|chapter|step)\s*\d/iu.test(l));
+  if(firstReal > 0 && lines.slice(0, firstReal).every(l => !l.trim() || /^(here|sure|certainly|okay|ok|below|this is|great)\b/i.test(l.trim().replace(/^\W+/,'')))){ lines = lines.slice(firstReal); notes.push('intro chatter removed'); }
+  if(lines.length < n0) notes.push((n0 - lines.length) + ' divider/blank-noise lines removed');
+  let out = lines.join('\n').replace(/\n{3,}/g,'\n\n').replace(/\*{4,}/g,'').trim();
+  const tagged = TAGGED_RE.test(out);
+  if(!tagged){ const nn = normalizeScript(out); if(nn !== out){ out = nn; notes.push('converted to standard tagged format'); } }
+  else {
+    let fixed = 0;
+    out = out.split('\n').map(l => {
+      const tl = l.trim(); if(!tl) return '';
+      const m = /^([^\p{L}\p{N}\[]{0,12}?\*{0,2}\[)([A-Za-z][^\]]{1,30})(\]\*{0,2})/u.exec(tl);
+      if(m){ const up = m[2].toUpperCase(); if(up !== m[2]){ fixed++; return tl.replace(m[0], m[1] + up + m[3]); } return tl; }
+      const c = cleanMd(tl);
+      if(/^#\s/.test(tl) || HEAD_RE.test(c) || ITEM_RE.test(tl)) return tl;
+      fixed++; return '🗣️ **[SPEAK]** ' + tl;
+    }).join('\n');
+    if(fixed) notes.push(fixed + ' lines tagged / standardized');
+  }
+  // remove consecutive duplicate lines
+  const dd = []; let dups = 0;
+  out.split('\n').forEach(l => { if(l.trim() && dd.length && dd[dd.length-1].trim() === l.trim()) dups++; else dd.push(l); });
+  if(dups){ out = dd.join('\n'); notes.push(dups + ' duplicate lines removed'); }
+  { const e = enrichSpeak(out); if(e.changed){ out = e.text; notes.push('long paragraphs split into one sentence per line with bold lead-ins'); } }
+  if(out === before.trim() && !notes.length) notes.push('already clean');
+  return { text: out, notes };
+}
+
+/* Helpers */
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const AR_RE = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]+(?:\s+[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]+)*/g;
+
+function fmt(raw){
+  let s = esc(raw);
+  s = s.replace(/\s?\[(\d+(?:\s*,\s*\d+)*)\]/g, (m,n) => S.cites ? ' <sup class="cite">' + n + '</sup>' : '');
+  let first = true;
+  s = s.replace(/\*\*(.+?)\*\*/g, (m,t) => { if(/[\u0600-\u06FF]/.test(t)) return t; const c = first ? ' class="lead"' : ''; first = false; return '<strong' + c + '>' + t + '</strong>'; });
+  s = s.replace(/(^|[^\w*])\*(?!\s)(.+?)\*(?!\w)/g, '$1<em>$2</em>');
+  s = s.replace(AR_RE, '<span class="ar" dir="rtl" lang="ar">$&</span>');
+  return s;
+}
+
+function dictate(){
+  if(S.voice){ toast('Turn off 🎙️ voice follow first'); return; }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){ toast('Use Chrome or Edge'); return; }
+  const l=S.model.steps[S.pos], a=$('ans'); if(!a) return;
+  const base=S.answers[l.qid]||'', r=new SR(); r.lang='en-US'; r.interimResults=true; r.continuous=false;
+  r.onresult=e=>{ let t=''; for(const x of e.results) t+=x[0].transcript; a.value=(base+' '+t).trim(); };
+  r.onend=()=>{ S.answers[l.qid]=a.value; saveState(); toast('Answer saved ✓'); };
+  try{ r.start(); toast('🎤 Listening…'); }catch(e){}
+}
+function editLine(){
+  const st=S.model.steps[S.pos]; if(!st || st.kind==='pause') return;
+  const v=prompt('Edit this line:', st.text); if(v===null || !v.trim() || v===st.text) return;
+  S.script=S.script.replace(st.text, v.trim()); st.text=v.trim();
+  lsSet('lp.script', S.script); $('scriptInput').value=S.script; renderFollow(); toast('Line updated ✓');
+}
+function confetti(){ const e=['🎉','✨','🌟','🎊','💚']; for(let i=0;i<36;i++){ const d=document.createElement('div'); d.className='conf'; d.textContent=e[i%e.length]; d.style.left=Math.random()*100+'vw'; d.style.animationDelay=(Math.random()*.8)+'s'; document.body.appendChild(d); setTimeout(()=>d.remove(),3800); } }
+function slideTimes(){ const m=S.model, cs=m.steps[S.pos].slide, out=[]; m.slides.forEach((sl,i)=>{ let t=(S.slideSec&&S.slideSec[i])||0; if(i===cs) t+=(elapsedMs()-(S.slideStart||0))/1000; out.push([sl,t]); }); return out; }
+let toastT=0;
+function toast(m){ const t=$('toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2200); }
+function gradeCur(st){ if(!S.model) return; const l=S.model.steps[S.pos]; if(l.kind!=='pause') return; S.assess[l.qid]=st; saveState(); renderFollow(); toast({got:'✅ Got it',partly:'🟡 Partly',review:'🔁 Review'}[st]); }
+function mmss(sec){ sec = Math.max(0, Math.floor(sec)); return String(Math.floor(sec/60)).padStart(2,'0') + ':' + String(sec%60).padStart(2,'0'); }
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function hash(s){ let h = 5381; for(let i=0; i<s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+
+/* App State */
+const S = {
+  model: null,
+  script: '',
+  key: '',
+  pos: 0,
+  view: 'follow',
+  running: false,
+  runStart: 0,
+  elapsed: 0,
+  answers: {},
+  assess: {},
+  notes: '',
+  finished: false,
+  waitStart: Date.now(),
+  filter: 'all',
+  fs: 1,
+  arFs: 1.25,
+  cites: false,
+  autoStart: true,
+  wake: true,
+  plannedOv: 0,
+  theme: 'paper',
+  focus: false,
+  locked: false,
+  wide: false,
+  cam: false,
+  voice: false,
+  voiceDelay: 0.7,
+  floatRP: true, readAuto: true, rate: 0.95,
+  font: 'lora', arFont: 'naskh',
+  rehearsing: false,
+  rehearsalTimes: {},
+  history: [],
+  lh: 1.55, tc: '', br: 1, fw: 0,
+  ai: { provider: 'groq', key: '', model: 'openai/gpt-oss-20b', age: '11-year-old student' },
+  full: true, div: 'none', replacementsHistory: [], name: ''
+};
+
+let ticks = 0, wakeLock = null, speechRec = null, studentChannel = null;
+let spokenBuffer = [], lastAdvanceTime = 0;
+
+try { studentChannel = new BroadcastChannel('lesson_prompter_sync'); }catch(e){}
+
+function broadcastSlide(slideIdx){
+  if(!studentChannel || !S.model) return;
+  const sl = S.model.slides[slideIdx];
+  if(sl){
+    studentChannel.postMessage({
+      type: 'SLIDE_CHANGE',
+      slideNum: sl.n,
+      title: sl.title,
+      totalSlides: S.model.slides.length,
+      q: S.model.steps[S.pos].kind === 'ask' ? plain(S.model.steps[S.pos].text) : ''
+    });
+  }
+}
+
+/* Load Settings */
+try {
+  const p = JSON.parse(lsGet('lp.prefs') || 'null');
+  if(p){
+    S.fs = p.fs || 1; S.arFs = p.arFs || 1.25; S.cites = !!p.cites; S.autoStart = p.autoStart !== false;
+    S.wake = !!p.wake; S.theme = p.tv === 3 ? (p.theme || 'paper') : 'paper'; S.cam = !!p.cam; S.wide = !!p.wide;
+    S.lh = p.lh || 1.55; S.tc = p.tc || ''; S.br = p.br || 1; S.fw = p.fw || 0; S.font = (p.fv === 2 && p.font) ? p.font : 'lora'; S.arFont = p.arFont || 'naskh'; S.full = p.full!==false; S.div = p.dv === 2 ? (p.div || 'none') : 'none'; S.floatRP = p.fr2===undefined ? true : !!p.fr2; if(p.vd2) S.voiceDelay = +p.voiceDelay; S.name = p.name||''; S.readAuto = p.ra!==false; S.rate = p.rate||0.95;
+  }
+} catch(e){}
+
+try { S.history = JSON.parse(lsGet('lp.history') || '[]'); }catch(e){ S.history = []; }
+
+function savePrefs(){
+  lsSet('lp.prefs', JSON.stringify({
+    fs: S.fs, arFs: S.arFs, cites: S.cites, autoStart: S.autoStart,
+    wake: S.wake, tv: 3, theme: S.theme, cam: S.cam, wide: S.wide, lh: S.lh, tc: S.tc, br: S.br, fw: S.fw,
+    font: S.font, fv: 2, arFont: S.arFont, full: S.full, div: S.div, dv: 2, name: S.name, fr2: S.floatRP, vd2: 1, ra: S.readAuto, rate: S.rate, voiceDelay: S.voiceDelay
+  }));
+}
+
+function elapsedMs(){ return S.elapsed + (S.running ? Date.now() - S.runStart : 0); }
+function saveState(){
+  if(!S.key) return;
+  lsSet(S.key, JSON.stringify({
+    pos: S.pos, elapsed: elapsedMs(), answers: S.answers, assess: S.assess,
+    notes: S.notes, planned: S.plannedOv, rehearsalTimes: S.rehearsalTimes
+  }));
+}
+
+/* Script Application */
+function applyScript(text, forceKey){
+  const orig = text; text = normalizeScript(text); const converted = text !== orig;
+  if(converted){ try{ $('scriptInput').value = text; }catch(e){} }
+  const model = parseScript(text);
+  const rep = $('report');
+  rep.hidden = false;
+  if(!model.steps.length){
+    rep.className = 'report bad';
+    rep.textContent = 'No script lines found. Tag each step with [SPEAK], [ASK] or [PAUSE].';
+    return false;
+  }
+  if(S.name) model.student = S.name;
+  S.model = model;
+  S.script = text;
+  lsSet('lp.script', text);
+  S.key = forceKey || ('lp.s.' + hash(text));
+  
+  let saved = null;
+  try { saved = JSON.parse(lsGet(S.key) || 'null'); }catch(e){}
+  
+  S.pos = saved ? Math.min(Math.max(saved.pos || 0, 0), model.steps.length - 1) : 0;
+  S.elapsed = saved ? (saved.elapsed || 0) : 0;
+  S.answers = (saved && saved.answers) || {};
+  S.assess = (saved && saved.assess) || {};
+  S.notes = (saved && saved.notes) || '';
+  S.plannedOv = (saved && saved.planned) || 0;
+  S.rehearsalTimes = (saved && saved.rehearsalTimes) || {};
+  S.running = false;
+  S.finished = false;
+  S.waitStart = Date.now();
+  
+  rep.className = 'report good';
+  rep.textContent = 'Loaded ' + model.slides.length + ' slides, ' + model.steps.length + ' lines and ' + model.asks.length + ' questions' + (model.planned ? ', planned ' + model.planned + ' min.' : '.') + (saved && saved.pos ? ' Resumed where you left off.' : '') + (converted ? ' Script format was auto-detected and converted.' : '');
+  
+  calculateTimingFeasibility();
+  checkLastTimeBanner();
+  return true;
+}
+
+function calculateTimingFeasibility(){
+  if(!S.model) return;
+  let totalWords = 0;
+  S.model.slides.forEach(sl => {
+    let w = 0;
+    sl.lines.forEach(l => { w += (l.text + ' ' + l.items.join(' ')).trim().split(/\s+/).filter(Boolean).length; });
+    sl.wordCount = w;
+    totalWords += w;
+  });
+  const estimatedMin = Math.ceil((totalWords / 125) + (S.model.asks.length * 0.5));
+  const plan = plannedMin();
+  const wcEl = $('wordCountEst');
+  if(wcEl){
+    let msg = 'Script word count: ' + totalWords + ' words (~' + estimatedMin + ' min needed). ';
+    if(plan && estimatedMin > plan + 2){
+      msg += '⚠️ WARNING: Plan is ' + plan + ' min. You may run out of time unless pacing is fast.';
+      wcEl.style.color = 'var(--bad)';
+    } else {
+      msg += '✅ Pacing fits comfortably inside your planned window.';
+      wcEl.style.color = 'var(--good)';
+    }
+    wcEl.textContent = msg;
+  }
+}
+
+function checkLastTimeBanner(){
+  const banner = $('lastTimeBanner');
+  if(!banner) return;
+  if(!S.history || !S.history.length){ banner.hidden = true; return; }
+  const last = S.history[0];
+  banner.hidden = false;
+  banner.innerHTML = '<strong>Last time we covered (' + esc(last.date) + '):</strong> '
+    + esc(last.title) + ' · Finished in ' + esc(last.time) + (last.reviewTopics ? ' · Revisit: <em>' + esc(last.reviewTopics) + '</em>' : '');
+}
+
+/* Timer & Pacing */
+function startTimer(){ if(S.running) return; S.running = true; S.runStart = Date.now(); if(S.wake) setWake(true); renderClockBtn(); }
+function pauseTimer(){ if(!S.running) return; S.elapsed += Date.now() - S.runStart; S.running = false; renderClockBtn(); saveState(); }
+function renderClockBtn(){ const b = $('toggleTimer'); b.textContent = S.running ? 'Pause' : (S.elapsed > 0 ? 'Resume' : 'Start'); b.classList.toggle('primary', !S.running); }
+function plannedMin(){ return S.plannedOv || (S.model && S.model.planned) || 0; }
+
+function slideWindow(i){
+  const m = S.model, pm = plannedMin(), sl = m.slides[i];
+  if(!pm) return null;
+  if(m.planned && sl.start && sl.end){
+    const k = pm / m.planned;
+    return [(sl.start - 1) * 60 * k, sl.end * 60 * k];
+  }
+  const tot = m.slides.reduce((a, x) => a + x.weight, 0);
+  let c = 0; for(let j = 0; j < i; j++) c += m.slides[j].weight;
+  return [c / tot * pm * 60, (c + sl.weight) / tot * pm * 60];
+}
+
+function paceInfo(){
+  const m = S.model; if(!m) return { t:'', c:'' };
+  const e = elapsedMs() / 1000;
+  if(e < 1 && !S.running) return { t:'Timer stopped', c:'' };
+  const w = slideWindow(m.steps[S.pos].slide); if(!w) return { t:'No time plan', c:'' };
+  const ws = w[0], we = w[1];
+  if(e > we){ const d = e - we; return { t:'Behind ' + mmss(d), c: d > 60 ? 'bad' : 'warn' }; }
+  if(e < ws){ return { t:'Ahead ' + mmss(ws - e), c:'warn' }; }
+  return { t:'On pace', c:'good' };
+}
+
+function tick(){
+  if(!S.model) return;
+  const e = elapsedMs() / 1000;
+  $('elapsed').textContent = mmss(e);
+  const p = paceInfo(), pe = $('pace');
+  pe.textContent = p.t; pe.className = 'pace ' + p.c;
+  if(S.running && p.c === 'bad'){ const si = S.model.steps[S.pos].slide; if(S._hint !== si){ S._hint = si; toast('⏱ Behind pace — press S to skip optional lines'); } }
+  
+  const cur = $('cursor');
+  if(cur && plannedMin()){ cur.style.display = 'block'; cur.style.left = (Math.min(e / (plannedMin() * 60), 1) * 100) + '%'; }
+  const w = $('waitClock');
+  if(w){ const s = Math.floor((Date.now() - S.waitStart) / 1000); w.textContent = Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+  const tl=$('timeLeft');
+  if(tl){ const m=S.model; if(!m._wc){ let a=0; m._wc=m.steps.map(x=>{ a+=(x.kind==='pause'?30:(x.text+' '+x.items.join(' ')).split(/\s+/).length); return a; }); }
+    const tot=m._wc[m._wc.length-1], rem=tot-(S.pos>0?m._wc[S.pos-1]:0), mins=Math.max(0,Math.ceil(rem/125)); tl.textContent='~'+mins+' min left · '+Math.round((1-rem/tot)*100)+'%'; }
+  if(++ticks % 10 === 0 && S.running) saveState();
+}
+
+async function setWake(on){
+  try{
+    if(on && 'wakeLock' in navigator && !wakeLock){ wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', ()=>{ wakeLock = null; }); }
+    else if(!on && wakeLock){ await wakeLock.release(); wakeLock = null; }
+  }catch(e){ wakeLock = null; }
+}
+
+/* ============================================================
+   VOICE FOLLOW TELEPROMPTER & RECOGNITION (NEVER AUTO-STARTS)
+   ============================================================ */
+function toggleVoiceControl(){
+  S.voice = !S.voice; updateTracking();
+  $('voiceBtn').setAttribute('aria-pressed', String(S.voice));
+  document.body.classList.toggle('voice-on', S.voice);
+  if(S.voice){ voiceReset(); VT.pos=-1; startVoiceRecognition(); buildTrack(); }
+  else { stopVoiceRecognition(); if(S.model && S.view==='follow') renderFollow(); }
+}
+
+function showVoiceFeedback(text){
+  let badge = $('voiceStatusBadge');
+  if(!badge){
+    badge = document.createElement('span');
+    badge.id = 'voiceStatusBadge';
+    badge.className = 'voice-live-badge';
+    $('pace').parentNode.appendChild(badge);
+  }
+  badge.textContent = text;
+  badge.hidden = false;
+  setTimeout(() => { if(badge && !S.voice) badge.hidden = true; }, 2500);
+}
+
+/* ---------- Voice follow: word-by-word tracking (highlights where you stopped) ---------- */
+const VT = { words:[], lastNS:-1, idx:0, disp:0, off:0, hp:0, all:0, pos:-1, lastSpeech:0, done:false };
+const STOPW = new Set(['the','a','an','and','of','to','in','on','is','it','he','she','they','we','you','i','was','are','that','this','for','with','as','at','by','be','or','so','his','her','their','but','not','do','did','had','has','have','will','what','who','why','how','if','then']);
+const NUMW = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+const norm = w => { const n = String(w||'').toLowerCase().replace(/[^\p{L}\p{N}]/gu, ''); return /^\d+$/.test(n) && NUMW[+n] ? NUMW[+n] : n; };
+const skel = x => x.replace(/[aeiouy]/g,'');
+function lev(a,b){
+  const m=a.length, n=b.length; if(Math.abs(m-n)>2) return 9;
+  let prev=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){ const cur=[i]; for(let j=1;j<=n;j++) cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1)); prev=cur; }
+  return prev[n];
+}
+function similar(t,h){
+  if(t===h) return true;
+  if(t.length<3||h.length<3) return false;
+  if((t.startsWith(h)&&h.length>=3)||(h.startsWith(t)&&t.length>=3)) return true;
+  if(t.length>=4 && h.length>=4 && skel(t).length>=2 && skel(t)===skel(h)) return true;
+  const L=Math.max(t.length,h.length);
+  return lev(t,h) <= (L>=9?2:L>=5?1:0);
+}
+function matchFrom(start, hw){
+  const h = norm(hw); if(!h) return -1;
+  const win = STOPW.has(h) ? 2 : 6;
+  let seen = 0;
+  for(let j=start; j<VT.words.length && seen<win; j++){
+    const t = VT.words[j]; if(t.skip) continue;
+    seen++;
+    if(seen>3 && h.length<4) break;
+    if(similar(t.n, h)) return j+1;
+  }
+  return -1;
+}
+function voiceReset(){ VT.idx=0; VT.disp=0; VT.hp=0; VT.off=VT.all; VT.done=false; VT.lastSpeech=Date.now(); }
+
+function buildTrack(){
+  VT.words=[]; VT.lastNS=-1;
+  const el = document.querySelector('#stage .line.now');
+  if(!el || !S.model || S.model.steps[S.pos].kind==='pause') return;
+  if(VT.pos!==S.pos){ VT.pos=S.pos; VT.idx=0; VT.disp=0; VT.done=false; }
+  const seenAr = new Set();
+  el.querySelectorAll('.txt, .items li').forEach(box => {
+    const tw = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+    const nodes = []; while(tw.nextNode()) nodes.push(tw.currentNode);
+    nodes.forEach(node => {
+      if(node.parentElement.closest('sup.cite')) return;
+      const ar = node.parentElement.closest('.ar');
+      if(ar){ if(!seenAr.has(ar)){ seenAr.add(ar); VT.words.push({el:ar, n:'', skip:true}); } return; }
+      const parts = node.nodeValue.split(/(\s+)/).flatMap(t => /\S/.test(t) ? t.split(/(?<=[—–\-])(?=[^\s—–\-])/) : [t]);
+      if(parts.length===1 && !/\S/.test(parts[0])) return;
+      const frag = document.createDocumentFragment();
+      parts.forEach(tok => {
+        if(!/\S/.test(tok)){ frag.appendChild(document.createTextNode(tok)); return; }
+        const sp = document.createElement('span'); sp.className='w'; sp.textContent=tok;
+        const n = norm(tok); const idx = VT.words.length;
+        sp.dataset.w = idx; VT.words.push({el:sp, n, skip:!n});
+        frag.appendChild(sp);
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+  });
+  VT.words.forEach((w,i)=>{ if(!w.skip) VT.lastNS=i; }); VT.n=VT.words.filter(w=>!w.skip).length;
+  renderTrack(false);
+}
+
+function renderTrack(scroll){
+  if(!VT.words.length) return;
+  let last=-1, nxt=-1;
+  for(let i=0;i<VT.words.length;i++){ if(VT.words[i].skip) continue; if(i<VT.disp) last=i; else if(nxt<0) nxt=i; }
+  VT.words.forEach((w,i)=>{ const c=w.el.classList; c.toggle('said', i<VT.disp); c.toggle('cur', i===last); c.toggle('nxt', i===nxt); });
+  if(scroll!==false && last>=0){
+    const w=VT.words[last].el, main=$('main'), mr=main.getBoundingClientRect(), wr=w.getBoundingClientRect(), tb=$('toolbar').offsetHeight;
+    if(wr.bottom>mr.bottom-110 || wr.top<mr.top+tb+16) main.scrollBy({top: wr.top-mr.top-tb-mr.height*0.28, behavior:'smooth'});
+  }
+}
+
+function setVoiceBadge(t){
+  let b=$('voiceStatusBadge');
+  if(!b){ b=document.createElement('span'); b.id='voiceStatusBadge'; b.className='voice-live-badge'; $('pace').parentNode.appendChild(b); }
+  b.textContent=t; b.hidden=false;
+}
+function showVoiceFeedback(t){ setVoiceBadge(t); setTimeout(()=>{ if(S.voice) setVoiceBadge('🎙️ Listening'); else { const b=$('voiceStatusBadge'); if(b) b.hidden=true; } }, 1400); }
+
+function voiceTick(){
+  if(!S.voice || RD.on || !S.model || VT.lastNS<0 || S.view!=='follow') return;
+  let rem=0; for(let i=VT.disp;i<=VT.lastNS;i++) if(!VT.words[i].skip) rem++;
+  const done = rem===0 || (VT.n>=6 && rem<=1 && Date.now()-VT.lastSpeech>700);
+  if(done!==VT.done){ VT.done=done; setVoiceBadge(done ? (S.voiceDelay>0 ? '✓ Line done · next after pause' : '✓ Line done · tap Next') : '🎙️ Listening'); }
+  if(done && S.voiceDelay>0 && S.pos < S.model.steps.length-1 && Date.now()-VT.lastSpeech >= S.voiceDelay*1000 && Date.now()-lastAdvanceTime > 1500){
+    lastAdvanceTime = Date.now(); next();
+  }
+}
+
+const VCMDS = [
+  [/^(next|next line|go next|move on)$/, () => next()],
+  [/^(back|go back|previous)$/, () => prev()],
+  [/^skip$/, () => skipCurrent()],
+  [/^(read|read this|read step)$/, () => startRead()],
+  [/^(got it|correct|good)$/, () => gradeCur('got')],
+  [/^(partly|partially)$/, () => gradeCur('partly')],
+  [/^(review|revisit)$/, () => gradeCur('review')],
+  [/^(pause timer|stop timer)$/, () => pauseTimer()],
+  [/^(start timer|resume timer)$/, () => startTimer()]
+];
+
+function onVoiceResult(e){
+  if(RD.on) return;
+  const fin=[], int=[]; let cmdText='';
+  for(let i=0;i<e.results.length;i++){
+    const r=e.results[i], t=String(r[0].transcript||'');
+    const ws=t.split(/[\s\-—–]+/).filter(Boolean);
+    if(r.isFinal){ fin.push(...ws); if(i>=e.resultIndex) cmdText=t; } else int.push(...ws);
+  }
+  VT.all = fin.length + int.length;
+  if(cmdText && Date.now()-lastAdvanceTime>1000){
+    const c = cmdText.toLowerCase().replace(/[^\p{L}\s]/gu,'').trim();
+    const hit = VCMDS.find(x=>x[0].test(c));
+    if(hit){ lastAdvanceTime=Date.now(); hit[1](); showVoiceFeedback('✓ '+c); return; }
+  }
+  if(!VT.words.length) return;
+  const H = fin.concat(int).slice(VT.off);
+  const finLen = Math.max(0, fin.length - VT.off);
+  for(let k=VT.hp; k<finLen; k++){ const r=matchFrom(VT.idx, H[k]); if(r>=0) VT.idx=r; }
+  VT.hp = Math.max(VT.hp, finLen);
+  let t = VT.idx;
+  for(let k=finLen; k<H.length; k++){ const r=matchFrom(t, H[k]); if(r>=0) t=r; }
+  if(H.length) VT.lastSpeech = Date.now();
+  const nd = Math.max(VT.disp, VT.idx, t);
+  if(nd!==VT.disp){ VT.disp=nd; renderTrack(true); }
+}
+
+function startVoiceRecognition(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.');
+    S.voice=false; $('voiceBtn').setAttribute('aria-pressed','false'); document.body.classList.remove('voice-on');
+    return;
+  }
+  try{
+    speechRec = new SR();
+    speechRec.continuous = true; speechRec.interimResults = true; speechRec.lang = 'en-US'; speechRec.maxAlternatives = 1;
+    speechRec.onstart = () => { VT.off=0; VT.hp=0; VT.all=0; };
+    speechRec.onresult = onVoiceResult;
+    speechRec.onerror = e => {
+      if(e.error==='not-allowed' || e.error==='service-not-allowed'){
+        S.voice=false; $('voiceBtn').setAttribute('aria-pressed','false'); document.body.classList.remove('voice-on');
+        const b=$('voiceStatusBadge'); if(b) b.hidden=true;
+        alert('Microphone access is blocked. Allow the microphone for this page and try again.');
+      }
+    };
+    speechRec.onend = () => {
+      if(S.voice){ setTimeout(()=>{ if(S.voice && speechRec){ try{ speechRec.start(); }catch(err){} } }, 250); }
+      else { const b=$('voiceStatusBadge'); if(b) b.hidden=true; }
+    };
+    speechRec.start();
+    setVoiceBadge('🎙️ Listening');
+  }catch(err){ S.voice=false; $('voiceBtn').setAttribute('aria-pressed','false'); document.body.classList.remove('voice-on'); }
+}
+
+function stopVoiceRecognition(){
+  if(speechRec){ const r=speechRec; speechRec=null; try{ r.stop(); }catch(e){} }
+  const b=$('voiceStatusBadge'); if(b) b.hidden=true;
+}
+
+/* Pronunciation Audio Engine (Instant Zero-Latency for Arabic & English) */
+let cachedVoices = [];
+function preloadVoices(){
+  if('speechSynthesis' in window){
+    cachedVoices = window.speechSynthesis.getVoices();
+  }
+}
+if('speechSynthesis' in window){
+  window.speechSynthesis.onvoiceschanged = preloadVoices;
+  preloadVoices();
+}
+
+function getBestVoice(isAr){
+  if(!cachedVoices.length && 'speechSynthesis' in window) cachedVoices = window.speechSynthesis.getVoices();
+  if(isAr){
+    return cachedVoices.find(v => v.lang.startsWith('ar') || v.name.includes('Arabic')) || null;
+  }
+  return cachedVoices.find(v => (v.lang === 'en-US' || v.lang.startsWith('en')) && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('English')))
+      || cachedVoices.find(v => v.lang.startsWith('en'))
+      || null;
+}
+
+function speakText(text){
+  if(!('speechSynthesis' in window) || !text) return;
+  stopReading(true);
+  const clean = String(text).replace(AR_RE, ' ').replace(/[*_`#]/g, '').replace(/\s+/g,' ').trim();
+  if(!clean) return;
+  window.speechSynthesis.cancel();
+  const ut = new SpeechSynthesisUtterance(clean);
+  ut.lang = 'en-US'; ut.rate = S.rate||0.95;
+  const v = getBestVoice(false); if(v) ut.voice = v;
+  window.speechSynthesis.speak(ut);
+}
+
+
+/* ===== Word-by-word Read Aloud with Pause/Resume/Stop ===== */
+const RD = { on:false, paused:false, ut:null, timer:0 };
+const READBTN = '<button type="button" class="btn small" data-act="read-step">🔊 Read</button> <button type="button" class="btn small" data-act="read-stop" hidden>⏹ Stop</button>';
+function updateTracking(){ document.body.classList.toggle('tracking', !!(S.voice || RD.on)); }
+function readSetBtn(){
+  const b=document.querySelector('#stage .line.now [data-act="read-step"]'), x=document.querySelector('#stage .line.now [data-act="read-stop"]');
+  if(b) b.textContent = !RD.on ? '🔊 Read' : RD.paused ? '▶ Resume' : '⏸ Pause';
+  if(x) x.hidden = !RD.on;
+  updateTracking();
+}
+function stopReading(keepHL){
+  RD.ut=null; clearInterval(RD.timer);
+  if('speechSynthesis' in window){ try{ speechSynthesis.cancel(); }catch(e){} }
+  RD.on=false; RD.paused=false;
+  if(!S.voice && !keepHL){ VT.words.forEach(w=>w.el.classList.remove('said','cur','nxt')); VT.disp=0; }
+  readSetBtn();
+}
+function startRead(){
+  if(!('speechSynthesis' in window) || !S.model) return;
+  const st=S.model.steps[S.pos];
+  stopReading(true);
+  if(st.kind==='pause'){ speakText(st.label||st.text); return; }
+  if(!document.querySelector('#stage .line.now .w')){ VT.pos=-1; buildTrack(); }
+  VT.disp=0; VT.idx=0; VT.off=VT.all;
+  const map=[]; let txt='';
+  VT.words.forEach((w,i)=>{ if(w.skip) return; map.push([txt.length,i]); txt+=w.el.textContent.replace(/[*_`#]/g,'')+' '; });
+  if(!map.length) return;
+  const ut=new SpeechSynthesisUtterance(txt.trim()); ut.lang='en-US'; ut.rate=S.rate||0.95;
+  const v=getBestVoice(false); if(v) ut.voice=v;
+  let got=false; const t0=Date.now(); let k=0;
+  ut.onboundary=e=>{
+    if(e.name && e.name!=='word') return; got=true;
+    let j=-1; for(let q=0;q<map.length;q++){ if(map[q][0]<=e.charIndex) j=q; else break; }
+    if(j>=0){ VT.disp=map[j][1]+1; renderTrack(true); }
+  };
+  ut.onend=()=>{ if(RD.ut===ut) readDone(); };
+  ut.onerror=()=>{ if(RD.ut===ut) stopReading(true); };
+  RD.ut=ut; RD.on=true; RD.paused=false;
+  RD.timer=setInterval(()=>{ if(got){ clearInterval(RD.timer); return; } if(RD.paused||Date.now()-t0<700) return; k=Math.min(map.length-1,k+1); VT.disp=map[k][1]+1; renderTrack(true); },380);
+  speechSynthesis.speak(ut); readSetBtn();
+}
+function toggleRead(){
+  if(!RD.on){ startRead(); return; }
+  if(RD.paused){ speechSynthesis.resume(); RD.paused=false; } else { speechSynthesis.pause(); RD.paused=true; }
+  readSetBtn();
+}
+function readDone(){
+  stopReading(true);
+  const n=S.model.steps[S.pos+1];
+  if(S.readAuto && n && n.kind==='speak') setTimeout(()=>{ next(); startRead(); },300);
+}
+
+/* Navigation */
+function go(n){
+  S.savedOnce = false;
+  { const pr = S.model.steps[S.pos]; if(pr && pr.kind === 'pause') S.talkSec = (S.talkSec||0) + (Date.now() - S.waitStart)/1000; }
+  stopReading();
+  const last = S.model.steps.length - 1;
+  n = Math.max(0, Math.min(last, n));
+  const curSlide = S.model.steps[n].slide;
+  const slideChanged = curSlide !== S.model.steps[S.pos].slide;
+
+  if(S.rehearsing && slideChanged){
+    const prevSlide = S.model.steps[S.pos].slide;
+    const dur = Math.round(elapsedMs() / 1000);
+    S.rehearsalTimes[prevSlide] = (S.rehearsalTimes[prevSlide] || 0) + dur;
+  }
+
+  if(slideChanged){ S.slideSec = S.slideSec || {}; const ps = S.model.steps[S.pos].slide; S.slideSec[ps] = (S.slideSec[ps]||0) + (elapsedMs() - (S.slideStart||0))/1000; S.slideStart = elapsedMs(); }
+  S.pos = n;
+  S.finished = false;
+  S.waitStart = Date.now();
+  voiceReset();
+  if(S.autoStart && !S.running && S.elapsed === 0 && n > 0) startTimer();
+  
+  renderStrip();
+  renderFollow(slideChanged);
+  if(slideChanged && !S.full){ const st=$('stage'); st.classList.remove('slide-in'); void st.offsetWidth; st.classList.add('slide-in'); }
+  renderFoot();
+  saveState();
+  tick();
+  broadcastSlide(curSlide);
+}
+
+function next(){ if(S.pos >= S.model.steps.length - 1) finish(); else go(S.pos + 1); }
+function prev(){ go(S.pos - 1); }
+function skipCurrent(){
+  let target = S.pos + 1;
+  while(target < S.model.steps.length && S.model.steps[target].optional) target++;
+  go(target);
+}
+
+function confetti(){ const e=['🎉','⭐','✨','🎊','🌟']; for(let i=0;i<36;i++){ const d=document.createElement('span'); d.className='conf'; d.textContent=e[i%5]; d.style.left=Math.random()*100+'vw'; d.style.animationDelay=Math.random()*.8+'s'; document.body.appendChild(d); setTimeout(()=>d.remove(),3500); } }
+function finish(){
+  pauseTimer();
+  if(!S.savedOnce){ S.savedOnce = true; saveToHistory(); toast('🎉 Lesson finished & saved to history'); } confetti();
+  S.finished = true;
+  setView('notes'); confetti();
+}
+
+function setView(v){
+  S.view = v;
+  for(const k of ['follow', 'script', 'notes', 'history', 'setup']){
+    const el = $('view-' + k);
+    if(el) el.hidden = k !== v;
+    const t = $('tab-' + k);
+    if(t){ t.setAttribute('aria-selected', String(k === v)); t.tabIndex = k === v ? 0 : -1; }
+  }
+  $('controls').hidden = v !== 'follow';
+  if(v === 'follow') renderFollow(false);
+  if(v === 'script') renderScript();
+  if(v === 'notes') renderNotes();
+  if(v === 'history') renderHistory();
+  if(v === 'setup') $('scriptInput').value = S.script;
+  $('main').scrollTop = 0;
+  if(v === 'follow') scrollToCurrent(false);
+}
+
+function renderHead(){
+  const m = S.model, t = m.title;
+  if(S.focus){
+    const sl = m.slides[m.steps[S.pos].slide];
+    $('kicker').textContent = 'Slide ' + sl.n + ' of ' + m.slides.length;
+    $('lessonName').textContent = sl.title;
+  } else {
+    $('kicker').textContent = t.kicker || 'Lesson';
+    $('lessonName').textContent = t.name || m.slides[0].title;
+  }
+}
+function renderTop(){
+  renderHead();
+  $('planned').textContent = plannedMin() ? '/ ' + mmss(plannedMin() * 60) : '';
+  renderClockBtn();
+}
+function renderStrip(){
+  const m = S.model, el = $('strip');
+  $('progBar').style.width = ((S.pos + 1) / m.steps.length * 100) + '%';
+  const curSlide = m.steps[S.pos].slide;
+  el.innerHTML = m.slides.map((s, i) => {
+    const cls = i < curSlide ? 'done' : i === curSlide ? 'cur' : '';
+    const mins = s.start && s.end ? ', min ' + s.start + '–' + s.end : '';
+    return '<button type="button" class="seg ' + cls + '" style="--w:' + s.weight + '" data-slide="' + i + '" aria-label="Slide ' + s.n + ': ' + esc(s.title) + mins + '"' + (i === curSlide ? ' aria-current="step"' : '') + '>' + s.n + '</button>';
+  }).join('') + '<div class="cursor" id="cursor" aria-hidden="true"></div>';
+}
+
+function lineHTML(l, state, after){
+  const pace = paceInfo();
+  const isBehind = pace.c === 'bad' || pace.c === 'warn';
+  const showSkip = l.optional && isBehind && state === 'now';
+  const cls = 'line k-' + l.kind + ' ' + state + (after ? ' after' : '') + (l.optional && isBehind ? ' skippable' : '');
+  const badge = '<span class="badge">' + esc(l.tag) + '</span>';
+  const optBadge = l.optional ? '<span class="opt-tag">Optional</span>' : '';
+  const attrs = ' data-pos="' + l.pos + '"' + (state === 'now' ? ' aria-current="step"' : '');
+
+  if(l.kind === 'pause'){
+    const label = esc(l.label || 'Wait for the answer');
+    if(state === 'now'){
+      const curAssessment = S.assess[l.qid] || '';
+      return '<article class="' + cls + '"' + attrs + '><div class="head"><div>' + badge + ' ' + READBTN + '</div><span class="wait"><span id="waitClock">0:00</span><span class="lbl">listening</span></span></div>'
+        + '<p class="txt">' + label + '</p>'
+        + (l.expect ? '<div class="expect"><span class="lbl">Likely answer</span><p>' + fmt(l.expect) + '</p></div>' : '')
+        + '<div class="qa-chips">'
+        + '<button type="button" class="btn-q" data-act="grade" data-qid="' + l.qid + '" data-status="got" aria-pressed="' + (curAssessment==='got') + '">✅ Got it <span class="hint">(1)</span></button>'
+        + '<button type="button" class="btn-q" data-act="grade" data-qid="' + l.qid + '" data-status="partly" aria-pressed="' + (curAssessment==='partly') + '">🟡 Partly <span class="hint">(2)</span></button>'
+        + '<button type="button" class="btn-q" data-act="grade" data-qid="' + l.qid + '" data-status="review" aria-pressed="' + (curAssessment==='review') + '">🔁 Review <span class="hint">(3)</span></button>'
+        + '</div>'
+        + '<button type="button" class="btn small" data-act="dictate" style="margin-top:8px">🎤 Dictate answer</button>' + '<input id="ans" class="field" type="text" autocomplete="off" aria-label="Student answer" placeholder="Note ' + esc(S.model.student) + '&#39;s answer..." value="' + esc(S.answers[l.qid]||'') + '">'
+        + (showSkip ? '<div class="skip-action"><button type="button" class="btn small" data-act="skip">⚡ Skip this optional step (Save time)</button></div>' : '')
+        + '</article>';
+    }
+    return '<article class="' + cls + '"' + attrs + '>' + badge + '<p class="txt">' + label + '</p></article>';
+  }
+
+  const items = l.items.length ? '<ol class="items">' + l.items.map(i => '<li>' + fmt(i) + '</li>').join('') + '</ol>' : '';
+  return '<article class="' + cls + '"' + attrs + '><div class="line-top"><div>' + badge + ' ' + optBadge + '</div>' + (state==='now' ? '' + READBTN + '' : '') + '</div><p class="txt">' + fmt(l.text) + '</p>' + items 
+    + (showSkip ? '<div class="skip-action"><button type="button" class="btn small" data-act="skip">⚡ Skip optional line</button></div>' : '')
+    + '</article>';
+}
+
+function flHead(s){
+  if(S.div === 'none') return '<div class="fl-gap"></div>';
+  const t = s.start && s.end ? 'min ' + s.start + '–' + s.end : '';
+  if(S.div === 'chapter') return '<div class="fl-head"><b>Slide ' + s.n + ': ' + esc(s.title) + '</b><span>' + t + '</span></div>';
+  return '<div class="fl-head mini"><b>' + s.n + ' · ' + esc(s.title) + '</b></div>';
+}
+function renderFollow(){
+  const m = S.model, cur = m.steps[S.pos], sl = m.slides[cur.slide];
+  renderHead();
+  const win = sl.start && sl.end ? ' · min ' + sl.start + '–' + sl.end : '';
+  
+  // RESTORE ALL ORIGINAL TOOLBAR BUTTONS: A-, A+, Theme, Wide, Fullscreen, Rephrase
+  $('toolbar').innerHTML = '<div class="ttl"><div class="eyebrow">' + (S.full ? 'Full script · whole lesson on one page' : 'Slide ' + sl.n + '/' + m.slides.length + win) + '</div><div class="name">' + esc(sl.title) + '</div></div>'
+    + '<div class="tools"><span class="count">' + (S.pos + 1) + ' / ' + m.steps.length + '</span>'
+    + '<button class="btn small" type="button" id="fsDown" aria-label="Smaller text">A−</button><button class="btn small" type="button" id="fsUp" aria-label="Larger text">A+</button>'
+    + '<button class="btn small" type="button" id="readBtn" title="Read aloud / pause (R)">🔊</button><button class="btn small primary" type="button" id="fullTxtBtn" title="Switch Full page / Slides (W)">' + (S.full ? '📜 Full page' : '🗂 Slides') + '</button><button class="btn small" type="button" id="toolsMore" aria-label="More tools">⋯</button><span class="tools-extra' + (window.__to ? ' open' : '') + '"><button class="btn small" type="button" id="thmBtn" aria-label="Change theme" title="Cycle theme">🎨</button>'
+    + '<button class="btn small" type="button" id="wideBtn" aria-label="Wide mode" title="Full wide mode" aria-pressed="' + S.wide + '">↔</button>'
+    + '<button class="btn small" type="button" id="fullBtn" aria-label="Full screen" title="Full screen">⛶</button>'
+    + '<button class="btn small" type="button" id="mirBtn" title="Mirror text (for glass teleprompter)">🪞</button><button class="btn small" type="button" id="editBtn" title="Edit this line">✏️</button>'
+    + '</span><button class="btn small" type="button" id="rpBtn" aria-label="Rephrase helper" title="Rephrase selected text or this step">✨</button></div>';
+
+  const lh = l => lineHTML(l, l.pos < S.pos ? 'done' : l.pos === S.pos ? 'now' : 'next', l.pos === S.pos + 1);
+  $('stage').innerHTML = S.full
+    ? m.slides.map(s => flHead(s) + s.lines.map(lh).join('')).join('')
+    : sl.lines.map(lh).join('');
+  
+  const a = $('ans');
+  if(a) a.addEventListener('input', () => { S.answers[cur.qid] = a.value; saveState(); });
+  if(S.voice) buildTrack();
+  readSetBtn();
+  scrollToCurrent(true);
+}
+
+function scrollToCurrent(smooth){
+  const el = document.querySelector('#stage .line.now');
+  if(!el) return;
+  const place = (behavior) => {
+    const main = $('main'), tb = $('toolbar').offsetHeight;
+    const mr = main.getBoundingClientRect(), er = el.getBoundingClientRect();
+    const elTop = er.top - mr.top + main.scrollTop;
+    const room = main.clientHeight - tb;
+    const lead = Math.min(room * 0.12, 80);
+    let target = elTop - tb - lead;
+    if(er.height > room - 24) target = elTop - tb - 8;
+    main.scrollTo({ top: Math.max(0, target), behavior });
+  };
+  requestAnimationFrame(() => {
+    place(smooth ? 'smooth' : 'instant');
+  });
+}
+
+function renderFoot(){
+  const m = S.model, last = m.steps.length - 1;
+  $('btnPrev').disabled = S.pos === 0;
+  if(S.pos >= last){
+    $('goLabel').textContent = 'Finish lesson';
+    $('goSub').textContent = 'Open notes & summary report';
+  } else {
+    $('goLabel').textContent = 'Next';
+    const n = m.steps[S.pos + 1];
+    $('goSub').textContent = 'then ' + n.tag.toLowerCase() + (n.slide !== m.steps[S.pos].slide ? ' · new slide' : '');
+  }
+}
+
+function renderScript(){
+  const m = S.model, onlyAsk = S.filter === 'ask', onlySkip = S.filter === 'skippable';
+  $('chipAsk').textContent = 'Questions (' + m.asks.length + ')';
+  document.querySelectorAll('#view-script .chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.filter === S.filter)));
+  let html = '';
+  m.slides.forEach(s => {
+    const lines = s.lines.filter(l => {
+      if(S.q && !(l.text + ' ' + l.items.join(' ')).toLowerCase().includes(S.q)) return false;
+      if(onlyAsk) return l.kind === 'ask';
+      if(onlySkip) return l.optional;
+      return true;
+    });
+    if(!lines.length) return;
+    html += '<div class="sl-head"><h2>' + s.n + '. ' + esc(s.title) + '</h2><span>' + (s.start && s.end ? 'min ' + s.start + '–' + s.end : '') + '</span></div>';
+    html += lines.map(l => {
+      const st = l.pos === S.pos ? ' cur' : l.pos < S.pos ? ' past' : '';
+      const body = l.kind === 'pause' ? esc(l.label || 'Wait for answer') : fmt(l.text);
+      return '<div class="row k-' + l.kind + st + '" data-pos="' + l.pos + '" role="button" tabindex="0"><span class="badge">' + esc(l.tag) + '</span><div><p class="txt">' + body + '</p></div></div>';
+    }).join('');
+  });
+  $('scriptList').innerHTML = html || '<div class="empty">No matching lines.</div>';
+}
+
+function buildSummary(){
+  const m = S.model, e = elapsedMs() / 1000, cur = m.steps[S.pos];
+  const out = [];
+  out.push('📚 ' + (m.title.kicker ? m.title.kicker + ' — ' : '') + (m.title.name || m.slides[0].title));
+  out.push('🗓️ Date: ' + new Date().toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }));
+  out.push('⏱️ Duration: ' + mmss(e) + (plannedMin() ? ' of ' + plannedMin() + ' planned minutes' : ''));
+  out.push('🗨️ Student speaking time: ' + mmss(S.talkSec||0));
+  out.push('📍 Covered up to: Slide ' + m.slides[cur.slide].n + ' (' + m.slides[cur.slide].title + ')');
+  
+  const gotList = [], partlyList = [], reviewList = [];
+  m.asks.forEach(a => {
+    const status = S.assess[a.id] || '';
+    const qClean = cleanMd(a.text).replace(/\s?\[\d+(?:\s*,\s*\d+)*\]/g,'');
+    if(status === 'got') gotList.push('• ' + qClean);
+    else if(status === 'partly') partlyList.push('• ' + qClean);
+    else if(status === 'review') reviewList.push('• ' + qClean);
+  });
+
+  out.push('');
+  out.push('--- Student Mastery ---');
+  if(gotList.length){ out.push('✅ Mastered concepts:'); out.push(gotList.join('\n')); }
+  if(partlyList.length){ out.push('🟡 Developing (partially understood):'); out.push(partlyList.join('\n')); }
+  if(reviewList.length){ out.push('🔁 Needs revisit next session:'); out.push(reviewList.join('\n')); }
+  if(!gotList.length && !partlyList.length && !reviewList.length) out.push('(No quick assessment grades marked)');
+
+  if(m.asks.length){
+    out.push('');
+    out.push('--- Detailed Q&A ---');
+    m.asks.forEach((a, i) => {
+      const ans = (S.answers[a.id] || '').trim();
+      out.push('Q' + (i+1) + ': ' + cleanMd(a.text));
+      out.push(m.student + ': ' + (ans || '(no typed answer)'));
+    });
+  }
+
+  out.push(''); out.push('--- Time per slide ---');
+  { const st=slideTimes(), mx=Math.max(1,...st.map(x=>x[1])); st.forEach(([sl,t])=>out.push('Slide '+sl.n+' '+'█'.repeat(Math.round(t/mx*10)||0)+' '+mmss(t))); }
+  if(S.notes.trim()){
+    out.push('');
+    out.push('--- Teacher Notes ---');
+    out.push(S.notes.trim());
+  }
+  return out.join('\n');
+}
+
+function renderNotes(){
+  const m = S.model;
+  const fb = $('finishBanner');
+  if(S.finished){
+    fb.hidden = false;
+    fb.textContent = '🎉 Lesson finished in ' + mmss(elapsedMs() / 1000) + (plannedMin() ? ' (planned ' + plannedMin() + ' min).' : '.');
+  } else fb.hidden = true;
+
+  { const c={got:0,partly:0,review:0}; m.asks.forEach(a=>{ if(c[S.assess[a.id]]!==undefined) c[S.assess[a.id]]++; });
+    const pct=Math.round((S.pos+1)/m.steps.length*100);
+    $('stats').innerHTML=[[mmss(elapsedMs()/1000),'Time'],[pct+'%','Covered'],[c.got,'✅ Got it'],[c.partly,'🟡 Partly'],[c.review,'🔁 Review']].map(x=>'<div class="stat"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join(''); }
+  $('notesArea').value = S.notes;
+  $('qaHead').textContent = m.student + "'s Answers & Assessment";
+  $('qaList').innerHTML = m.asks.length ? m.asks.map((a, i) => {
+    const curA = S.assess[a.id] || '';
+    return '<div class="hist-item"><div class="h-top"><span>Q' + (i+1) + ': ' + fmt(a.text) + '</span></div>'
+      + '<div class="qa-chips" style="margin-block:6px">'
+      + '<button type="button" class="btn-q" data-act="grade" data-qid="' + a.id + '" data-status="got" aria-pressed="' + (curA==='got') + '">✅ Got it <span class="hint">(1)</span></button>'
+      + '<button type="button" class="btn-q" data-act="grade" data-qid="' + a.id + '" data-status="partly" aria-pressed="' + (curA==='partly') + '">🟡 Partly <span class="hint">(2)</span></button>'
+      + '<button type="button" class="btn-q" data-act="grade" data-qid="' + a.id + '" data-status="review" aria-pressed="' + (curA==='review') + '">🔁 Review <span class="hint">(3)</span></button>'
+      + '</div>'
+      + '<textarea class="field" data-qid="' + a.id + '" placeholder="What did ' + esc(m.student) + ' say?">' + esc(S.answers[a.id]||'') + '</textarea>'
+      + '</div>';
+  }).join('') : '<p class="help">No questions in this script.</p>';
+
+  $('summary').value = buildSummary();
+}
+
+function saveToHistory(){
+  if(!S.model) return;
+  const reviewQuestions = S.model.asks.filter(a => S.assess[a.id] === 'review' || S.assess[a.id] === 'partly').map(a => cleanMd(a.text).slice(0, 50) + '...').join('; ');
+  const entry = {
+    date: new Date().toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' }),
+    title: S.model.title.name || S.model.slides[0].title,
+    time: mmss(elapsedMs() / 1000),
+    reviewTopics: reviewQuestions || 'All key concepts mastered'
+  };
+  S.history.unshift(entry);
+  if(S.history.length > 50) S.history.pop();
+  lsSet('lp.history', JSON.stringify(S.history));
+  $('copyMsg').textContent = 'Saved to history!';
+  setTimeout(() => $('copyMsg').textContent='', 2500);
+  checkLastTimeBanner();
+}
+
+function renderHistory(){
+  const hl = $('historyList');
+  if(!S.history || !S.history.length){ hl.innerHTML = '<div class="empty">No past lesson sessions recorded yet.</div>'; return; }
+  hl.innerHTML = S.history.map(h => '<div class="hist-item"><div class="h-top"><span>' + esc(h.title) + '</span><span>' + esc(h.date) + '</span></div>'
+    + '<div class="h-sub">Duration: ' + esc(h.time) + ' · Focus for review: <em>' + esc(h.reviewTopics) + '</em></div></div>').join('');
+}
+
+async function generateAutoQuiz(){
+  const qb = $('quizBox');
+  qb.hidden = false;
+  qb.innerHTML = '<em>Generating 3 recap questions with AI...</em>';
+  try {
+    const prompt = 'Based on this lesson script: "' + S.script.slice(0, 1500) + '", create 3 fun, direct recap review questions suitable for ' + S.ai.age + '. Format: 1., 2., 3.';
+    const res = await callAI(prompt);
+    qb.innerHTML = '<strong>🎯 Quick Recap Quiz for ' + esc(S.model.student) + ':</strong><pre style="margin:6px 0 0;white-space:pre-wrap;font-family:inherit">' + esc(res) + '</pre>';
+  } catch(err){
+    qb.innerHTML = '<span style="color:var(--bad)">Could not generate quiz: ' + esc(err.message) + '</span>';
+  }
+}
+
+/* 12 Original Themes & Fonts */
+const THEMES = [
+  ['auto','Auto'],['paper','Paper (eye comfort)'],['night','Night (warm)'],['midnight','Midnight blue'],['graphite','Graphite'],
+  ['forest','Forest'],['reddim','Red night'],['dark','Dark'],['sepia','Sepia'],
+  ['gray','Soft gray'],['light','Light'],['blue','Soft blue'],['contrast','High contrast']
+];
+const ARFONTS = {
+  naskh:"'Noto Naskh Arabic','Amiri','Traditional Arabic',serif",
+  amiri:"'Amiri','Noto Naskh Arabic','Traditional Arabic',serif",
+  schei:"'Scheherazade New','Amiri','Noto Naskh Arabic',serif",
+  cairo:"'Cairo','Noto Naskh Arabic',sans-serif"
+};
+const FONTS = {
+  lora:"'Lora',Georgia,'Noto Naskh Arabic',serif",
+  merri:"'Merriweather',Georgia,'Noto Naskh Arabic',serif",
+  literata:"'Literata',Georgia,'Noto Naskh Arabic',serif",
+  lexend:"'Lexend','Atkinson Hyperlegible',system-ui,sans-serif",
+  nunito:"'Nunito','Atkinson Hyperlegible',system-ui,sans-serif",
+  atk:"'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif",
+  serif:"Georgia,'Noto Naskh Arabic','Times New Roman',serif",
+  system:"system-ui,-apple-system,'Segoe UI',sans-serif"
+};
+
+function applyLook(){
+  const r = document.documentElement;
+  if(S.theme === 'auto') r.removeAttribute('data-theme');
+  else r.setAttribute('data-theme', S.theme);
+  
+  r.style.setProperty('--fs', S.fs);
+  r.style.setProperty('--ar-fs', S.arFs);
+  r.style.setProperty('--lh', S.lh);
+  r.style.setProperty('--font-body', FONTS[S.font] || FONTS.lora); r.style.setProperty('--font-ar', ARFONTS[S.arFont] || ARFONTS.naskh);
+  
+  document.body.classList.toggle('focus', S.focus);
+  document.body.classList.toggle('locked', S.locked);
+  document.body.classList.toggle('wide', S.wide);
+  document.body.classList.toggle('camera-mode', S.cam); document.body.classList.toggle('fulltext', S.full); document.body.classList.toggle('nodiv', S.full && S.div === 'none');
+  
+  $('focusBtn').setAttribute('aria-pressed', String(S.focus));
+  $('lockBtn').setAttribute('aria-pressed', String(S.locked));
+  $('lockBtn').textContent = S.locked ? '🔒 Unlock taps' : '🔓 Lock taps';
+  $('camBtn').setAttribute('aria-pressed', String(S.cam));
+  $('voiceBtn').setAttribute('aria-pressed', String(S.voice));
+  
+  document.querySelectorAll('#themeChips .chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.theme === S.theme)));
+  $('optWide').checked = S.wide; $('divSel').value = S.div;
+  $('optCam').checked = S.cam;
+  $('fsRange').value = S.fs;
+  $('arFsRange').value = S.arFs;
+  $('lhRange').value = S.lh;
+  r.style.setProperty('--fw', S.fw || 400); r.style.setProperty('--fwb', Math.min(900, (S.fw || 400) + 200));
+  if(S.tc) r.style.setProperty('--txt-c', S.tc); else r.style.removeProperty('--txt-c');
+  document.body.classList.toggle('has-tc', !!S.tc); document.body.classList.toggle('has-fw', S.fw > 0);
+  $('stage').style.filter = S.br !== 1 ? 'brightness(' + S.br + ')' : '';
+  $('brRange').value = S.br; $('fwRange').value = S.fw || 400; if(S.tc) $('tcInput').value = S.tc;
+  document.querySelectorAll('#tcChips .swatch').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.c || '') === (S.tc || ''))));
+  $('fontSel').value = S.font; $('arFontSel').value = S.arFont;
+  $('optCites').checked = S.cites;
+  $('optFloatRP').checked = S.floatRP;
+  $('optAuto').checked = S.autoStart;
+  $('optWake').checked = S.wake;
+  $('voicePace').value = String(S.voiceDelay); $('optReadAuto').checked = S.readAuto; $('readRate').value = S.rate;
+}
+
+function toggleFullText(){ S.full = !S.full; applyLook(); savePrefs(); if(S.model){ renderFollow(); toast(S.full ? '📜 Full text mode' : '🗂 Card mode'); } }
+function toggleFull(){
+  try {
+    if(document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  }catch(e){}
+}
+
+function initSettings(){
+  $('themeChips').innerHTML = THEMES.map(t => '<button type="button" class="chip" data-theme="' + t[0] + '" aria-pressed="false">' + t[1] + '</button>').join('');
+  $('themeChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-theme]');
+    if(!b) return;
+    S.theme = b.dataset.theme; applyLook(); savePrefs();
+  });
+  
+  $('divSel').addEventListener('change', e => { S.div = e.target.value; savePrefs(); if(S.model) renderFollow(); });
+  $('optWide').addEventListener('change', e => { S.wide = e.target.checked; applyLook(); savePrefs(); renderFollow(); });
+  $('optCam').addEventListener('change', e => { S.cam = e.target.checked; applyLook(); savePrefs(); });
+  $('fsRange').addEventListener('input', e => { S.fs = +e.target.value; applyLook(); savePrefs(); });
+  $('arFsRange').addEventListener('input', e => { S.arFs = +e.target.value; applyLook(); savePrefs(); });
+  $('lhRange').addEventListener('input', e => { S.lh = +e.target.value; applyLook(); savePrefs(); });
+  const QC = [['','Theme','transparent'],['#FFFFFF','White','#FFFFFF'],['#FFF3C4','Cream','#FFF3C4'],['#FFE066','Yellow','#FFE066'],['#9BE7C4','Mint','#9BE7C4'],['#9CC9FF','Sky','#9CC9FF'],['#FFB4A2','Coral','#FFB4A2'],['#111111','Black','#111111']];
+  $('tcChips').innerHTML = QC.map(c => '<button type="button" class="swatch" data-c="' + c[0] + '" title="' + c[1] + '" aria-label="' + c[1] + '" aria-pressed="false" style="background:' + (c[0] ? c[2] : 'repeating-linear-gradient(45deg,var(--surface-2) 0 6px,var(--line) 6px 12px)') + '"></button>').join('');
+  $('tcChips').addEventListener('click', e => { const b = e.target.closest('.swatch'); if(!b) return; S.tc = b.dataset.c; applyLook(); savePrefs(); });
+  $('tcInput').addEventListener('input', e => { S.tc = e.target.value; applyLook(); savePrefs(); });
+  $('brRange').addEventListener('input', e => { S.br = +e.target.value; applyLook(); savePrefs(); });
+  $('fwRange').addEventListener('input', e => { S.fw = +e.target.value; applyLook(); savePrefs(); });
+  $('resetLook').addEventListener('click', () => { S.tc = ''; S.br = 1; S.fw = 0; applyLook(); savePrefs(); toast('Text look reset'); });
+  $('moreMenu').addEventListener('click', e => { const b = e.target.closest('[data-look]'); if(!b) return; const k = b.dataset.look;
+    if(k === 'br+') S.br = Math.min(1.5, +(S.br + 0.1).toFixed(2)); else if(k === 'br-') S.br = Math.max(0.5, +(S.br - 0.1).toFixed(2));
+    else if(k === 'fw+') S.fw = Math.min(800, (S.fw || 400) + 100); else if(k === 'fw-') S.fw = (S.fw || 400) <= 400 ? 0 : (S.fw || 400) - 100;
+    applyLook(); savePrefs(); toast(k.startsWith('br') ? 'Brightness ' + Math.round(S.br * 100) + '%' : 'Boldness ' + (S.fw || 'normal')); });
+  $('fontSel').addEventListener('change', e => { S.font = e.target.value; applyLook(); savePrefs(); });
+  $('arFontSel').addEventListener('change', e => { S.arFont = e.target.value; applyLook(); savePrefs(); });
+  $('optCites').addEventListener('change', e => { S.cites = e.target.checked; savePrefs(); renderFollow(); });
+  $('optFloatRP').addEventListener('change', e => { S.floatRP = e.target.checked; savePrefs(); if(!S.floatRP) $('selChip').hidden = true; });
+  $('optAuto').addEventListener('change', e => { S.autoStart = e.target.checked; savePrefs(); });
+  $('voicePace').addEventListener('change', e => { S.voiceDelay = +e.target.value; savePrefs(); });
+  $('optReadAuto').addEventListener('change', e => { S.readAuto = e.target.checked; savePrefs(); });
+  $('readRate').addEventListener('input', e => { S.rate = +e.target.value; savePrefs(); });
+  $('optWake').addEventListener('change', e => { S.wake = e.target.checked; savePrefs(); setWake(S.wake); });
+
+  const aiObj = JSON.parse(lsGet('lp.ai') || 'null');
+  if(aiObj) Object.assign(S.ai, aiObj);
+  $('aiProv').value = S.ai.provider;
+  $('aiKey').value = S.ai.key;
+  $('aiModel').value = S.ai.model;
+  $('aiAge').value = S.ai.age || '11-year-old student';
+
+  $('aiProv').addEventListener('change', e => { S.ai.provider = e.target.value; saveAI(); });
+  $('aiKey').addEventListener('input', e => { S.ai.key = e.target.value.trim(); saveAI(); });
+  $('aiModel').addEventListener('input', e => { S.ai.model = e.target.value.trim(); saveAI(); });
+  $('aiAge').addEventListener('input', e => { S.ai.age = e.target.value.trim(); saveAI(); });
+  $('stuName').value = S.name || '';
+  $('stuName').addEventListener('input', e => { S.name = e.target.value.trim(); savePrefs(); if(S.model){ S.model.student = S.name || 'Student'; } });
+  applyLook();
+}
+function saveAI(){ lsSet('lp.ai', JSON.stringify(S.ai)); }
+
+/* Backup & Restore */
+function exportBackupJSON(){
+  const data = {
+    version: 2,
+    date: new Date().toISOString(),
+    prefs: S,
+    history: S.history,
+    script: S.script,
+    answers: S.answers,
+    assess: S.assess,
+    notes: S.notes
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Lesson_Prompter_Backup_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackupJSON(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(data.history) { S.history = data.history; lsSet('lp.history', JSON.stringify(S.history)); }
+      if(data.script) applyScript(data.script);
+      if(data.answers) S.answers = data.answers;
+      if(data.assess) S.assess = data.assess;
+      if(data.notes) S.notes = data.notes;
+      saveState();
+      renderAll();
+      alert('Backup restored successfully!');
+    } catch(err){ alert('Invalid backup file.'); }
+  };
+  reader.readAsText(file);
+}
+
+/* Fast Groq & AI API Handler */
+async function callAI(prompt, onChunk){
+  const a = S.ai;
+  if(!a.key) throw new Error('Add your API key in Setup.');
+
+  if(a.provider === 'claude'){
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': a.key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: a.model || 'claude-haiku-5-5',
+        max_tokens: 400,
+        messages: [{ role:'user', content:prompt }]
+      })
+    });
+    const j = await r.json();
+    if(!r.ok) throw new Error((j.error && j.error.message) || ('Error ' + r.status));
+    return j.content.map(x => x.text || '').join('');
+  }
+
+  if(a.provider === 'groq'){
+    const model = (a.model && a.model.trim()) || 'openai/gpt-oss-20b';
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': 'Bearer ' + a.key
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: 'You are an educational assistant for an online teacher. Speak simply for an ' + a.age + '. Answer directly and concisely.' },
+          { role: 'user', content: prompt }
+        ],
+        reasoning_effort: 'low',
+        include_reasoning: false,
+        max_completion_tokens: 800,
+        temperature: 0.2,
+        stream: false
+      })
+    });
+    if(!r.ok){
+      let msg = 'Groq error ' + r.status;
+      try { const j = await r.json(); msg = j.error?.message || msg; }catch(e){}
+      throw new Error(msg);
+    }
+    const data = await r.json();
+    const full = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+    if(!full.trim()) throw new Error('Groq returned an empty response.');
+    if(onChunk) onChunk(full.trim());
+    return full.trim();
+  }
+
+  // Gemini
+  const model = a.model || 'gemini-2.5-flash-lite';
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model.replace(/^models\//,'')) + ':generateContent?key=' + encodeURIComponent(a.key);
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 300, temperature: 0.2 }
+    })
+  });
+  const j = await r.json();
+  if(!r.ok) throw new Error((j.error && j.error.message) || ('Error ' + r.status));
+  const txt = ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || []).map(x => x.text || '').join('');
+  if(onChunk && txt) onChunk(txt);
+  return txt;
+}
+
+/* Rephrase Helper (Polite, Non-Intrusive Floating Button) */
+let RP = { text:'', pos:-1, whole:false, items:[] }, lastSel = { text:'', pos:-1, rect:null }, selT = 0;
+const plain = t => cleanMd(t).replace(/\s?\[\d+(?:\s*,\s*\d+)*\]/g,'');
+
+function selInfo(){
+  const sel = window.getSelection(); if(!sel || sel.isCollapsed || !sel.rangeCount) return null;
+  const text = sel.toString().replace(/\s+/g,' ').trim();
+  if(!text || text.length < 2) return null; // Ignore clicks or single-char taps
+  const rng = sel.getRangeAt(0); let n = rng.commonAncestorContainer; n = n.nodeType === 1 ? n : n.parentElement;
+  if(!n || !n.closest || !n.closest('#stage,#scriptList')) return null;
+  const row = n.closest('[data-pos]');
+  return { text, pos: row ? +row.dataset.pos : -1, rect: rng.getBoundingClientRect(), whole:false };
+}
+function wholeLine(){
+  if(!S.model) return null; const l = S.model.steps[S.pos]; if(!l) return null;
+  return { text: plain(l.kind === 'pause' ? (l.label || l.text) : l.text), pos: S.pos, whole: true };
+}
+
+document.addEventListener('selectionchange', () => {
+  clearTimeout(selT);
+  selT = setTimeout(() => {
+    const chip = $('selChip');
+    if(!S.floatRP){ chip.hidden = true; return; }
+    const i = selInfo();
+    if(i && $('rp').hidden){
+      lastSel = i; chip.hidden = false; const r = i.rect, w = chip.offsetWidth;
+      chip.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+      let top = r.bottom + 8; if(top + 48 > innerHeight) top = Math.max(8, r.top - 46);
+      chip.style.top = top + 'px';
+    } else {
+      chip.hidden = true;
+    }
+  }, 220);
+});
+
+// Hide floating button immediately when scrolling or tapping outside
+window.addEventListener('scroll', () => { $('selChip').hidden = true; }, { passive:true });
+document.addEventListener('pointerdown', e => {
+  if(!e.target.closest('#selChip,#rp')) $('selChip').hidden = true;
+});
+
+$('selChip').addEventListener('pointerdown', e => e.preventDefault());
+$('selChip').addEventListener('click', e => { const b=e.target.closest('[data-sc]'); if(!b) return; const m=b.dataset.sc; if(m==='read'){ speakText(lastSel.text); $('selChip').hidden=true; } else openRP(lastSel, m==='translate'?'translate':null); });
+$('rpLang').addEventListener('change', () => runRP('translate'));
+$('rpClose').addEventListener('click', () => { $('rp').hidden = true; $('selChip').hidden = true; });
+$('rpSpeak').addEventListener('click', () => { if(RP.text) speakText(RP.text); });
+
+function openRP(info, mode){
+  RP = { text: info.text, pos: info.pos, whole: !!info.whole, items: [] };
+  $('rpSel').textContent = info.text; $('rpOut').innerHTML = ''; $('rpMsg').textContent = '';
+  const isWord = !/\s/.test(info.text);
+  document.querySelectorAll('#rpModes [data-long]').forEach(b => b.hidden = isWord);
+  $('selChip').hidden = true; $('rp').hidden = false;
+  $('rpUndo').hidden = !S.replacementsHistory.length;
+  runRP(mode || (isWord ? 'synonyms' : 'simpler'));
+}
+
+function buildPrompt(mode, text, ctx){
+  const base = 'You help a teacher reading a lesson aloud to an ' + S.ai.age + '. Keep names and Arabic phrases unchanged. ';
+  const sel = ' Selected text: "' + text + '".' + (ctx ? ' Context: "' + ctx + '".' : '');
+  if(mode === 'translate') return 'Translate the selected text into ' + $('rpLang').value + '. Give the translation first, then a short transliteration if the script is not Latin, then one simple example sentence. Be brief.' + sel;
+  if(mode === 'simpler') return base + 'Rewrite with simple everyday words easy for an ' + S.ai.age + '. Give 3 clear alternatives, one per line.' + sel;
+  if(mode === 'synonyms') return base + 'Give 6 everyday synonyms that fit this context. Return as comma-separated.' + sel;
+  if(mode === 'meanings') return base + 'Give different meanings with examples. One per line.' + sel;
+  if(mode === 'shorter') return base + 'Make this shorter and punchier for speech. Give 2 versions.' + sel;
+  return base + 'Rephrase in 3 ways easy to read aloud.' + sel;
+}
+
+async function runRP(mode){
+  const out = $('rpOut');
+  out.innerHTML = '<p class="help">Working with ' + esc(S.ai.provider) + '...</p>';
+  try {
+    const ctx = RP.pos >= 0 && S.model.steps[RP.pos] ? plain(S.model.steps[RP.pos].text) : '';
+    const txt = await callAI(buildPrompt(mode, RP.text, ctx));
+    let items = [];
+    if(mode === 'synonyms') items = txt.split(/[,\n]+/).map(x => x.replace(/^[\s\d.\-•*"]+|["\s]+$/g,'')).filter(Boolean).slice(0,10);
+    else items = txt.split('\n').map(x => x.replace(/^[\s\d.)\-•*]+/,'').replace(/^"|"$/g,'').trim()).filter(Boolean).slice(0,5);
+    
+    RP.items = items;
+    out.innerHTML = mode === 'translate'
+      ? items.map(t => '<div class="ritem"><span class="t">' + esc(t) + '</span></div>').join('')
+      : mode === 'synonyms'
+      ? '<div class="chips">' + items.map((t, i) => '<button type="button" class="btn" data-act="use" data-i="' + i + '">' + esc(t) + '</button>').join('') + '</div>'
+      : items.map((t, i) => '<div class="ritem"><span class="t">' + esc(t) + '</span><button type="button" class="btn small primary" data-act="use" data-i="' + i + '">Use</button></div>').join('');
+  } catch(err){
+    out.innerHTML = '<div class="report bad">' + esc(err.message) + '</div>' + (mode==='translate' ? '<p><a href="https://translate.google.com/?sl=auto&tl=' + ({Arabic:'ar',English:'en',French:'fr',Urdu:'ur',Spanish:'es'}[$('rpLang').value]||'ar') + '&text=' + encodeURIComponent(RP.text) + '&op=translate" target="_blank" rel="noopener">Open in Google Translate ↗</a></p>' : '');
+  }
+}
+
+$('rpModes').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if(b) runRP(b.dataset.mode); });
+$('rpOut').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]'); if(!b) return;
+  const t = RP.items[+b.dataset.i];
+  if(b.dataset.act === 'use') applyReplace(t);
+});
+
+function applyReplace(newText){
+  const st = RP.pos >= 0 ? S.model.steps[RP.pos] : null;
+  if(st){
+    S.replacementsHistory.push({ oldText: st.text, script: S.script, pos: S.pos });
+    S.script = S.script.replace(RP.text, newText);
+    st.text = st.text.replace(RP.text, newText);
+    lsSet('lp.script', S.script);
+    $('scriptInput').value = S.script;
+    $('rp').hidden = true;
+    renderFollow();
+  }
+}
+
+$('rpUndo').addEventListener('click', () => {
+  if(!S.replacementsHistory.length) return;
+  const last = S.replacementsHistory.pop();
+  S.script = last.script;
+  applyScript(S.script);
+  renderAll();
+  $('rp').hidden = true;
+});
+
+
+/* Double-tap any word: meaning + pronunciation */
+let dictWord='';
+async function openDict(w){
+  w=String(w).replace(/[^\p{L}'\-]/gu,''); if(!w) return; dictWord=w;
+  $('selChip').hidden=true; $('dict').hidden=false;
+  $('dictBody').innerHTML='<h3>'+esc(w)+'</h3><p class="help">Looking up…</p>';
+  speakText(w);
+  try{
+    const r=await fetch('https://api.dictionaryapi.dev/v2/entries/en/'+encodeURIComponent(w.toLowerCase()));
+    if(!r.ok) throw 0; const j=await r.json(), e=j[0];
+    const ph=e.phonetic||((e.phonetics||[]).find(p=>p.text)||{}).text||'';
+    let h='<h3>'+esc(w)+'<span class="ph">'+esc(ph)+'</span></h3>';
+    (e.meanings||[]).slice(0,3).forEach(m=>{ h+='<p style="margin:8px 0 2px"><em>'+esc(m.partOfSpeech)+'</em></p><ol style="margin:0;padding-left:1.3em">'+m.definitions.slice(0,2).map(d=>'<li>'+esc(d.definition)+(d.example?'<br><small style="color:var(--muted)">e.g. '+esc(d.example)+'</small>':'')+'</li>').join('')+'</ol>'; });
+    $('dictBody').innerHTML=h;
+  }catch(err){ $('dictBody').innerHTML='<h3>'+esc(w)+'</h3><p class="help">No dictionary entry (or offline). Try ✨ Easier words or 🌐 Translate.</p>'; }
+}
+$('dictX').addEventListener('click',()=>{$('dict').hidden=true;});
+$('dictRead').addEventListener('click',()=>speakText(dictWord));
+$('dictTr').addEventListener('click',()=>{ $('dict').hidden=true; openRP({text:dictWord,pos:S.pos,whole:false},'translate'); });
+$('dictSyn').addEventListener('click',()=>{ $('dict').hidden=true; openRP({text:dictWord,pos:S.pos,whole:false},'synonyms'); });
+$('stage').addEventListener('dblclick',e=>{ if(S.locked) return; const w=(window.getSelection().toString()||'').trim(); if(w && !/\s/.test(w)) openDict(w); });
+
+/* Touch Swipe Gestures */
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}, { passive:true });
+
+document.addEventListener('touchend', e => {
+  const diffX = e.changedTouches[0].screenX - touchStartX;
+  const diffY = e.changedTouches[0].screenY - touchStartY;
+  if(Math.abs(diffX) > 60 && Math.abs(diffY) < 40){
+    if(diffX < 0) next();
+    else prev();
+  }
+}, { passive:true });
+
+/* Open Student Screenshare Window */
+$('openStudentWindow').addEventListener('click', () => {
+  const win = window.open('', 'StudentPresentation', 'width=800,height=600');
+  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Lesson Presentation</title>
+  <style>
+[hidden]{display:none!important}
+    body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0C1413;color:#E4EEEB;font-family:'Bricolage Grotesque',system-ui,sans-serif;text-align:center;padding:30px}
+    h2{font-size:1.4rem;color:#4FC3B5;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px}
+    h1{font-size:2.8rem;line-height:1.2;margin:0}
+  </style></head><body>
+  <h2 id="slNum">Slide</h2><h1 id="slTitle">Welcome!</h1><p id="q" style="font-size:2rem;color:#97A3FF;margin-top:28px"></p>
+  <script>
+    const bc = new BroadcastChannel('lesson_prompter_sync');
+    bc.onmessage = e => {
+      if(e.data.type === 'SLIDE_CHANGE'){
+        document.getElementById('slNum').textContent = 'Slide ' + e.data.slideNum + ' of ' + e.data.totalSlides;
+        document.getElementById('slTitle').textContent = e.data.title;
+        document.getElementById('q').textContent = e.data.q ? '❓ ' + e.data.q : '';
+      }
+    };
+  <\/script></body></html>`);
+});
+
+/* Events */
+$('exportScript').addEventListener('click', () => { const u=URL.createObjectURL(new Blob([S.script],{type:'text/plain'})); const a=document.createElement('a'); a.href=u; a.download='lesson_script.txt'; a.click(); URL.revokeObjectURL(u); });
+$('helpBtn').addEventListener('click', () => { $('help').hidden = false; });
+$('help').addEventListener('click', () => { $('help').hidden = true; });
+$('scriptSearch').addEventListener('input', e => { S.q = e.target.value.trim().toLowerCase(); renderScript(); });
+$('toggleTimer').addEventListener('click', () => { S.running ? pauseTimer() : startTimer(); tick(); });
+$('btnNext').addEventListener('click', next);
+$('btnPrev').addEventListener('click', prev);
+$('camBtn').addEventListener('click', () => { S.cam = !S.cam; applyLook(); savePrefs(); });
+$('voiceBtn').addEventListener('click', toggleVoiceControl);
+$('focusBtn').addEventListener('click', () => { S.focus = !S.focus; applyLook(); savePrefs(); if(S.model) renderHead(); });
+$('lockBtn').addEventListener('click', () => { S.locked = !S.locked; applyLook(); });
+
+document.querySelector('.tabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-view]');
+  if(b && !S.locked) setView(b.dataset.view);
+});
+
+$('strip').addEventListener('click', e => {
+  const b = e.target.closest('[data-slide]');
+  if(!b || S.locked) return;
+  const s = S.model.slides[+b.dataset.slide];
+  go(s.lines[0].pos);
+  if(S.view !== 'follow') setView('follow');
+});
+
+/* Stage Clicks: Audio, Quick Assessment, Skips */
+$('stage').addEventListener('click', e => {
+  if(S.locked) return;
+  if(e.target.closest('[data-act="dictate"]')){ dictate(); return; }
+  if(e.target.closest('[data-act="read-stop"]')){ stopReading(); return; }
+  if(e.target.closest('[data-act="read-step"]')){ toggleRead(); return; }
+  if(RD.on && e.target.closest('.line.now') && !e.target.closest('input,button')){ toggleRead(); return; }
+  const wd = e.target.closest('.w');
+  if(wd && S.voice && !String(window.getSelection()).trim()){
+    VT.disp = VT.idx = +wd.dataset.w + 1; VT.off = VT.all; VT.hp = 0; VT.lastSpeech = Date.now();
+    renderTrack(false); return;
+  }
+
+  
+  const gradeBtn = e.target.closest('[data-act="grade"]');
+  if(gradeBtn){
+    const qid = gradeBtn.dataset.qid, status = gradeBtn.dataset.status;
+    S.assess[qid] = S.assess[qid] === status ? '' : status;
+    saveState();
+    renderFollow();
+    return;
+  }
+  
+  const skipBtn = e.target.closest('[data-act="skip"]');
+  if(skipBtn){ skipCurrent(); return; }
+
+  const row = e.target.closest('[data-pos]');
+  if(row && !e.target.closest('input,button')){
+    const p = +row.dataset.pos;
+    if(p !== S.pos) go(p);
+  }
+});
+
+
+/* Toolbar Quick Clicks (Restored original functions) */
+$('toolbar').addEventListener('click', e => {
+  if(S.locked) return;
+  const id = e.target.closest('button')?.id;
+  if(id === 'toolsMore'){ window.__to = !window.__to; const x = document.querySelector('.tools-extra'); if(x) x.classList.toggle('open', window.__to); }
+  else if(id === 'readBtn') { toggleRead(); }
+  else if(id === 'fsUp') { S.fs = Math.min(1.6, +(S.fs + 0.1).toFixed(2)); applyLook(); savePrefs(); scrollToCurrent(false); }
+  else if(id === 'fsDown') { S.fs = Math.max(0.85, +(S.fs - 0.1).toFixed(2)); applyLook(); savePrefs(); scrollToCurrent(false); }
+  else if(id === 'thmBtn') {
+    const idx = THEMES.findIndex(t => t[0] === S.theme);
+    S.theme = THEMES[(idx + 1) % THEMES.length][0];
+    applyLook(); savePrefs();
+  }
+  else if(id === 'fullTxtBtn') { toggleFullText(); }
+  else if(id === 'wideBtn') { S.wide = !S.wide; applyLook(); savePrefs(); renderFollow(); }
+  else if(id === 'fullBtn') { toggleFull(); }
+  else if(id === 'mirBtn') { S.mirror = !S.mirror; document.body.classList.toggle('mirror', S.mirror); }
+  else if(id === 'editBtn') { editLine(); }
+  else if(id === 'rpBtn') { const i = selInfo() || wholeLine(); if(i) openRP(i); }
+});
+
+/* Script View Jump */
+$('scriptList').addEventListener('click', e => {
+  const r = e.target.closest('[data-pos]');
+  if(r){ S.pos = +r.dataset.pos; setView('follow'); renderFoot(); saveState(); tick(); }
+});
+document.querySelectorAll('#view-script .chip').forEach(c => c.addEventListener('click', () => { S.filter = c.dataset.filter; renderScript(); }));
+
+/* Notes, Assessment & Sharing */
+$('notesArea').addEventListener('input', e => { S.notes = e.target.value; saveState(); $('summary').value = buildSummary(); });
+$('qaList').addEventListener('click', e => {
+  const gradeBtn = e.target.closest('[data-act="grade"]');
+  if(gradeBtn){
+    const qid = gradeBtn.dataset.qid, status = gradeBtn.dataset.status;
+    S.assess[qid] = S.assess[qid] === status ? '' : status;
+    saveState();
+    renderNotes();
+  }
+});
+$('qaList').addEventListener('input', e => {
+  const qid = e.target.dataset?.qid;
+  if(qid){ S.answers[qid] = e.target.value; saveState(); $('summary').value = buildSummary(); }
+});
+
+$('btnQuiz').addEventListener('click', generateAutoQuiz);
+$('saveHistoryBtn').addEventListener('click', saveToHistory);
+
+$('copySummary').addEventListener('click', async () => {
+  $('summary').value = buildSummary();
+  try { await navigator.clipboard.writeText($('summary').value); $('copyMsg').textContent = 'Copied to clipboard.'; }
+  catch(e){ $('copyMsg').textContent = 'Select all and copy manually.'; }
+  setTimeout(() => $('copyMsg').textContent = '', 3000);
+});
+
+$('shareWhatsApp').addEventListener('click', () => {
+  const text = encodeURIComponent(buildSummary());
+  window.open('https://api.whatsapp.com/send?text=' + text, '_blank');
+});
+$('printSummary').addEventListener('click', () => { window.print(); });
+
+/* Setup, Backup & File Ingestion */
+$('exportBackup').addEventListener('click', exportBackupJSON);
+$('importFile').addEventListener('change', e => { if(e.target.files[0]) importBackupJSON(e.target.files[0]); });
+
+/* Word DOCX Parser */
+async function docxToText(file){
+  const buf = new Uint8Array(await file.arrayBuffer()), dv = new DataView(buf.buffer);
+  let eocd = -1;
+  for(let i = buf.length - 22; i >= 0; i--){ if(buf[i] === 0x50 && buf[i+1] === 0x4b && buf[i+2] === 5 && buf[i+3] === 6){ eocd = i; break; } }
+  if(eocd < 0) throw new Error('not a docx');
+  const count = dv.getUint16(eocd + 10, true);
+  let p = dv.getUint32(eocd + 16, true), xml = null;
+  for(let n = 0; n < count; n++){
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lo = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(buf.slice(p + 46, p + 46 + nl));
+    if(name === 'word/document.xml'){
+      const ds = lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true), data = buf.slice(ds, ds + csize);
+      xml = method === 0 ? new TextDecoder().decode(data) : await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+      break;
+    }
+    p += 46 + nl + el + cl;
+  }
+  if(!xml) throw new Error('no document.xml');
+  const doc = new DOMParser().parseFromString(xml, 'application/xml'), out = [];
+  for(const para of doc.getElementsByTagName('w:p')){
+    let t = '';
+    for(const r of para.getElementsByTagName('w:r')){
+      let rt = '';
+      for(const c of r.childNodes){
+        if(c.nodeName === 'w:t') rt += c.textContent;
+        else if(c.nodeName === 'w:tab' || c.nodeName === 'w:br') rt += ' ';
+      }
+      const b = r.getElementsByTagName('w:b')[0];
+      const bold = b && b.getAttribute('w:val') !== '0' && b.getAttribute('w:val') !== 'false';
+      t += (bold && rt.trim()) ? '**' + rt + '**' : rt;
+    }
+    t = t.replace(/\*\*\*\*/g, '').trim();
+    if(!t) continue;
+    if(para.getElementsByTagName('w:numPr').length && !/\[[^\]]{2,32}\]/.test(t)) t = '1. ' + t;
+    out.push(t);
+  }
+  return out.join('\n\n');
+}
+
+async function readFile(f){
+  if(!f) return;
+  let text = '';
+  try {
+    text = /\.docx$/i.test(f.name) ? await docxToText(f) : await f.text();
+  } catch(e){
+    const rep = $('report'); rep.hidden = false; rep.className = 'report bad';
+    rep.textContent = 'Could not read file. Save as .txt or .docx and try again.';
+    return;
+  }
+  $('scriptInput').value = text;
+  if(applyScript(text)){ S.view = 'follow'; renderAll(); }
+}
+
+$('cleanBtn').addEventListener('click', () => {
+  const t = $('scriptInput').value; if(!t.trim()){ toast('Paste a script first'); return; }
+  const r = cleanScript(t); if(r.code){ toast('That is code, not a script'); const rp = $('report'); rp.hidden = false; rp.className = 'report bad'; rp.textContent = r.notes[0]; return; } $('scriptInput').value = r.text;
+  if(applyScript(r.text)){ renderAll(); const rep = $('report'); rep.textContent += ' 🧹 Cleaned: ' + r.notes.join(', ') + '.'; toast('🧹 Script cleaned'); }
+});
+$('pasteBtn').addEventListener('click', async () => {
+  try {
+    const t = await navigator.clipboard.readText();
+    if(!t.trim()) throw new Error('empty');
+    $('scriptInput').value = t;
+    if(applyScript(t)){ S.view = 'follow'; renderAll(); }
+  } catch(e){
+    $('scriptInput').focus();
+    alert('Clipboard access was blocked by browser. Paste directly into the box.');
+  }
+});
+$('fileIn').addEventListener('change', e => { readFile(e.target.files[0]); e.target.value = ''; });
+const drop = $('drop');
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => readFile(e.dataTransfer.files[0]));
+
+$('loadScript').addEventListener('click', () => { if(applyScript($('scriptInput').value)){ S.view = 'follow'; renderAll(); } });
+$('useSample').addEventListener('click', () => { $('scriptInput').value = SAMPLE; applyScript(SAMPLE); renderAll(); });
+
+/* Timer Edit Drawer */
+let teDirty = false;
+$('editTimer').addEventListener('click', () => {
+  const t = $('tedit'); t.hidden = !t.hidden; if(t.hidden) return;
+  $('tePlanned').value = plannedMin() || '';
+  const s = Math.floor(elapsedMs() / 1000);
+  $('teMin').value = Math.floor(s / 60); $('teSec').value = s % 60; teDirty = false;
+});
+['teMin','teSec'].forEach(id => $(id).addEventListener('input', () => { teDirty = true; }));
+$('tedit').addEventListener('click', e => {
+  const b = e.target.closest('[data-d]');
+  if(b) $('tePlanned').value = Math.max(1, (parseFloat($('tePlanned').value) || plannedMin() || 15) + (+b.dataset.d));
+});
+$('teApply').addEventListener('click', () => {
+  const pl = parseFloat($('tePlanned').value); S.plannedOv = pl > 0 ? pl : 0;
+  if(teDirty){ S.elapsed = ((parseInt($('teMin').value)||0)*60 + (parseInt($('teSec').value)||0)) * 1000; if(S.running) S.runStart = Date.now(); }
+  saveState(); renderTop(); renderStrip(); tick(); $('tedit').hidden = true;
+  calculateTimingFeasibility();
+});
+$('teReset').addEventListener('click', () => { S.elapsed = 0; S.running = false; saveState(); renderTop(); tick(); $('teMin').value = 0; $('teSec').value = 0; });
+$('teClose').addEventListener('click', () => { $('tedit').hidden = true; });
+$('teRehearse').addEventListener('click', () => {
+  S.rehearsing = !S.rehearsing;
+  $('teRehearse').classList.toggle('primary', S.rehearsing);
+  $('teRehearse').textContent = S.rehearsing ? '🔴 Rehearsing Active' : '🎙️ Rehearsal Mode';
+  alert(S.rehearsing ? 'Rehearsal Mode enabled! Practice reading slides; exact timing per slide is now recorded.' : 'Rehearsal Mode finished.');
+});
+
+/* Reset lesson */
+let resetArmed = false, resetT = 0;
+$('resetLesson').addEventListener('click', () => {
+  const b = $('resetLesson'), msg = $('resetMsg');
+  if(!resetArmed){
+    resetArmed = true; b.textContent = 'Tap again to confirm'; msg.textContent = 'Clears position, timer, answers and notes.';
+    resetT = setTimeout(() => { resetArmed = false; b.textContent = 'Reset this lesson'; msg.textContent = ''; }, 4000);
+    return;
+  }
+  clearTimeout(resetT); resetArmed = false; b.textContent = 'Reset this lesson'; msg.textContent = 'Reset complete.';
+  S.pos = 0; S.elapsed = 0; S.running = false; S.answers = {}; S.assess = {}; S.notes = ''; S.finished = false;
+  saveState(); setView('follow'); renderAll();
+});
+
+/* Keyboard Navigation */
+document.addEventListener('keydown', e => {
+  const tag = e.target?.tagName;
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.ctrlKey || e.metaKey || e.altKey) return;
+  if(!S.model) return;
+  if(e.key === 't' || e.key === 'T'){ S.running ? pauseTimer() : startTimer(); tick(); return; }
+  if(e.key === 'f' || e.key === 'F'){ S.focus = !S.focus; applyLook(); savePrefs(); if(S.model) renderHead(); return; }
+  if(e.key === 'w' || e.key === 'W'){ toggleFullText(); return; }
+  if(e.key === 'c' || e.key === 'C'){ S.cam = !S.cam; applyLook(); savePrefs(); return; }
+  if(e.key === 'v' || e.key === 'V'){ toggleVoiceControl(); return; }
+  if(S.view==='follow' && '123'.includes(e.key) && e.key.length===1){ const st=S.model.steps[S.pos]; if(st.kind==='pause'){ const v=['got','partly','review'][+e.key-1]; S.assess[st.qid]=S.assess[st.qid]===v?'':v; saveState(); renderFollow(); return; } }
+  if(e.key === 'd' || e.key === 'D'){ const w=(window.getSelection().toString()||'').trim(); if(w) openDict(w.split(/\s+/)[0]); return; }
+  if(e.key === 'r' || e.key === 'R'){ toggleRead(); return; }
+  if(e.key === 'Escape'){ stopReading(); return; }
+  if(e.key === 'l' || e.key === 'L'){ S.locked = !S.locked; applyLook(); return; }
+  if(e.key === '?'){ $('help').hidden = !$('help').hidden; return; }
+  if(S.view !== 'follow') return;
+  if(e.key === 's' || e.key === 'S'){ skipCurrent(); return; }
+  if(e.key === '1') return gradeCur('got');
+  if(e.key === '2') return gradeCur('partly');
+  if(e.key === '3') return gradeCur('review');
+  if(e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); next(); }
+  else if(e.key === 'ArrowLeft'){ e.preventDefault(); prev(); }
+});
+
+function renderAll(){
+  applyLook();
+  renderTop();
+  renderStrip();
+  renderFoot();
+  setView(S.view);
+  tick();
+}
+
+/* Header overflow menu */
+$('moreBtn').addEventListener('click', e => { e.stopPropagation(); const m = $('moreMenu'); m.hidden = !m.hidden; $('moreBtn').setAttribute('aria-expanded', String(!m.hidden)); });
+$('moreMenu').addEventListener('click', e => { if(e.target.closest('button') && e.target.closest('button').id !== 'lockBtn' && !e.target.closest('button').hasAttribute('data-keep')) { setTimeout(() => { $('moreMenu').hidden = true; $('moreBtn').setAttribute('aria-expanded','false'); }, 120); } });
+document.addEventListener('click', e => { if(!e.target.closest('#moreMenu,#moreBtn')){ $('moreMenu').hidden = true; $('moreBtn').setAttribute('aria-expanded','false'); } });
+
+/* Boot Initialization (Strictly NO auto-microphone access) */
+(function boot(){
+  initSettings();
+  const saved = lsGet('lp.script');
+  let ok = saved ? applyScript(saved, lsGet('lp.scriptkey') || '') : false;
+  if(!ok) ok = applyScript(SAMPLE);
+  $('scriptInput').value = S.script;
+  renderAll();
+  setInterval(tick, 500);
+  setInterval(voiceTick, 250);
+  if(S.wake) setWake(true);
+})();
+</script>
+</body>
+</html>
