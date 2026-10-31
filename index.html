@@ -500,6 +500,25 @@ body.presenter .controls .back{min-height:48px}
 #pip:hover .pbar{opacity:1}
 #pip .pbar button{background:rgba(0,0,0,.5);color:#fff;border:0;border-radius:6px;font-size:.75rem;padding:2px 7px;cursor:pointer}
 body.presenter #pip{border-color:var(--good)}
+
+/* ===== Lesson Reports ===== */
+.rp-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
+.rp-lbl{display:block; font-size:.72rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin:0 0 4px}
+.rp-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:12px}
+.rp-card h3{margin:0 0 10px; font-size:.95rem; display:flex; align-items:center; gap:8px}
+.rp-card h3 i{font-style:normal; width:26px; height:26px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; background:var(--accent); color:var(--on-accent); font-size:.8rem}
+.rp-card .field{margin:0 0 8px; min-height:44px}
+.rp-card textarea.field{min-height:64px}
+.rp-chips{display:flex; flex-wrap:wrap; gap:8px}
+.rp-chip{padding:7px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); font-weight:700; font-size:.86rem; color:var(--fg)}
+.rp-chip[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.rp-sub{display:none}.rp-sub.on{display:block}
+.rp-hint{font-size:.78rem; color:var(--muted); margin:-2px 0 8px; padding:6px 10px; border-left:3px solid var(--accent); background:var(--surface-2); border-radius:0 8px 8px 0}
+.rp-preview{white-space:pre-wrap; direction:auto; line-height:1.65; font-size:.95rem; background:var(--surface); border:1px solid var(--line); border-top:4px solid var(--accent); border-radius:14px; padding:16px 18px; margin-top:12px}
+.rp-item{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--surface); margin-top:8px}
+.rp-item b{display:block}.rp-item small{color:var(--muted)}
+.rp-item .row-actions{margin:0}
+.rp-badge{font-size:.72rem; font-weight:800; padding:2px 8px; border-radius:999px; background:var(--surface-2); color:var(--fg)}
 </style>
 </head>
 <body>
@@ -556,6 +575,7 @@ body.presenter #pip{border-color:var(--good)}
     <button class="tab" role="tab" data-view="follow" id="tab-follow" type="button">Follow</button>
     <button class="tab" role="tab" data-view="script" id="tab-script" type="button">Script</button>
     <button class="tab" role="tab" data-view="notes" id="tab-notes" type="button">Notes</button>
+    <button class="tab" role="tab" data-view="reports" id="tab-reports" type="button">Reports</button>
     <button class="tab" role="tab" data-view="history" id="tab-history" type="button">History</button>
     <button class="tab" role="tab" data-view="setup" id="tab-setup" type="button">Setup</button>
   </nav>
@@ -601,6 +621,65 @@ body.presenter #pip{border-color:var(--good)}
         <button class="btn" id="saveHistoryBtn" type="button">💾 Save to History</button>
         <span id="copyMsg" class="help" role="status"></span>
       </div>
+    </section>
+
+
+    <section class="view panel" id="view-reports" hidden>
+      <h2>Lesson report</h2>
+      <p class="help">Fill the form, copy the report, and send it to the parent. Every report is saved on this device.</p>
+
+      <div class="rp-card">
+        <h3><i>👤</i> Student & lesson</h3>
+        <div class="rp-grid">
+          <div><label class="rp-lbl" for="rpName">Student’s name</label><input class="field" id="rpName" list="rpNames" autocomplete="off" placeholder="e.g. Hamza"><datalist id="rpNames"></datalist></div>
+          <div><label class="rp-lbl" for="rpDate">Date</label><input class="field" id="rpDate" type="date"></div>
+          <div><label class="rp-lbl" for="rpDur">Duration (minutes)</label><input class="field" id="rpDur" type="number" min="1" inputmode="numeric" placeholder="30"></div>
+          <div><label class="rp-lbl" for="rpTime">Timing</label><select class="field" id="rpTime"><option value="">On time</option><option value="late">Late</option><option value="short">Shortened</option><option value="extra">Extended</option></select></div>
+        </div>
+        <span class="rp-lbl" style="margin-top:6px">Subjects taught (tap to add / remove)</span>
+        <div class="rp-chips" id="rpChips"></div>
+      </div>
+
+      <div id="rpSections"></div>
+
+      <div class="rp-card">
+        <h3><i>⭐</i> Grade</h3>
+        <div class="rp-chips" id="rpGrades"></div>
+      </div>
+
+      <h2 style="margin-top:18px">Preview</h2>
+      <div class="rp-preview" id="rpPreview"></div>
+      <div class="row-actions">
+        <button class="btn primary" id="rpSave" type="button">💾 Save report</button>
+        <button class="btn" id="rpCopy" type="button">📋 Copy</button>
+        <button class="btn" id="rpWa" type="button">📲 WhatsApp</button>
+        <button class="btn" id="rpNew" type="button">➕ New report</button>
+      </div>
+
+
+      <details class="rp-card" id="rpCloud">
+        <summary style="font-weight:800; cursor:pointer">☁️ Cloud sync (optional)</summary>
+        <p class="help">Sync reports across your devices with a free Supabase project. Setup steps are in <code>SUPABASE-SETUP.md</code>.</p>
+        <div class="rp-grid">
+          <div><label class="rp-lbl" for="clUrl">Project URL</label><input class="field" id="clUrl" placeholder="https://xxxx.supabase.co" autocomplete="off"></div>
+          <div><label class="rp-lbl" for="clKey">Anon key</label><input class="field" id="clKey" placeholder="eyJ…" autocomplete="off"></div>
+          <div><label class="rp-lbl" for="clMail">Email</label><input class="field" id="clMail" type="email" autocomplete="username"></div>
+          <div><label class="rp-lbl" for="clPass">Password</label><input class="field" id="clPass" type="password" autocomplete="current-password"></div>
+        </div>
+        <div class="row-actions">
+          <button class="btn primary" id="clIn" type="button">Sign in</button>
+          <button class="btn" id="clSync" type="button">🔄 Sync now</button>
+          <button class="btn" id="clOut" type="button">Sign out</button>
+        </div>
+        <p class="help" id="clMsg" role="status"></p>
+      </details>
+
+      <h2 style="margin-top:22px">Saved reports</h2>
+      <div class="rp-grid" style="margin-bottom:4px">
+        <select class="field" id="rpFilter" style="margin:0" aria-label="Filter by student"></select>
+        <input class="field" id="rpSearch" type="search" placeholder="Search reports…" style="margin:0">
+      </div>
+      <div id="rpList"></div>
     </section>
 
     <section class="view panel" id="view-history" hidden>
@@ -1837,7 +1916,7 @@ function finish(){
 
 function setView(v){
   S.view = v;
-  for(const k of ['follow', 'script', 'notes', 'history', 'setup']){
+  for(const k of ['follow', 'script', 'notes', 'reports', 'history', 'setup']){
     const el = $('view-' + k);
     if(el) el.hidden = k !== v;
     const t = $('tab-' + k);
@@ -1848,6 +1927,7 @@ function setView(v){
   if(v === 'script') renderScript();
   if(v === 'notes') renderNotes();
   if(v === 'history') renderHistory();
+  if(v === 'reports') rpInit();
   if(v === 'setup') $('scriptInput').value = S.script;
   $('main').scrollTop = 0;
   if(v === 'follow') scrollToCurrent(false);
@@ -2245,6 +2325,7 @@ function exportBackupJSON(){
     date: new Date().toISOString(),
     prefs: S,
     history: S.history,
+    reports: rpAll(),
     script: S.script,
     answers: S.answers,
     assess: S.assess,
@@ -2265,6 +2346,7 @@ function importBackupJSON(file){
     try {
       const data = JSON.parse(e.target.result);
       if(data.history) { S.history = data.history; lsSet('lp.history', JSON.stringify(S.history)); }
+      if(Array.isArray(data.reports)) rpMerge(data.reports);
       if(data.script) applyScript(data.script);
       if(data.answers) S.answers = data.answers;
       if(data.assess) S.assess = data.assess;
@@ -2275,6 +2357,177 @@ function importBackupJSON(file){
     } catch(err){ alert('Invalid backup file.'); }
   };
   reader.readAsText(file);
+}
+
+
+/* ===== Lesson Reports (stored in localStorage: lp.reports) ===== */
+const RP_SUBJECTS = {
+  quran:{label:'Qur’an', icon:'📖', fields:[['new','New Memorisation','e.g. Surah Ash-Shams (verses 1-4)'],['rev','Revision','e.g. Surah Al-Layl (verses 18–21)']]},
+  arabic:{label:'Arabic Language', icon:'✍️', fields:[['done','What we covered','e.g. Second half of page 68 in Noor El-Bayan…']]},
+  tajweed:{label:'Tajweed', icon:'🎙️', fields:[['done','What we covered','e.g. Rules of Noon Sakinah…']]},
+  islamic:{label:'Islamic Studies', icon:'🕌', fields:[['done','What we covered','e.g. Pillars of Islam…']]}
+};
+const RP_GRADES = ['Excellent, MashaAllah! ⭐','Very good, keep it up! 👏','Good 👍','Needs more practice 🔁'];
+const REPF = { id:null, subjects:['quran','arabic'], data:{}, hw:{}, grade:RP_GRADES[0], ready:false };
+function rpAll(){ try{ const a = JSON.parse(lsGet('lp.reports')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function rpStore(a){ lsSet('lp.reports', JSON.stringify(a)); }
+function rpMerge(list){ const a = rpAll(), ids = new Set(a.map(r => r.id)); list.forEach(r => { if(r && r.id && !ids.has(r.id)) a.push(r); }); rpStore(a); }
+function rpEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function rpToday(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function rpDMY(iso){ const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(iso||''); return m ? m[3]+'/'+m[2]+'/'+m[1] : (iso||''); }
+function rpCur(){
+  return { id:REPF.id, name:$('rpName').value.trim(), date:$('rpDate').value, dur:$('rpDur').value, timing:$('rpTime').value,
+    subjects:REPF.subjects.slice(), data:REPF.data, hw:REPF.hw, grade:REPF.grade };
+}
+function rpText(r){
+  const names = r.subjects.map(k => RP_SUBJECTS[k].label);
+  const subj = names.length>1 ? names.slice(0,-1).join(', ')+' and '+names[names.length-1] : (names[0]||'');
+  const t = {late:' (late)', short:' (shortened)', extra:' (extended)'}[r.timing]||'';
+  const L = ['📋 Lesson Report','Student’s Name: '+(r.name||'—'),'Subject: '+subj,'Duration: '+(r.dur?r.dur+' minutes':'—')+t,'Date: '+rpDMY(r.date),'','Lesson Notes'];
+  r.subjects.forEach(k => {
+    const sub = RP_SUBJECTS[k], rows = sub.fields.map(f => [f[1], (r.data[k+'.'+f[0]]||'').trim()]).filter(x => x[1]);
+    if(!rows.length) return;
+    L.push(sub.label+':');
+    if(sub.fields.length===1) L.push(rows[0][1]); else rows.forEach(x => L.push(x[0]+': '+x[1]));
+    L.push('');
+  });
+  const hw = r.subjects.filter(k => (r.hw[k]||'').trim());
+  if(hw.length){ L.push('Homework'); hw.forEach(k => L.push(RP_SUBJECTS[k].label+': '+r.hw[k].trim())); L.push(''); }
+  if(r.grade){ L.push('Grade'); L.push(r.grade); }
+  return L.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function rpBuildSections(){
+  const box = $('rpSections'); box.innerHTML = '';
+  REPF.subjects.forEach(k => {
+    const sub = RP_SUBJECTS[k], c = document.createElement('div'); c.className = 'rp-card';
+    c.innerHTML = '<h3><i>'+sub.icon+'</i> '+rpEsc(sub.label)+'</h3>'
+      + sub.fields.map(f => '<label class="rp-lbl">'+rpEsc(f[1])+'</label><textarea class="field" data-k="d:'+k+'.'+f[0]+'" placeholder="'+rpEsc(f[2])+'" dir="auto">'+rpEsc(REPF.data[k+'.'+f[0]]||'')+'</textarea>').join('')
+      + '<label class="rp-lbl">Homework</label><textarea class="field" data-k="h:'+k+'" placeholder="Homework for next lesson" dir="auto">'+rpEsc(REPF.hw[k]||'')+'</textarea>';
+    box.appendChild(c);
+  });
+  rpHint();
+}
+function rpHint(){
+  document.querySelectorAll('.rp-hint').forEach(e => e.remove());
+  const name = $('rpName').value.trim().toLowerCase(); if(!name) return;
+  const last = rpAll().filter(r => r.name.toLowerCase()===name && r.id!==REPF.id).sort((a,b) => (b.date||'').localeCompare(a.date||''))[0];
+  if(!last) return;
+  REPF.subjects.forEach(k => {
+    const h = (last.hw||{})[k]; if(!h) return;
+    const ta = document.querySelector('[data-k="h:'+k+'"]'); if(!ta) return;
+    const d = document.createElement('div'); d.className = 'rp-hint'; d.textContent = 'Last homework ('+rpDMY(last.date)+'): '+h;
+    ta.parentNode.insertBefore(d, ta);
+  });
+}
+function rpChips(){
+  $('rpChips').innerHTML = Object.keys(RP_SUBJECTS).map(k => '<button type="button" class="rp-chip" data-sub="'+k+'" aria-pressed="'+REPF.subjects.includes(k)+'">'+RP_SUBJECTS[k].icon+' '+rpEsc(RP_SUBJECTS[k].label)+'</button>').join('');
+  $('rpGrades').innerHTML = RP_GRADES.map(g => '<button type="button" class="rp-chip" data-grade="'+rpEsc(g)+'" aria-pressed="'+(REPF.grade===g)+'">'+rpEsc(g)+'</button>').join('');
+}
+function rpPreview(){ $('rpPreview').textContent = rpText(rpCur()); }
+function rpList(){
+  const all = rpAll().sort((a,b) => (b.date||'').localeCompare(a.date||'') || (b.saved||0)-(a.saved||0));
+  const names = [...new Set(all.map(r => r.name).filter(Boolean))].sort();
+  $('rpNames').innerHTML = names.map(n => '<option value="'+rpEsc(n)+'">').join('');
+  const fSel = $('rpFilter'), cur = fSel.value;
+  fSel.innerHTML = '<option value="">All students ('+all.length+')</option>' + names.map(n => '<option>'+rpEsc(n)+'</option>').join('');
+  fSel.value = names.includes(cur) ? cur : '';
+  const q = $('rpSearch').value.trim().toLowerCase();
+  const rows = all.filter(r => (!fSel.value || r.name===fSel.value) && (!q || rpText(r).toLowerCase().includes(q)));
+  $('rpList').innerHTML = rows.length ? rows.map(r => '<div class="rp-item"><div><b>'+rpEsc(r.name||'—')+'</b><small>'+rpDMY(r.date)+' · '+rpEsc(r.subjects.map(k => RP_SUBJECTS[k].label).join(', '))+'</small> <span class="rp-badge">'+rpEsc((r.grade||'').split(/[,!]/)[0])+'</span></div><div class="row-actions"><button class="btn small" data-rp="open" data-id="'+r.id+'">Open</button><button class="btn small" data-rp="copy" data-id="'+r.id+'">Copy</button><button class="btn small" data-rp="del" data-id="'+r.id+'">🗑</button></div></div>').join('') : '<p class="help" style="margin-top:10px">No saved reports yet.</p>';
+}
+function rpLoad(r){
+  REPF.id = r.id; REPF.subjects = r.subjects.slice(); REPF.data = Object.assign({}, r.data); REPF.hw = Object.assign({}, r.hw); REPF.grade = r.grade;
+  $('rpName').value = r.name; $('rpDate').value = r.date; $('rpDur').value = r.dur; $('rpTime').value = r.timing||'';
+  rpChips(); rpBuildSections(); rpPreview();
+}
+function rpReset(){
+  REPF.id = null; REPF.data = {}; REPF.hw = {}; REPF.grade = RP_GRADES[0];
+  $('rpName').value = ''; $('rpDate').value = rpToday(); $('rpTime').value = '';
+  rpChips(); rpBuildSections(); rpPreview(); window.scrollTo({top:0});
+}
+function rpCopyText(t){ (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Copied ✅'), () => { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); try{ document.execCommand('copy'); toast('Copied ✅'); }catch(e){} a.remove(); }); }
+function rpInit(){
+  if(!REPF.ready){
+    REPF.ready = true;
+    try{ const sv = JSON.parse(lsGet('lp.rep.prefs')||'null'); if(sv){ if(Array.isArray(sv.subjects) && sv.subjects.length) REPF.subjects = sv.subjects.filter(k => RP_SUBJECTS[k]); if(sv.dur) $('rpDur').value = sv.dur; } }catch(e){}
+    $('rpDate').value = rpToday(); rpChips(); rpBuildSections(); clInit();
+    const view = $('view-reports');
+    view.addEventListener('input', e => {
+      const k = e.target.dataset && e.target.dataset.k;
+      if(k){ if(k[0]==='d') REPF.data[k.slice(2)] = e.target.value; else REPF.hw[k.slice(2)] = e.target.value; }
+      if(e.target.id==='rpName') rpHint();
+      if(e.target.id==='rpSearch') return rpList();
+      rpPreview();
+    });
+    view.addEventListener('change', e => { if(e.target.id==='rpFilter') rpList(); if(e.target.id==='rpName') rpHint(); });
+    view.addEventListener('click', e => {
+      const b = e.target.closest('button'); if(!b) return;
+      if(b.dataset.sub){ const k = b.dataset.sub, i = REPF.subjects.indexOf(k); if(i>=0) REPF.subjects.splice(i,1); else REPF.subjects = Object.keys(RP_SUBJECTS).filter(x => REPF.subjects.includes(x) || x===k);
+        lsSet('lp.rep.prefs', JSON.stringify({subjects:REPF.subjects, dur:$('rpDur').value})); rpChips(); rpBuildSections(); rpPreview(); }
+      else if(b.dataset.grade){ REPF.grade = b.dataset.grade; rpChips(); rpPreview(); }
+      else if(b.id==='rpSave'){ const r = rpCur(); if(!r.name){ toast('Enter the student’s name'); $('rpName').focus(); return; }
+        const a = rpAll(); r.id = r.id || 'r'+Date.now().toString(36); r.saved = Date.now(); REPF.id = r.id;
+        const i = a.findIndex(x => x.id===r.id); if(i>=0) a[i] = r; else a.push(r); rpStore(a);
+        lsSet('lp.rep.prefs', JSON.stringify({subjects:REPF.subjects, dur:r.dur})); toast('Report saved ✅'); rpList(); clSyncNow(true); }
+      else if(b.id==='rpCopy') rpCopyText(rpText(rpCur()));
+      else if(b.id==='rpWa') window.open('https://wa.me/?text='+encodeURIComponent(rpText(rpCur())), '_blank');
+      else if(b.id==='rpNew') rpReset();
+      else if(b.dataset.rp){ const a = rpAll(), r = a.find(x => x.id===b.dataset.id); if(!r) return;
+        if(b.dataset.rp==='open'){ rpLoad(r); window.scrollTo({top:0,behavior:'smooth'}); }
+        else if(b.dataset.rp==='copy') rpCopyText(rpText(r));
+        else if(b.dataset.rp==='del' && confirm('Delete this report?')){ rpStore(a.filter(x => x.id!==r.id)); rpTomb(r.id); if(REPF.id===r.id) REPF.id = null; rpList(); clSyncNow(true); } }
+    });
+  }
+  rpPreview(); rpList();
+}
+
+
+/* ===== Optional Supabase sync (REST, no library). Table: reports(id, data, updated) ===== */
+function clCfg(){ try{ return JSON.parse(lsGet('lp.cloud')||'{}'); }catch(e){ return {}; } }
+function clMsg(t){ const m = $('clMsg'); if(m) m.textContent = t; }
+async function clAuth(body, grant){
+  const c = clCfg(), r = await fetch(c.url+'/auth/v1/token?grant_type='+grant, {method:'POST', headers:{apikey:c.key,'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const j = await r.json(); if(!r.ok) throw new Error(j.error_description || j.msg || 'Sign-in failed');
+  lsSet('lp.cloud', JSON.stringify(Object.assign(c, {at:j.access_token, rt:j.refresh_token, exp:Date.now()+j.expires_in*1000})));
+}
+async function clReq(path, opts){
+  let c = clCfg(); if(!c.at) throw new Error('Not signed in');
+  if(Date.now() > c.exp-60000){ await clAuth({refresh_token:c.rt}, 'refresh_token'); c = clCfg(); }
+  const r = await fetch(c.url+'/rest/v1/'+path, Object.assign({}, opts, {headers:Object.assign({apikey:c.key, Authorization:'Bearer '+c.at, 'Content-Type':'application/json'}, (opts||{}).headers)}));
+  if(!r.ok) throw new Error((await r.text()).slice(0,160)); const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+function rpTomb(id){ let t = []; try{ t = JSON.parse(lsGet('lp.rep.del')||'[]'); }catch(e){} t.push(id); lsSet('lp.rep.del', JSON.stringify(t)); }
+let clBusy = false;
+async function clSyncNow(quiet){
+  if(clBusy || !clCfg().at) return; clBusy = true;
+  try{
+    let tomb = []; try{ tomb = JSON.parse(lsGet('lp.rep.del')||'[]'); }catch(e){}
+    for(const id of tomb) await clReq('reports?id=eq.'+encodeURIComponent(id), {method:'DELETE'});
+    lsSet('lp.rep.del', '[]');
+    const remote = await clReq('reports?select=id,data'), local = rpAll(), map = {};
+    local.forEach(r => map[r.id] = r);
+    remote.forEach(x => { const r = x.data; if(r && r.id && (!map[r.id] || (r.saved||0) > (map[r.id].saved||0))) map[r.id] = r; });
+    const merged = Object.values(map); rpStore(merged);
+    const rmap = {}; remote.forEach(x => rmap[x.id] = (x.data.saved||0));
+    const up = merged.filter(r => rmap[r.id] === undefined || (r.saved||0) > rmap[r.id]).map(r => ({id:r.id, data:r, updated:r.saved||Date.now()}));
+    if(up.length) await clReq('reports', {method:'POST', headers:{Prefer:'resolution=merge-duplicates,return=minimal'}, body:JSON.stringify(up)});
+    rpList(); clMsg('Synced ✅ '+merged.length+' reports · '+new Date().toLocaleTimeString()); if(!quiet) toast('Synced ✅');
+  }catch(e){ clMsg('Sync failed: '+e.message); if(!quiet) toast('Sync failed'); }
+  clBusy = false;
+}
+function clInit(){
+  const c = clCfg(); $('clUrl').value = c.url||''; $('clKey').value = c.key||''; $('clMail').value = c.mail||'';
+  clMsg(c.at ? 'Signed in as '+(c.mail||'')+'.' : 'Not signed in. Reports are saved on this device only.');
+  $('clIn').onclick = async () => {
+    const url = $('clUrl').value.trim().replace(/\/+$/,''), key = $('clKey').value.trim(), mail = $('clMail').value.trim();
+    if(!url || !key || !mail || !$('clPass').value){ clMsg('Fill in all four fields.'); return; }
+    lsSet('lp.cloud', JSON.stringify({url, key, mail}));
+    try{ await clAuth({email:mail, password:$('clPass').value}, 'password'); $('clPass').value = ''; clMsg('Signed in ✅ Syncing…'); await clSyncNow(); }
+    catch(e){ clMsg(e.message); }
+  };
+  $('clSync').onclick = () => clSyncNow(); 
+  $('clOut').onclick = () => { const c = clCfg(); lsSet('lp.cloud', JSON.stringify({url:c.url, key:c.key, mail:c.mail})); clMsg('Signed out. Reports stay on this device.'); };
+  clSyncNow(true);
 }
 
 /* Fast Groq & AI API Handler */

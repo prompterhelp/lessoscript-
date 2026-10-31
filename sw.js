@@ -1,5 +1,5 @@
 /* Service worker: makes the tool installable & works offline */
-const CACHE = 'lesson-prompter-v1';
+const CACHE = 'lesson-prompter-v2';
 const ASSETS = [
   './',
   './index.html',
