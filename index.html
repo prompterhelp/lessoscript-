@@ -581,6 +581,17 @@ body.presenter #pip{border-color:var(--good)}
 #appVer{display:flex;gap:8px;align-items:center;justify-content:center;font-size:.72rem;opacity:.8;padding:18px 0 90px}#appUpd{font-size:.72rem;padding:4px 12px;min-height:0;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;font-weight:700}
 #updBar{position:fixed;left:12px;right:12px;bottom:84px;z-index:99;background:#0F6F66;color:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 10px 30px rgba(0,0,0,.3);font-size:.9rem}
 #updBar button{background:#fff;color:#0F6F66;border:0;border-radius:10px;padding:8px 14px;font-weight:800;cursor:pointer}
+/* RTL lines (Arabic script) + tap-to-edit previews */
+.line[dir=rtl],.row[dir=rtl]{text-align:right}
+[dir=rtl] .ar{unicode-bidi:normal}
+body.fulltext .line[dir=rtl]{border-left-width:0!important;border-right:4px solid transparent}
+body.fulltext .line.now[dir=rtl],body.fulltext .stage .line.now[dir=rtl]{border-right-color:var(--kind)}
+body.fulltext .line.k-ask[dir=rtl],body.fulltext .stage .line.k-ask[dir=rtl]{border-left:0!important;border-right:3px solid var(--ask);padding-left:0;padding-right:14px}
+.pv-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;padding:6px 10px;border-radius:10px;background:var(--surface-2,#f1efe8);font-size:.8rem;color:var(--muted,#666)}
+.pv-bar button:disabled{opacity:.45}
+.pv-on{cursor:text}
+.pv-edit{outline:2px dashed #3b82f6!important;outline-offset:2px;border-radius:3px;background:rgba(59,130,246,.10)!important;-webkit-user-select:text;user-select:text;cursor:text}
+.pv-ed{text-decoration:underline dotted rgba(59,130,246,.55);text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -1289,7 +1300,7 @@ function enrichSpeak(text){
   for(const line of String(text||'').split('\n')){
     const m = /^(🗣️?\s*\*\*\[SPEAK\]\*\*\s+)(.+)$/.exec(line);
     if(!m || m[2].includes('**')){ out.push(line); continue; }
-    const sents = m[2].split(/(?<=[.!?…]["”')\]]*)\s+(?=["“'(\[—«]?[\p{Lu}\p{N}؀-ۿ])/u).map(x => x.trim()).filter(Boolean);
+    const sents = m[2].split(/(?<=[.!?…؟]["”')\]]*)\s+(?=["“'(\[—«]?[\p{Lu}\p{N}؀-ۿ])/u).map(x => x.trim()).filter(Boolean);
     sents.forEach(q => {
       const w = q.split(/\s+/), k = Math.min(3, w.length), head = w.slice(0,k).join(' ');
       out.push(m[1] + (w.length > k && !/[*_`<>\[\]"“”؀-ۿ]/.test(head) ? '**' + head + '** ' + w.slice(k).join(' ') : q));
@@ -1406,8 +1417,87 @@ function nbConvert(text){
   return hasSlide ? out.join('\n').trim() : null;
 }
 
+/* ===== Arabic support for Clean & standardize ===== */
+const AR_LET = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
+const arZ = s => String(s||'').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/[*_#>\[\]()«»"“”]/g,' ').replace(/\s+/g,' ').trim();
+const arD = s => String(s||'').replace(/[٠-٩]/g,d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+const AR_ORD = {اول:1,اولا:1,اولي:1,ثاني:2,ثانيا:2,ثانيه:2,ثالث:3,ثالثا:3,ثالثه:3,رابع:4,رابعا:4,رابعه:4,خامس:5,خامسا:5,خامسه:5,سادس:6,سادسا:6,سادسه:6,سابع:7,سابعا:7,سابعه:7,ثامن:8,ثامنا:8,ثامنه:8,تاسع:9,تاسعا:9,تاسعه:9,عاشر:10,عاشرا:10,عاشره:10};
+const AR_L = {
+  teacher: /^(?:(?:يقول|تقول) )?(?:المعلم|المعلمه|المدرس|المحاضر|المحاضره|المتحدث|المتحدثه|الراوي)(?: (?:يقول|تقول))?$/,
+  student: /^(?:(?:اجابه|جواب) )?(?:الطالب|الطالبه|الطلاب|الطلبه|الطفل|الطفله|الاطفال|التلميذ|التلميذه|المتعلم|المتعلمه)$/,
+  ask: /^(?:اسال(?: (?:الطلاب|الطالب|الطالبه|الاطفال|الطفل|الصف))?|(?:ال)?سوال(?: \S+)?|اختبار سريع|تحقق|فحص(?: الفهم)?)$/,
+  pause: /^(?:توقف(?: قليلا)?|انتظر|استمع|صمت|وقفه)$/,
+  exp: /^(?:(?:ال)?(?:اجابه|اجابات|جواب|اجوبه) (?:المتوقعه?|المحتمله?|النموذجيه|الصحيحه)|(?:ال)?(?:اجابه|جواب))$/,
+  meta: /^(?:المده|مده الدرس|زمن الدرس|الجمهور|الفئه(?: المستهدفه| العمريه)?|اللغه|الاهداف|اهداف الدرس|الهدف|المستوي|الصف|العمر|المواد|الوسائل|الادوات|الماده|الموضوع|عنوان الدرس|اسم الدرس)$/,
+  skip: /^(?:المراجع|المصادر|قراءات اضافيه|مزيد من القراءه|نصائح للمعلم|ملاحظات للمعلم|ملاحظات المعلم|ارشادات للمعلم|مفتاح الاجابه|مفتاح الاجابات)$/
+};
+const AR_HEAD = /^[#*_\s]*(?:الشريحة|الشريحه|القسم|الجزء|الفصل|الخطوة|الخطوه|المرحلة|المرحله|المحور|النشاط|المشهد|الصفحة|الصفحه|الحصة|الحصه)(?:\s+([0-9٠-٩۰-۹]+|[\u0621-\u064A]{2,12}))?\s*(?:[-–—:：]\s*(.*?))?[*_\s]*$/;
+function arPrep(text){
+  let t = String(text||'').replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069\u061C]/g,'');
+  t = t.replace(/\[\s*([^\]\n]{1,24}?)\s*\]/g, (m,w) => { const z = arZ(w);
+    if(/^(?:اسال|سوال|اسالوا)$/.test(z)) return '[ASK]';
+    if(/^(?:قل|قول|تحدث|اشرح|نص|اقرا|المعلم|يقول|المعلمه)$/.test(z)) return '[SPEAK]';
+    if(/^(?:توقف|انتظر|استمع|صمت|اجابه الطالب|الطالب)$/.test(z)) return '[PAUSE]';
+    if(z === 'اختياري') return '[OPTIONAL]'; return m; });
+  const tagged = TAGGED_RE.test(t); let n = 0, seen = false; const out = [];
+  const slide = (num, title) => { n = num; title = (title||'').trim();
+    if(!tagged) return 'Slide ' + n + ': ' + title;
+    const tm = /\(?\s*Minutes\s+(\d+)\s*[–-]\s*(\d+)\s*\)?/i.exec(title); if(tm) title = title.replace(tm[0],'').trim();
+    return '➡️ **SLIDE ' + n + ': ' + (title.replace(/[*:]+$/,'').trim() || 'Part ' + n) + '**' + (tm ? ' *(Minutes ' + tm[1] + '–' + tm[2] + ')*' : ''); };
+  for(const raw of t.split('\n')){
+    let l = raw.trim();
+    if(!l || !AR_LET.test(l)){ out.push(raw); continue; }
+    if(l.length <= 90) l = arD(l).replace(/(?:الدقائق|الدقيقة|دقائق|دقيقة)\s*(\d+)\s*(?:[-–—]|الى|إلى|الي)\s*(\d+)/g,'Minutes $1–$2').replace(/(\d+)\s*(?:[-–—]|الى|إلى)\s*(\d+)\s*(?:دقائق|دقيقة|دقيقه)/g,'$1–$2 minutes').replace(/\(\s*(\d+)\s*(?:دقائق|دقيقة|دقيقه)\s*\)/g,'($1 minutes)');
+    let opt = false, om = /^[(\[]\s*اختيار(?:ي|ية)\s*[)\]]\s*[:\-–]?\s*(.+)$/.exec(l); if(om){ opt = true; l = om[1]; }
+    if(AR_L.pause.test(arZ(l)) && l.length < 30){ out.push(tagged ? '🛑 **[PAUSE]** *(Listen to the answer)*' : 'Pause: '); continue; }
+    const tmm = /\(?\s*Minutes\s+\d+\s*[–-]\s*\d+\s*\)?/i.exec(l); let lh = tmm ? l.replace(tmm[0],'').trim() : l;
+    let m = AR_HEAD.exec(lh);
+    if(m && (m[1] || m[2] !== undefined || /^[#*_\s]*\S+[*_\s]*$/.test(lh))){
+      const g = m[1] || '', num = /^[0-9٠-٩۰-۹]+$/.test(g) ? +arD(g) : (AR_ORD[arZ(g).replace(/^ال/,'')] || n + 1);
+      out.push(slide(num, (m[2] || '') + (tmm ? ' ' + tmm[0] : ''))); continue; }
+    m = /^[\s#>*_\-•\d.)]*([^:：]{1,40}?)\s*\**\s*[:：]\s*\**\s*(.*)$/.exec(l);
+    if(m){
+      const z = arZ(m[1]), rest = m[2].trim();
+      if(AR_L.teacher.test(z)){ if(rest){ out.push((opt ? '(optional) ' : '') + rest); seen = true; } continue; }
+      if(AR_L.ask.test(z)){ if(rest){ out.push(tagged ? '❓ **[ASK]** ' + rest : (opt ? '(optional) ' : '') + 'Ask: ' + rest); seen = true; } continue; }
+      if(AR_L.pause.test(z)){ out.push(tagged ? '🛑 **[PAUSE]** *(' + (rest || 'Listen to the answer') + ')*' : 'Pause: ' + rest); continue; }
+      if(AR_L.exp.test(z) && rest){ out.push(tagged ? '🛑 **[PAUSE]** *(Listen: e.g., "' + rest.replace(/["*“”]/g,'') + '")*' : 'Expected answer: ' + rest); continue; }
+      if(AR_L.student.test(z) && rest){ out.push(tagged ? '🛑 **[PAUSE]** *(Listen: e.g., "' + rest.replace(/["*“”]/g,'') + '")*' : 'Student: ' + rest); continue; }
+      if(!seen && AR_L.meta.test(z)){ const d = /\d+/.exec(rest); if(!tagged) out.push(/^(?:المده|مده|زمن)/.test(z) && d ? 'Duration: ' + d[0] : 'Objectives: ' + rest); continue; }
+      if(!rest && AR_L.skip.test(z)){ out.push('## References'); continue; }
+      if(!rest && AR_L.skip.test(arZ(m[1]))){ out.push('## References'); continue; }
+      const oz = AR_ORD[z]; if(oz && rest.length <= 60 && !/[.!?؟]$/.test(rest)){ out.push(slide(oz, rest)); continue; }
+    } else if(AR_L.skip.test(arZ(l))){ out.push('## References'); continue; }
+    if(!/^#/.test(l)) seen = true; out.push(opt ? '(optional) ' + l : l);
+  }
+  return out.join('\n');
+}
+function arPunct(s){
+  return String(s||'').replace(/(?<=\p{L})ـ+(?=\p{L})/gu,'')
+    .replace(/(?<=[\u0600-\u06FF\u064B-\u065F])\s*,/g,'،').replace(/(?<=[\u0600-\u06FF\u064B-\u065F])\s*;/g,'؛').replace(/(?<=[\u0600-\u06FF\u064B-\u065F])\s*\?/g,'؟')
+    .replace(/\s+([،؛؟!:.])(?=\s|$|["”»)\]])/g,'$1').replace(/\s+([.!؟،؛])(?=[\u0600-\u06FF])/g,'$1 ')
+    .replace(/([،؛؟])(?=[^\s\d"”»)\]،؛؟.!*])/g,'$1 ')
+    .replace(/[ ]{2,}/g,' ').trim();
+}
+function arUnq(s){
+  s = String(s||'').trim();
+  const q = (s.match(/["“”]/g)||[]).length, a = /^["“]/.test(s), b = /["”]$/.test(s);
+  if(a && b && q === 2) return s.slice(1,-1).trim();
+  if(a && q % 2) s = s.slice(1).trim(); else if(b && q % 2) s = s.slice(0,-1).trim();
+  if(/^«[^»«]*»$/.test(s)) s = s.slice(1,-1).trim();
+  return s;
+}
+function arTidyOut(l){
+  if(!AR_LET.test(l)) return l;
+  const m = /^((?:[^\p{L}\p{N}\[\n]{0,12}\*{0,2}\[(?:OPTIONAL|SPEAK|ASK)\]\*{0,2}\s*)+)(.*)$/u.exec(l);
+  if(!m) return /^(?:➡️|🛑|#)/.test(l) ? l : arPunct(l);
+  let x = m[2].replace(/^\*{0,2}(?:يقول |تقول )?(?:المعلم|المعلمة|المعلمه|المدرس|المحاضر|المتحدث|المتحدثة|الراوي)(?: (?:يقول|تقول))?\s*[:：]\s*\*{0,2}\s*/, '');
+  return m[1] + arPunct(arUnq(x));
+}
+
 /* ===== Clean & standardize any script ===== */
 function cleanScript(text){
+  const _ar = AR_LET.test(String(text||'')); if(_ar) text = arPrep(String(text));
   { const x = String(text||''), sig = [/^\s*(?:import\s+[\w.]+\s*$|from\s+[\w.]+\s+import\s)/m, /^\s*def\s+\w+\s*\([^)]*\)\s*(?:->[^:]*)?:\s*$/m, /\bre\.(?:sub|split|compile)\(/, /^\s*if\s+__name__\s*==/m, /^\s*(?:for|while|if)\b[^\n]*:\s*$/m, /^\s*return\s+\S+/m].filter(r => r.test(x)).length;
     if(sig >= 3){
       // pasted a Python cleaner: clean the sample script embedded in it instead of the code
@@ -1450,6 +1540,7 @@ function cleanScript(text){
     }).join('\n');
     if(fixed) notes.push(fixed + ' lines tagged / standardized');
   }
+  if(_ar){ const o2 = out.split('\n').map(arTidyOut).join('\n'); if(o2 !== out){ out = o2; notes.push('Arabic: direction marks, labels, quotes & punctuation standardized'); } }
   // remove consecutive duplicate lines
   const dd = []; let dups = 0;
   out.split('\n').forEach(l => { if(l.trim() && dd.length && dd[dd.length-1].trim() === l.trim()) dups++; else dd.push(l); });
@@ -1462,6 +1553,8 @@ function cleanScript(text){
 /* Helpers */
 const $ = id => document.getElementById(id);
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const isRtlText = t => { t = String(t||''); return (t.match(/[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/g)||[]).length > (t.match(/[A-Za-z]/g)||[]).length; };
+const dirA = l => isRtlText((l.text||'') + ' ' + (l.expect||'') + ' ' + ((l.items||[]).join(' '))) ? ' dir="rtl"' : '';
 const AR_RE = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]+(?:\s+[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]+)*/g;
 
 function fmt(raw){
@@ -2124,7 +2217,7 @@ function lineHTML(l, state, after){
   const cls = 'line k-' + l.kind + ' ' + state + (after ? ' after' : '') + (l.optional && isBehind ? ' skippable' : '');
   const badge = '<span class="badge">' + esc(l.tag) + '</span>';
   const optBadge = l.optional ? '<span class="opt-tag">Optional</span>' : '';
-  const attrs = ' data-pos="' + l.pos + '"' + (state === 'now' ? ' aria-current="step"' : '');
+  const attrs = ' data-pos="' + l.pos + '"' + (state === 'now' ? ' aria-current="step"' : '') + dirA(l);
 
   if(l.kind === 'pause'){
     const label = esc(l.label || 'Wait for the answer');
@@ -2233,7 +2326,7 @@ function renderScript(){
     html += lines.map(l => {
       const st = l.pos === S.pos ? ' cur' : l.pos < S.pos ? ' past' : '';
       const body = l.kind === 'pause' ? esc(l.label || 'Wait for answer') : fmt(l.text);
-      return '<div class="row k-' + l.kind + st + '" data-pos="' + l.pos + '" role="button" tabindex="0"><span class="badge">' + esc(l.tag) + '</span><div><p class="txt">' + body + '</p></div></div>';
+      return '<div class="row k-' + l.kind + st + '"' + dirA(l) + ' data-pos="' + l.pos + '" role="button" tabindex="0"><span class="badge">' + esc(l.tag) + '</span><div><p class="txt">' + body + '</p></div></div>';
     }).join('');
   });
   $('scriptList').innerHTML = html || '<div class="empty">No matching lines.</div>';
@@ -4405,7 +4498,7 @@ function ctBuild(){
 function ctPrint(){
   const w=window.open('','_blank'); if(!w){ toast('Allow pop-ups to print'); return; }
   const all=[].concat.apply([],CT_DES.map(d=>[rpFam(d.f),rpFam(d.af)])).concat(ctFonts(CT)).filter(Boolean), u=rpFontURL(all);
-  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+'@page{size:A4 landscape;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff}</style></head><body>'+ctHTML(CT)+'<scr'+'ipt>Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,2500)})]).then(function(){setTimeout(function(){print()},250)})<\/scr'+'ipt></body></html>');
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+'@page{size:A4 landscape;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff}</style></head><body>'+pvExport(ctHTML(CT))+'<scr'+'ipt>Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,2500)})]).then(function(){setTimeout(function(){print()},250)})<\/scr'+'ipt></body></html>');
   w.document.close();
 }
 async function ctPng(){
@@ -4570,6 +4663,54 @@ try{ if(lsGet('lp.rep.tab')==='cert') rpTab('cert'); else rpDesignPv(); }catch(e
   new MutationObserver(sched).observe(pane,{childList:true,subtree:true});
   deco();
 })();
+/* ===== Tap-to-edit previews (report / design / certificate) + Reset ===== */
+const PVE = { S:{report:{},design:{},cert:{}}, hint:0 };
+try{ const j = JSON.parse(lsGet('lp.pve')||'{}'); ['report','design','cert'].forEach(k => { if(j[k] && typeof j[k]==='object') PVE.S[k] = j[k]; }); }catch(e){}
+const pvSave = () => lsSet('lp.pve', JSON.stringify(PVE.S));
+const pvPath = (root, el) => { const p = []; while(el && el !== root){ p.unshift([].indexOf.call(el.parentNode.children, el)); el = el.parentNode; } return p.join('.'); };
+const pvAt = (root, p) => { let el = root; for(const i of String(p).split('.')){ el = el && el.children[+i]; } return el || null; };
+const pvOK = el => !!el && el.nodeType === 1 && !el.closest('svg,img,button,input,select,textarea,[data-noedit]') && ![].some.call(el.childNodes, n => n.nodeType === 1 && n.tagName !== 'BR') && (el.textContent||'').trim().length > 0;
+function pvApply(root, store, mark){ let n = 0; Object.keys(store).forEach(p => { const v = store[p], el = pvAt(root, p); if(el && pvOK(el) && el.textContent === v.o){ el.textContent = v.t; if(mark) el.classList.add('pv-ed'); n++; } }); return n; }
+function pvStr(html, key){ const d = document.createElement('div'); d.innerHTML = html; if(!Object.keys(PVE.S[key]).length) return html; pvApply(d, PVE.S[key], false); return d.innerHTML; }
+function pvExport(html){ try{ const d = document.createElement('div'); d.innerHTML = html; const key = d.querySelector('.ct-in') ? 'cert' : d.querySelector('.rc') ? 'report' : ''; return key ? pvStr(html, key) : html; }catch(e){ return html; } }
+function pvBar(root, key){
+  const anchor = root.closest('.ct-wrap') || root; let bar = anchor.parentNode.querySelector('[data-pvbar="'+key+'"]');
+  if(!bar){ bar = document.createElement('div'); bar.className = 'pv-bar'; bar.dataset.pvbar = key; bar.dir = 'ltr';
+    bar.innerHTML = '<span>✏️ Tap any text to edit it</span><button type="button" class="btn small" data-pvreset="'+key+'">↺ Reset</button>'; anchor.parentNode.insertBefore(bar, anchor); }
+  const n = Object.keys(PVE.S[key]).length, b = bar.querySelector('button'); b.disabled = !n; b.textContent = n ? '↺ Reset edits (' + n + ')' : '↺ Reset';
+}
+function pvStart(root, key, el){
+  const store = PVE.S[key], p = pvPath(root, el), o = store[p] ? store[p].o : el.textContent, before = el.textContent;
+  el.contentEditable = 'plaintext-only'; if(el.contentEditable !== 'plaintext-only') el.contentEditable = 'true';
+  el.classList.add('pv-edit'); el.focus();
+  try{ const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }catch(e){}
+  let cancel = false;
+  const done = () => { el.removeEventListener('blur', done); el.removeEventListener('keydown', kd); el.removeEventListener('paste', ps);
+    const t = cancel ? before : el.textContent.replace(/\s+/g,' ').trim();
+    el.removeAttribute('contenteditable'); el.classList.remove('pv-edit');
+    if(!t || t === o){ delete store[p]; el.textContent = o; el.classList.remove('pv-ed'); } else { store[p] = {o:o, t:t}; el.textContent = t; el.classList.add('pv-ed'); }
+    pvSave(); pvBar(root, key); };
+  const kd = e => { if(e.key === 'Enter'){ e.preventDefault(); el.blur(); } else if(e.key === 'Escape'){ cancel = true; el.blur(); } };
+  const ps = e => { e.preventDefault(); const tx = (e.clipboardData || window.clipboardData).getData('text').replace(/\s+/g,' '); document.execCommand('insertText', false, tx); };
+  el.addEventListener('blur', done); el.addEventListener('keydown', kd); el.addEventListener('paste', ps);
+}
+function pvAfter(id, key){
+  const root = $(id); if(!root) return; pvApply(root, PVE.S[key], true);
+  if(!root._pv){ root._pv = 1; root.classList.add('pv-on');
+    root.addEventListener('click', e => { if(e.target.closest('[contenteditable]')) return; const el = e.target;
+      if(!pvOK(el) || el === root){ if(!PVE.hint){ PVE.hint = 1; toast('Tap directly on a line of text to edit it'); } return; }
+      pvStart(root, key, el); }); }
+  pvBar(root, key);
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-pvreset]'); if(!b) return; const k = b.dataset.pvreset; PVE.S[k] = {}; pvSave();
+  ({report:() => rpPreview(), design:() => rpDesignPv(), cert:() => ctRender()})[k](); toast('Edits reset ↺'); });
+(function(){ const f = rpPreview; rpPreview = function(){ const r = f.apply(this, arguments); pvAfter('rpPreview','report'); return r; }; })();
+(function(){ const f = rpDesignPv; rpDesignPv = function(){ const r = f.apply(this, arguments); pvAfter('rpDesignPv','design'); return r; }; })();
+(function(){ const f = ctRender; ctRender = function(){ const r = f.apply(this, arguments); pvAfter('ctPv','cert'); return r; }; })();
+(function(){ const f = rpToPng; rpToPng = function(html, w, name){ return f.call(this, pvExport(html), w, name); }; })();
+(function(){ const f = rpPrintDoc; rpPrintDoc = function(t, html, css){ return f.call(this, t, pvExport(html), css); }; })();
+pvAfter('rpPreview','report'); pvAfter('rpDesignPv','design'); pvAfter('ctPv','cert');
+
 </script>
 </body>
 </html>
