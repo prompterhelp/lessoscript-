@@ -1,5 +1,5 @@
 /* Service worker: installable + offline, but ALWAYS fetches the newest app when online */
-const CACHE = 'lesson-prompter-v12';
+const CACHE = 'lesson-prompter-v14';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
