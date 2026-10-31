@@ -631,6 +631,7 @@ body.presenter #pip{border-color:var(--good)}
 
 
     <section class="view panel" id="view-reports" hidden>
+      <div class="rp-chips" id="rpLangBar" dir="ltr" style="margin-bottom:12px"><button type="button" class="rp-chip" data-lang="en" aria-pressed="true">English</button><button type="button" class="rp-chip" data-lang="ar" aria-pressed="false">العربية</button></div>
       <h2>Lesson report</h2>
       <p class="help">Fill the form, copy the report, and send it to the parent. Every report is saved on this device.</p>
 
@@ -641,7 +642,7 @@ body.presenter #pip{border-color:var(--good)}
           <div><label class="rp-lbl" for="rpDate">Date</label><input class="field" id="rpDate" type="date"></div>
           <div><label class="rp-lbl" for="rpH">Duration</label><div class="rp-dur"><input class="field" id="rpH" type="number" min="0" max="12" inputmode="numeric" placeholder="0" aria-label="Hours"><span>hr</span><input class="field" id="rpM" type="number" min="0" max="59" inputmode="numeric" placeholder="30" aria-label="Minutes"><span>min</span></div></div>
           <div><label class="rp-lbl" for="rpTime">Timing</label><select class="field" id="rpTime"><option value="">On time</option><option value="late">Late</option><option value="short">Shortened</option><option value="extra">Extended</option></select></div>
-          <div><label class="rp-lbl" for="rpLang">Report language</label><select class="field" id="rpLang"><option value="en">English</option><option value="ar">العربية (Arabic)</option></select></div>
+          
           <div><label class="rp-lbl" for="rpTeacher">Teacher name (optional)</label><input class="field" id="rpTeacher" dir="auto" autocomplete="off" placeholder="Shown on the report"></div>
         </div>
         <div class="rp-chips" id="rpDurQ"></div>
@@ -2430,6 +2431,8 @@ const RP_SUBJECTS={
 let RPL=lsGet('lp.rep.lang')||'en';
 const RP_AR={'Lesson Report':'تقرير الدرس','Student':'الطالب','Student’s Name':'اسم الطالب','Date':'التاريخ','Duration':'المدة','Subject':'المادة','Lesson Notes':'ملاحظات الدرس','Homework':'الواجب','Grade':'التقييم','Teacher':'المعلم','New Memorisation':'حفظ جديد','Revision':'مراجعة','Qur’an':'القرآن الكريم','Arabic Language':'اللغة العربية','Noor El-Bayan':'نور البيان','Tajweed':'التجويد','Islamic Studies':'الدراسات الإسلامية',' (late)':' (متأخر)',' (shortened)':' (مختصر)',' (extended)':' (ممتد)'};
 const RP_GRADES_AR=['ممتاز، ما شاء الله! ⭐','جيد جدًا، استمر! 👏','جيد 👍','يحتاج إلى مزيد من التدريب 🔁'];
+Object.assign(RP_AR,{"Lesson report": "تقرير الدرس", "Fill the form, copy the report, and send it to the parent. Every report is saved on this device.": "املأ النموذج، وانسخ التقرير، وأرسله إلى ولي الأمر. يُحفظ كل تقرير على هذا الجهاز.", "Student & lesson": "الطالب والدرس", "Student’s name": "اسم الطالب", "Date": "التاريخ", "Duration": "المدة", "hr": "ساعة", "min": "دقيقة", "Timing": "التوقيت", "On time": "في الموعد", "Late": "متأخر", "Shortened": "مختصر", "Extended": "ممتد", "Teacher name (optional)": "اسم المعلم (اختياري)", "Subjects taught (tap to add / remove)": "المواد التي تم تدريسها (اضغط للإضافة / الحذف)", "＋ Add subject": "＋ إضافة مادة", "Show Bismillah at the top of the report": "إظهار البسملة في أعلى التقرير", "New memorisation": "حفظ جديد", "Select surah…": "اختر السورة…", "＋ Add surah": "＋ إضافة سورة", "Revision": "مراجعة", "Homework": "الواجب", "↳ Same as today’s new": "↳ نفس حفظ اليوم", "What we covered": "ما تناولناه", "Page": "الصفحة", "To page (optional)": "إلى صفحة (اختياري)", "Part of page": "جزء من الصفحة", "Full page": "الصفحة كاملة", "First half": "النصف الأول", "Second half": "النصف الثاني", "Focus (reading & pronouncing words with…)": "التركيز (قراءة ونطق الكلمات التي فيها…)", "Extra note (optional)": "ملاحظة إضافية (اختياري)", "Grade": "التقييم", "Report preview": "معاينة التقرير", "💾 Save report": "💾 حفظ التقرير", "📋 Copy text": "📋 نسخ النص", "📲 WhatsApp": "📲 واتساب", "🖨️ Print / PDF": "🖨️ طباعة / PDF", "🖼️ Save as picture": "🖼️ حفظ كصورة", "➕ New report": "➕ تقرير جديد", "♻️ Start from last report": "♻️ البدء من آخر تقرير", "☁️ Cloud sync (optional)": "☁️ المزامنة السحابية (اختياري)", "Project URL": "رابط المشروع", "Anon key": "المفتاح العام", "Email": "البريد الإلكتروني", "Password": "كلمة المرور", "Sign in": "تسجيل الدخول", "🔄 Sync now": "🔄 مزامنة الآن", "Sign out": "تسجيل الخروج", "Not signed in. Reports are saved on this device only.": "لم يتم تسجيل الدخول. تُحفظ التقارير على هذا الجهاز فقط.", "📅 Monthly record": "📅 السجل الشهري", "A month-end lesson record built from your saved reports. Pick the month, then print / save as PDF or download as a Word file.": "سجل دروس شهري مبني على تقاريرك المحفوظة. اختر الشهر ثم اطبع / احفظ PDF أو نزّل ملف Word.", "Month": "الشهر", "Academy name": "اسم الأكاديمية", "Academy tagline": "شعار الأكاديمية", "🖼️ Picture": "🖼️ صورة", "📄 Word (.docx)": "📄 Word (.docx)", "📎 Upload my form": "📎 رفع نموذجي", "↩︎ Built-in form": "↩︎ النموذج الأساسي", "📋 Copy table": "📋 نسخ الجدول", "Saved reports": "التقارير المحفوظة", "No saved reports yet.": "لا توجد تقارير محفوظة بعد.", "Open": "فتح", "Copy": "نسخ", "♻️ Template": "♻️ قالب", "Hours": "ساعات", "Minutes": "دقائق", "Surah": "السورة", "From verse": "من آية", "To verse": "إلى آية", "Remove": "حذف", "Homework for next lesson": "الواجب للدرس القادم", "Search reports…": "ابحث في التقارير…", "Filter by student": "تصفية حسب الطالب", "Shown on the report": "يظهر في التقرير", "Add your own subject (e.g. Fiqh, Hadith, سيرة)": "أضف مادة (فقه، حديث…)", "e.g. Hamza": "مثال: حمزة", "e.g. 68": "مثال: 68", "e.g. He read fluently with a few mistakes.": "مثال: قرأ بطلاقة مع بعض الأخطاء.", "Tap a starter above, then finish the sentence…": "اضغط على عبارة أعلاه ثم أكمل الجملة…", "🔍 Search surah (name or number)…": "🔍 ابحث عن السورة (الاسم أو الرقم)…", "We covered…": "تناولنا…", "We practised reading…": "تدرّبنا على القراءة…", "We learned the letters…": "تعلّمنا الحروف…", "We reviewed…": "راجعنا…", "We practised writing…": "تدرّبنا على الكتابة…", "Vocabulary: …": "المفردات: …", "We studied the rule of…": "درسنا حكم…", "We practised applying…": "تدرّبنا على تطبيق…", "We studied…": "درسنا…", "We discussed…": "ناقشنا…", "We learned about…": "تعلّمنا عن…", "We practised…": "تدرّبنا على…", "We learned…": "تعلّمنا…", "Revise…": "مراجعة…", "Memorise…": "حفظ…", "Practise reading…": "التدرّب على القراءة…", "Write…": "كتابة…", "Review today’s lesson": "مراجعة درس اليوم", "Re-read today’s pages…": "إعادة قراءة صفحات اليوم…", "Shaddah": "الشدّة", "Kasrah": "الكسرة", "Fathah": "الفتحة", "Dammah": "الضمّة", "Sukoon": "السكون", "Tanween": "التنوين", "Madd (long vowels)": "المدّ", "Alif Lam (Al-)": "أل التعريف"});
+const RP_SURAHS_AR=["الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس", "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"];
 function T(x){ return RPL==='ar'&&RP_AR[x]?RP_AR[x]:x; }
 function rpSub(k){ if(RP_SUBJECTS[k]) return RP_SUBJECTS[k]; if(typeof k==='string'&&k.indexOf('x_')===0) return {label:k.slice(2),icon:'📚',ph:'Tap a starter above, then finish the sentence…',st:['We covered…','We practised…','We reviewed…','We learned…']}; return null; }
 function rpCS(){ try{ const a=JSON.parse(lsGet('lp.rep.cs')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
@@ -2449,6 +2452,21 @@ async function rpToPng(html,w,name){
     const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=(name||'report').replace(/[^\w؀-ۿ-]+/g,'_')+'.png'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); toast('Picture saved ✅');
   }catch(e){ toast('Could not make a picture here — use Print / PDF'); }
 }
+
+function rpNorm(x){ return String(x).toLowerCase().replace(/[ً-ٰٟـ]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[^a-z0-9؀-ۿ]/g,''); }
+function rpOpts(q,sel){ q=rpNorm(q||''); const ar=RPL==='ar'; let o='<option value="">'+(ar?'اختر السورة…':'Select surah…')+'</option>';
+  RP_SURAHS.forEach((x,i)=>{ const a=RP_SURAHS_AR[i]; if(q&&!(String(i+1)===q||rpNorm(x[0]).includes(q)||rpNorm(a).includes(q))) return; o+='<option value="'+(i+1)+'"'+(String(i+1)===String(sel)?' selected':'')+'>'+(i+1)+'. '+(ar?a:x[0])+' ('+x[1]+')</option>'; }); return o; }
+function rpSurahTxt(i,f,t,n){ if(RPL==='ar') return 'سورة '+RP_SURAHS_AR[i-1]+(f===1&&t===n?' (كاملة)':f===t?' (الآية '+f+')':' (الآيات '+f+'–'+t+')'); return 'Surah '+RP_SURAHS[i-1][0]+(f===1&&t===n?' (full surah)':f===t?' (verse '+f+')':' (verses '+f+'–'+t+')'); }
+const rpOrig=new WeakMap();
+function rpUI(){
+  const v=$('view-reports'); if(!v) return; const ar=RPL==='ar';
+  const tr=s=>{ const m=/^([^A-Za-z؀-ۿ]*)([\s\S]*?)(\s*)$/.exec(s), k=m[2], all=/^All students \((\d+)\)$/.exec(k); if(all) return m[1]+'كل الطلاب ('+all[1]+')'+m[3]; const a=RP_AR[k]||RP_AR[s.trim()]; return a?(RP_AR[s.trim()]?'':m[1])+a+m[3]:s; };
+  const w=document.createTreeWalker(v,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentNode.closest('#rpMonthView,#rpPreview,#rpLangBar,script,style,textarea')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}), ns=[]; while(w.nextNode()) ns.push(w.currentNode);
+  ns.forEach(n=>{ let o=rpOrig.get(n); if(o===undefined){ o=n.textContent; rpOrig.set(n,o); } n.textContent=ar?tr(o):o; });
+  ['placeholder','aria-label','title'].forEach(a=>v.querySelectorAll('['+a+']').forEach(el=>{ const k='o'+a.replace('-',''); if(el.dataset[k]===undefined) el.dataset[k]=el.getAttribute(a); el.setAttribute(a,ar?tr(el.dataset[k]):el.dataset[k]); }));
+}
+function rpSetLang(l){ RPL=l==='ar'?'ar':'en'; lsSet('lp.rep.lang',RPL); const v=$('view-reports'); v.dir=RPL==='ar'?'rtl':'ltr'; v.lang=RPL; document.querySelectorAll('#rpLangBar [data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===RPL))); rpChips(); rpBuildSections(); rpPreview(); rpList(); }
+['rpChips','rpBuildSections','rpList'].forEach(n=>{ const f=window[n]; window[n]=function(){ const r=f.apply(this,arguments); rpUI(); return r; }; });
 const RP_HWST=['Revise…','Memorise…','Practise reading…','Write…','Review today’s lesson'];
 const RP_TOPICS=['Shaddah','Kasrah','Fathah','Dammah','Sukoon','Tanween','Madd (long vowels)','Alif Lam (Al-)'];
 const RP_GRADES=['Excellent, MashaAllah! ⭐','Very good, keep it up! 👏','Good 👍','Needs more practice 🔁'];
@@ -2490,11 +2508,12 @@ function rpToday(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getM
 function rpDMY(iso){ const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(iso||''); return m?m[3]+'/'+m[2]+'/'+m[1]:(iso||''); }
 function rpDur(m){ m=+m||0; if(!m) return ''; const h=Math.floor(m/60), r=m%60; return (h?h+(h>1?' hours':' hour'):'')+(h&&r?' ':'')+(r?r+(r>1?' minutes':' minute'):''); }
 function rpJoin(a){ const ar=RPL==='ar'; return a.length>1?a.slice(0,-1).join(ar?'، ':', ')+(ar?' و':' and ')+(ar?'':' ')+a[a.length-1]:(a[0]||''); }
-function rpQ(a){ return (Array.isArray(a)?a:[]).map(e=>{ const sr=RP_SURAHS[(+e.s)-1]; if(!sr) return ''; const n=sr[1], f=Math.max(1,Math.min(+e.f||1,n)), t=Math.max(f,Math.min(+e.t||n,n)); return 'Surah '+sr[0]+(f===1&&t===n?' (full surah)':f===t?' (verse '+f+')':' (verses '+f+'–'+t+')'); }).filter(Boolean); }
+function rpQ(a){ return (Array.isArray(a)?a:[]).map(e=>{ const sr=RP_SURAHS[(+e.s)-1]; if(!sr) return ''; const n=sr[1], f=Math.max(1,Math.min(+e.f||1,n)), t=Math.max(f,Math.min(+e.t||n,n)); return rpSurahTxt(+e.s,f,t,n); }).filter(Boolean); }
 function rpVal(v){ return Array.isArray(v)?rpQ(v).join('; '):(typeof v==='string'?v.trim():''); }
 function rpNoor(d){
   const p=(d['noor.page']||'').trim(), p2=(d['noor.page2']||'').trim(), part=d['noor.part']||'', tp=d['noor.topics']||[], note=(d['noor.note']||'').trim();
   if(!p&&!note&&!tp.length) return '';
+  if(RPL==='ar'){ const w=(p2&&p2!==p)?'الصفحات '+p+'–'+p2:(part==='first'?'النصف الأول من الصفحة ':part==='second'?'النصف الثاني من الصفحة ':'الصفحة ')+p; let a=p?'تناولنا '+w+' في نور البيان':'عملنا في نور البيان'; if(tp.length) a+='، مع التركيز على قراءة ونطق الكلمات التي فيها '+rpJoin(tp.map(T)); a+='.'; if(note) a+=' '+note; return a; }
   let s;
   if(p){ const w=(p2&&p2!==p)?'pages '+p+'–'+p2:(part==='first'?'the first half of page ':part==='second'?'the second half of page ':'page ')+p; s='We covered '+w+' in Noor El-Bayan'; }
   else s='We worked in Noor El-Bayan';
@@ -2538,11 +2557,11 @@ function rpHTML(m){
   return h+'</div>';
 }
 function rpQRef(q){ const o=q==='hw'?REPF.hw:REPF.data, k=q==='hw'?'quran':'quran.'+q; if(!Array.isArray(o[k])) o[k]=[]; return o[k]; }
-function rpStarters(k,arr){ return '<div class="rp-st">'+arr.map(t=>'<button type="button" class="rp-sc" data-act="st" data-for="'+k+'" data-t="'+rpEsc(t.replace(/…$/,''))+'">'+rpEsc(t)+'</button>').join('')+'</div>'; }
+function rpStarters(k,arr){ arr=arr.map(T); return '<div class="rp-st">'+arr.map(t=>'<button type="button" class="rp-sc" data-act="st" data-for="'+k+'" data-t="'+rpEsc(t.replace(/…$/,''))+'">'+rpEsc(t)+'</button>').join('')+'</div>'; }
 function rpQBlock(q,label){
   const list=rpQRef(q); if(!list.length) list.push({s:'',f:'',t:''});
   return '<label class="rp-lbl">'+label+'</label>'+list.map((e,i)=>{ const at=' data-q="'+q+'" data-i="'+i+'"';
-    return '<div class="rp-q"><select class="field"'+at+' data-qf="s" data-v="'+rpEsc(e.s)+'" aria-label="Surah">'+RP_OPTS+'</select><input class="field" type="number" min="1" inputmode="numeric" placeholder="From verse"'+at+' data-qf="f" value="'+rpEsc(e.f)+'"><input class="field" type="number" min="1" inputmode="numeric" placeholder="To verse"'+at+' data-qf="t" value="'+rpEsc(e.t)+'"><button type="button" class="btn small" data-act="delq"'+at+' aria-label="Remove">✕</button></div>'; }).join('')
+    return '<input class="field" type="search" data-qs="1" dir="auto" placeholder="🔍 Search surah (name or number)…" style="margin:0 0 6px"><div class="rp-q"><select class="field"'+at+' data-qf="s" data-v="'+rpEsc(e.s)+'" aria-label="Surah">'+rpOpts('',e.s)+'</select><input class="field" type="number" min="1" inputmode="numeric" placeholder="From verse"'+at+' data-qf="f" value="'+rpEsc(e.f)+'"><input class="field" type="number" min="1" inputmode="numeric" placeholder="To verse"'+at+' data-qf="t" value="'+rpEsc(e.t)+'"><button type="button" class="btn small" data-act="delq"'+at+' aria-label="Remove">✕</button></div>'; }).join('')
     +'<div class="row-actions" style="margin:0 0 8px"><button type="button" class="btn small" data-act="addq" data-q="'+q+'">＋ Add surah</button>'+(q==='hw'?'<button type="button" class="btn small" data-act="sameq">↳ Same as today’s new</button>':'')+'</div>';
 }
 function rpBuildSections(){
@@ -2579,8 +2598,8 @@ function rpHint(){
 }
 function rpChips(){
   $('rpChips').innerHTML=allSubKeys([{subjects:REPF.subjects}]).map(k=>'<button type="button" class="rp-chip" data-sub="'+rpEsc(k)+'" aria-pressed="'+REPF.subjects.includes(k)+'" dir="auto">'+rpSub(k).icon+' '+rpEsc(rpSub(k).label)+(k.startsWith('x_')?' <span data-delsub="'+rpEsc(k)+'" title="Remove" style="opacity:.6;margin-inline-start:4px">✕</span>':'')+'</button>').join('');
-  $('rpGrades').innerHTML=RP_GRADES.map(g=>'<button type="button" class="rp-chip" data-grade="'+rpEsc(g)+'" aria-pressed="'+(REPF.grade===g)+'">'+rpEsc(g)+'</button>').join('');
-  $('rpDurQ').innerHTML=[[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr'],[90,'1 hr 30'],[120,'2 hr']].map(x=>'<button type="button" class="rp-sc" data-dm="'+x[0]+'">⏱ '+x[1]+'</button>').join('');
+  $('rpGrades').innerHTML=RP_GRADES.map(g=>'<button type="button" class="rp-chip" data-grade="'+rpEsc(g)+'" aria-pressed="'+(REPF.grade===g)+'">'+rpEsc(RPL==='ar'?RP_GRADES_AR[RP_GRADES.indexOf(g)]:g)+'</button>').join('');
+  $('rpDurQ').innerHTML=[[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr'],[90,'1 hr 30'],[120,'2 hr']].map(x=>'<button type="button" class="rp-sc" data-dm="'+x[0]+'">⏱ '+(RPL==='ar'?rpDurL(x[0]):x[1])+'</button>').join('');
 }
 function rpPreview(){ $('rpPreview').innerHTML=rpHTML(rpModel(rpCur())); }
 function rpTxtR(r){ return rpText(rpModel(r)); }
@@ -2727,13 +2746,13 @@ function mrFill(xml,m){
         if(!/[A-Za-z]/.test(text)&&!has('rtl')) pr.appendChild(mk('rtl')); } }
   };
   let lt=null;
-  for(const t of g(doc,'tbl')){ const r0=g(t,'tr')[0]; if(!r0) continue; const h=g(r0,'tc').map(c=>tx(c).toLowerCase()); if(h.some(x=>/^(no\.?|#)$/.test(x))&&h.some(x=>/student|name/.test(x))){ lt=t; break; } }
+  for(const t of g(doc,'tbl')){ const r0=g(t,'tr')[0]; if(!r0) continue; const h=g(r0,'tc').map(c=>tx(c).toLowerCase()); if(h.some(x=>/^(no\.?|#|م|رقم)$/.test(x))&&h.some(x=>/student|name|الطالب/.test(x))){ lt=t; break; } }
   if(!lt) throw new Error('no lessons table');
   for(const p of g(doc,'p')){ if(p.parentNode.localName!=='body') continue; const s=tx(p); if(/Lesson Record\s*[–-]/i.test(s)) setText(p,s.replace(/(Lesson Record\s*[–-]\s*).*/i,'$1'+m.month)); }
-  const n=m.list.length, vals={'teacher name':m.teacher,'month':m.month,'total lessons':n,'total minutes':m.total.toLocaleString('en-US'),'total hours':rpDur(m.total)||'0'};
+  const n=m.list.length, vals={'اسم المعلم':m.teacher,'الشهر':m.month,'عدد الدروس':n,'إجمالي الدروس':n,'إجمالي الدقائق':m.total.toLocaleString('en-US'),'إجمالي الساعات':rpDur(m.total)||'0','teacher name':m.teacher,'month':m.month,'total lessons':n,'total minutes':m.total.toLocaleString('en-US'),'total hours':rpDur(m.total)||'0'};
   for(const t of g(doc,'tbl')){ if(t===lt) continue; for(const tc of g(t,'tc')){ const k=tx(tc).toLowerCase().replace(/:$/,''), nx=tc.nextElementSibling;
     if(nx&&nx.localName==='tc'&&k in vals&&vals[k]!==''&&vals[k]!=null) setText(nx,vals[k]); } }
-  const rows=g(lt,'tr'), hdr=g(rows[0],'tc').map(c=>{const s=tx(c).toLowerCase(); return /^note/.test(s)?'note':/^(no\.?|#|number)$/.test(s)?'no':/student|name/.test(s)?'name':/day/.test(s)?'day':/date/.test(s)?'date':/dur|time/.test(s)?'dur':'';});
+  const rows=g(lt,'tr'), hdr=g(rows[0],'tc').map(c=>{const s=tx(c).toLowerCase(); return /^(note|ملاحظ)/.test(s)?'note':/^(م|رقم)$/.test(s)?'no':/اسم الطالب|^الطالب/.test(s)?'name':/^اليوم/.test(s)?'day':/^التاريخ/.test(s)?'date':/مدة/.test(s)?'dur':/^(no\.?|#|number)$/.test(s)?'no':/student|name/.test(s)?'name':/day/.test(s)?'day':/date/.test(s)?'date':/dur|time/.test(s)?'dur':'';});
   const proto=rows[1]; if(!proto) throw new Error('no sample row');
   rows.slice(1).forEach(r=>r.parentNode.removeChild(r));
   for(const it of m.list){ const r=proto.cloneNode(true); g(r,'tc').forEach((c,i)=>{ if(hdr[i]) setText(c,it[hdr[i]]==null?'':it[hdr[i]]); }); lt.appendChild(r); }
@@ -2766,10 +2785,12 @@ function rpInit(){
     try{ const sv=JSON.parse(lsGet('lp.rep.prefs')||'null'); if(sv){ if(Array.isArray(sv.subjects)&&sv.subjects.length) REPF.subjects=sv.subjects.filter(k=>rpSub(k)); $('rpTeacher').value=sv.teacher||''; $('rpBis').checked=sv.bis!==false; } }catch(e){}
     $('rpDate').value=rpToday(); $('rpMonth').value=rpToday().slice(0,7);
     try{ const ac=JSON.parse(lsGet('lp.rep.acad')||'null'); if(ac){ $('rpAcademy').value=ac.a||''; $('rpAcSub').value=ac.s||''; } else { $('rpAcademy').value='Taybah Academy'; $('rpAcSub').value='Online Qur’an & Islamic Education'; } }catch(e){}
-    rpChips(); rpBuildSections(); clInit(); mrStatus(); $('rpLang').value=RPL; mrLogoLoad();
+    rpChips(); rpBuildSections(); clInit(); mrStatus(); rpSetLang(RPL); mrLogoLoad();
     const view=$('view-reports');
     view.addEventListener('input',e=>{
       const t=e.target, k=t.dataset&&t.dataset.k, qf=t.dataset&&t.dataset.qf;
+      if(t.dataset&&t.dataset.qs!==undefined){ const sel=t.nextElementSibling&&t.nextElementSibling.querySelector('select[data-qf="s"]'); if(sel){ const cur=sel.value; sel.innerHTML=rpOpts(t.value,cur); const os=[...sel.options].filter(o=>o.value);
+          if(t.value.trim()&&os.length===1){ sel.value=os[0].value; sel.dispatchEvent(new Event('input',{bubbles:true})); } else { if(cur&&os.some(o=>o.value===cur)) sel.value=cur; if(t.value.trim()&&os.length>1) sel.size=Math.min(os.length+1,6); else sel.removeAttribute('size'); } } return; }
       if(k){ if(k[0]==='d') REPF.data[k.slice(2)]=t.value; else REPF.hw[k.slice(2)]=t.value; }
       if(qf){ const en=rpQRef(t.dataset.q)[+t.dataset.i]; if(en){ en[qf]=t.value;
         if(qf==='s'){ const n=RP_SURAHS[(+t.value)-1]; en.f=n?'1':''; en.t=n?String(n[1]):''; const row=t.parentNode; row.querySelector('[data-qf="f"]').value=en.f; row.querySelector('[data-qf="t"]').value=en.t; } } }
@@ -2778,10 +2799,10 @@ function rpInit(){
       if(['rpTeacher','rpMonth','rpAcademy','rpAcSub'].includes(t.id)){ if(t.id==='rpAcademy'||t.id==='rpAcSub') lsSet('lp.rep.acad',JSON.stringify({a:$('rpAcademy').value,s:$('rpAcSub').value})); rpMonthRender(); if(t.id!=='rpTeacher') return; }
       rpPreview();
     });
-    view.addEventListener('change',e=>{ if(e.target.id==='rpLang'){ RPL=e.target.value; lsSet('lp.rep.lang',RPL); rpPreview(); return; } if(e.target.id==='rpMTplIn'){ const f=e.target.files[0]; e.target.value=''; if(f) mrUpload(f); return; } if(e.target.id==='rpFilter') rpList(); if(e.target.id==='rpName') rpHint(); });
+    view.addEventListener('change',e=>{ if(e.target.id==='rpMTplIn'){ const f=e.target.files[0]; e.target.value=''; if(f) mrUpload(f); return; } if(e.target.id==='rpFilter') rpList(); if(e.target.id==='rpName') rpHint(); });
     view.addEventListener('click',e=>{
       const ds=e.target.closest('[data-delsub]'); if(ds){ e.stopPropagation(); const k=ds.dataset.delsub; if(confirm('Remove subject “'+k.slice(2)+'”? Old reports keep it.')){ lsSet('lp.rep.cs',JSON.stringify(rpCS().filter(l=>'x_'+l!==k))); const i=REPF.subjects.indexOf(k); if(i>=0) REPF.subjects.splice(i,1); rpPrefs(); rpChips(); rpBuildSections(); rpPreview(); } return; }
-      const b=e.target.closest('button'); if(!b) return; const act=b.dataset.act;
+      const b=e.target.closest('button'); if(!b) return; const act=b.dataset.act; if(b.dataset.lang){ rpSetLang(b.dataset.lang); return; }
       if(b.dataset.sub){ const k=b.dataset.sub, i=REPF.subjects.indexOf(k); if(i>=0) REPF.subjects.splice(i,1); else REPF.subjects=allSubKeys().filter(x=>REPF.subjects.includes(x)||x===k);
         rpPrefs(); rpChips(); rpBuildSections(); rpPreview(); }
       else if(b.dataset.grade){ REPF.grade=b.dataset.grade; rpChips(); rpPreview(); }
