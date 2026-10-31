@@ -637,15 +637,17 @@ body.presenter #pip{border-color:var(--good)}
       <div class="rp-card">
         <h3><i>👤</i> Student & lesson</h3>
         <div class="rp-grid">
-          <div><label class="rp-lbl" for="rpName">Student’s name</label><input class="field" id="rpName" list="rpNames" autocomplete="off" placeholder="e.g. Hamza"><datalist id="rpNames"></datalist></div>
+          <div><label class="rp-lbl" for="rpName">Student’s name</label><input class="field" id="rpName" dir="auto" list="rpNames" autocomplete="off" placeholder="e.g. Hamza"><datalist id="rpNames"></datalist></div>
           <div><label class="rp-lbl" for="rpDate">Date</label><input class="field" id="rpDate" type="date"></div>
           <div><label class="rp-lbl" for="rpH">Duration</label><div class="rp-dur"><input class="field" id="rpH" type="number" min="0" max="12" inputmode="numeric" placeholder="0" aria-label="Hours"><span>hr</span><input class="field" id="rpM" type="number" min="0" max="59" inputmode="numeric" placeholder="30" aria-label="Minutes"><span>min</span></div></div>
           <div><label class="rp-lbl" for="rpTime">Timing</label><select class="field" id="rpTime"><option value="">On time</option><option value="late">Late</option><option value="short">Shortened</option><option value="extra">Extended</option></select></div>
-          <div><label class="rp-lbl" for="rpTeacher">Teacher name (optional)</label><input class="field" id="rpTeacher" autocomplete="off" placeholder="Shown on the report"></div>
+          <div><label class="rp-lbl" for="rpLang">Report language</label><select class="field" id="rpLang"><option value="en">English</option><option value="ar">العربية (Arabic)</option></select></div>
+          <div><label class="rp-lbl" for="rpTeacher">Teacher name (optional)</label><input class="field" id="rpTeacher" dir="auto" autocomplete="off" placeholder="Shown on the report"></div>
         </div>
         <div class="rp-chips" id="rpDurQ"></div>
         <span class="rp-lbl" style="margin-top:12px">Subjects taught (tap to add / remove)</span>
         <div class="rp-chips" id="rpChips"></div>
+        <div class="rp-grid" style="margin-top:8px"><input class="field" id="rpNewSub" dir="auto" maxlength="40" placeholder="Add your own subject (e.g. Fiqh, Hadith, سيرة)" style="margin:0"><button class="btn small" id="rpAddSub" type="button">＋ Add subject</button></div>
         <label class="rp-opt"><input type="checkbox" id="rpBis" checked> Show Bismillah at the top of the report</label>
       </div>
 
@@ -663,7 +665,9 @@ body.presenter #pip{border-color:var(--good)}
         <button class="btn" id="rpCopy" type="button">📋 Copy text</button>
         <button class="btn" id="rpWa" type="button">📲 WhatsApp</button>
         <button class="btn" id="rpPrint" type="button">🖨️ Print / PDF</button>
+        <button class="btn" id="rpImg" type="button">🖼️ Save as picture</button>
         <button class="btn" id="rpNew" type="button">➕ New report</button>
+        <button class="btn" id="rpLast" type="button">♻️ Start from last report</button>
       </div>
 
       <details class="rp-card" id="rpCloud">
@@ -687,11 +691,12 @@ body.presenter #pip{border-color:var(--good)}
       <p class="help">A month-end lesson record built from your saved reports. Pick the month, then print / save as PDF or download as a Word file.</p>
       <div class="rp-grid">
         <div><label class="rp-lbl" for="rpMonth">Month</label><input class="field" id="rpMonth" type="month" style="margin:0"></div>
-        <div><label class="rp-lbl" for="rpAcademy">Academy name</label><input class="field" id="rpAcademy" style="margin:0" placeholder="Taybah Academy"></div>
-        <div><label class="rp-lbl" for="rpAcSub">Academy tagline</label><input class="field" id="rpAcSub" style="margin:0" placeholder="Online Qur’an &amp; Islamic Education"></div>
+        <div><label class="rp-lbl" for="rpAcademy">Academy name</label><input class="field" id="rpAcademy" dir="auto" style="margin:0" placeholder="Taybah Academy"></div>
+        <div><label class="rp-lbl" for="rpAcSub">Academy tagline</label><input class="field" id="rpAcSub" dir="auto" style="margin:0" placeholder="Online Qur’an &amp; Islamic Education"></div>
       </div>
       <div class="row-actions" style="margin-top:10px">
         <button class="btn primary" id="rpMPrint" type="button">🖨️ Print / PDF</button>
+        <button class="btn" id="rpMImg" type="button">🖼️ Picture</button>
         <button class="btn" id="rpMDoc" type="button">📄 Word (.docx)</button>
         <button class="btn" id="rpMTpl" type="button">📎 Upload my form</button>
         <button class="btn" id="rpMTplReset" type="button">↩︎ Built-in form</button>
@@ -2421,6 +2426,29 @@ const RP_SUBJECTS={
   tajweed:{label:'Tajweed',icon:'🎙️',ph:'Tap a starter above, then finish the sentence…',st:['We studied the rule of…','We practised applying…','We reviewed…']},
   islamic:{label:'Islamic Studies',icon:'🕌',ph:'Tap a starter above, then finish the sentence…',st:['We studied…','We discussed…','We learned about…','We reviewed…']}
 };
+
+let RPL=lsGet('lp.rep.lang')||'en';
+const RP_AR={'Lesson Report':'تقرير الدرس','Student':'الطالب','Student’s Name':'اسم الطالب','Date':'التاريخ','Duration':'المدة','Subject':'المادة','Lesson Notes':'ملاحظات الدرس','Homework':'الواجب','Grade':'التقييم','Teacher':'المعلم','New Memorisation':'حفظ جديد','Revision':'مراجعة','Qur’an':'القرآن الكريم','Arabic Language':'اللغة العربية','Noor El-Bayan':'نور البيان','Tajweed':'التجويد','Islamic Studies':'الدراسات الإسلامية',' (late)':' (متأخر)',' (shortened)':' (مختصر)',' (extended)':' (ممتد)'};
+const RP_GRADES_AR=['ممتاز، ما شاء الله! ⭐','جيد جدًا، استمر! 👏','جيد 👍','يحتاج إلى مزيد من التدريب 🔁'];
+function T(x){ return RPL==='ar'&&RP_AR[x]?RP_AR[x]:x; }
+function rpSub(k){ if(RP_SUBJECTS[k]) return RP_SUBJECTS[k]; if(typeof k==='string'&&k.indexOf('x_')===0) return {label:k.slice(2),icon:'📚',ph:'Tap a starter above, then finish the sentence…',st:['We covered…','We practised…','We reviewed…','We learned…']}; return null; }
+function rpCS(){ try{ const a=JSON.parse(lsGet('lp.rep.cs')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function allSubKeys(rows){ const ks=Object.keys(RP_SUBJECTS).concat(rpCS().map(l=>'x_'+l)); (rows||[]).forEach(r=>(r.subjects||[]).forEach(k=>{ if(!ks.includes(k)&&rpSub(k)) ks.push(k); })); return ks; }
+function rpDurL(m){ if(RPL!=='ar') return rpDur(m); m=+m||0; if(!m) return ''; const h=Math.floor(m/60), r=m%60; return (h?(h===1?'ساعة':h===2?'ساعتان':h+(h<11?' ساعات':' ساعة')):'')+(h&&r?' و ':'')+(r?(r===1?'دقيقة':r===2?'دقيقتان':r+(r<11?' دقائق':' دقيقة')):''); }
+function rpTemplate(r){ if(!r){ toast('No saved reports yet'); return; } const o=JSON.parse(JSON.stringify(r)); o.id=null; o.date=rpToday(); rpLoad(o); REPF.id=null; toast('Template loaded — edit and save ♻️'); window.scrollTo({top:0,behavior:'smooth'}); }
+function rpLastTemplate(){ const nm=$('rpName').value.trim().toLowerCase(); let a=rpAll(); const f=nm?a.filter(r=>(r.name||'').toLowerCase()===nm):[]; if(f.length) a=f; a.sort((x,y)=>(y.date||'').localeCompare(x.date||'')||(y.saved||0)-(x.saved||0)); rpTemplate(a[0]); }
+async function rpToPng(html,w,name){
+  try{
+    const css=RP_CSS+MR_CSS, host=document.createElement('div'); host.style.cssText='position:fixed;left:-99999px;top:0;width:'+w+'px;padding:14px;background:#fff;box-sizing:border-box';
+    host.innerHTML='<style>'+css+'</style>'+html; document.body.appendChild(host);
+    const H=host.offsetHeight; host.querySelectorAll('style').forEach(x=>x.remove()); host.style.position='static'; host.style.left='auto'; const inner=new XMLSerializer().serializeToString(host); host.remove();
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><style><![CDATA['+css+']]></style>'+inner+'</div></foreignObject></svg>';
+    const img=new Image(); img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); await img.decode();
+    const c=document.createElement('canvas'), k=2; c.width=w*k; c.height=H*k; const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.scale(k,k); x.drawImage(img,0,0);
+    const b=await new Promise(r=>c.toBlob(r,'image/png')); if(!b) throw 0;
+    const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=(name||'report').replace(/[^\w؀-ۿ-]+/g,'_')+'.png'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); toast('Picture saved ✅');
+  }catch(e){ toast('Could not make a picture here — use Print / PDF'); }
+}
 const RP_HWST=['Revise…','Memorise…','Practise reading…','Write…','Review today’s lesson'];
 const RP_TOPICS=['Shaddah','Kasrah','Fathah','Dammah','Sukoon','Tanween','Madd (long vowels)','Alif Lam (Al-)'];
 const RP_GRADES=['Excellent, MashaAllah! ⭐','Very good, keep it up! 👏','Good 👍','Needs more practice 🔁'];
@@ -2461,7 +2489,7 @@ function rpEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;
 function rpToday(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function rpDMY(iso){ const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(iso||''); return m?m[3]+'/'+m[2]+'/'+m[1]:(iso||''); }
 function rpDur(m){ m=+m||0; if(!m) return ''; const h=Math.floor(m/60), r=m%60; return (h?h+(h>1?' hours':' hour'):'')+(h&&r?' ':'')+(r?r+(r>1?' minutes':' minute'):''); }
-function rpJoin(a){ return a.length>1?a.slice(0,-1).join(', ')+' and '+a[a.length-1]:(a[0]||''); }
+function rpJoin(a){ const ar=RPL==='ar'; return a.length>1?a.slice(0,-1).join(ar?'، ':', ')+(ar?' و':' and ')+(ar?'':' ')+a[a.length-1]:(a[0]||''); }
 function rpQ(a){ return (Array.isArray(a)?a:[]).map(e=>{ const sr=RP_SURAHS[(+e.s)-1]; if(!sr) return ''; const n=sr[1], f=Math.max(1,Math.min(+e.f||1,n)), t=Math.max(f,Math.min(+e.t||n,n)); return 'Surah '+sr[0]+(f===1&&t===n?' (full surah)':f===t?' (verse '+f+')':' (verses '+f+'–'+t+')'); }).filter(Boolean); }
 function rpVal(v){ return Array.isArray(v)?rpQ(v).join('; '):(typeof v==='string'?v.trim():''); }
 function rpNoor(d){
@@ -2479,34 +2507,34 @@ function rpCur(){
     teacher:$('rpTeacher').value.trim(),bis:$('rpBis').checked,subjects:REPF.subjects.slice(),data:REPF.data,hw:REPF.hw,grade:REPF.grade};
 }
 function rpModel(r){
-  const subs=(r.subjects||[]).filter(k=>RP_SUBJECTS[k]), notes=[], hw=[], d=r.data||{}, h=r.hw||{};
+  const subs=(r.subjects||[]).filter(k=>rpSub(k)), notes=[], hw=[], d=r.data||{}, h=r.hw||{};
   subs.forEach(k=>{
-    const S=RP_SUBJECTS[k], rows=[];
-    if(k==='quran'){ [['new','New Memorisation'],['rev','Revision']].forEach(f=>{ const v=rpVal(d['quran.'+f[0]]); if(v) rows.push([f[1],v]); }); }
+    const S=rpSub(k), rows=[];
+    if(k==='quran'){ [['new','New Memorisation'],['rev','Revision']].forEach(f=>{ const v=rpVal(d['quran.'+f[0]]); if(v) rows.push([T(f[1]),v]); }); }
     else if(k==='noor'){ const v=rpNoor(d); if(v) rows.push(['',v]); }
     else { const v=rpVal(d[k+'.done']); if(v) rows.push(['',v]); }
-    if(rows.length) notes.push({icon:S.icon,title:S.label,rows});
-    const hv=rpVal(h[k]); if(hv) hw.push({icon:S.icon,title:S.label,text:hv});
+    if(rows.length) notes.push({icon:S.icon,title:T(S.label),rows});
+    const hv=rpVal(h[k]); if(hv) hw.push({icon:S.icon,title:T(S.label),text:hv});
   });
-  const t={late:' (late)',short:' (shortened)',extra:' (extended)'}[r.timing]||'';
-  return {name:r.name,subj:rpJoin(subs.map(k=>RP_SUBJECTS[k].label)),date:rpDMY(r.date),dur:(rpDur(r.dur)||'—')+t,teacher:r.teacher||'',bis:r.bis!==false,notes,hw,grade:r.grade};
+  const t=T({late:' (late)',short:' (shortened)',extra:' (extended)'}[r.timing]||'');
+  return {name:r.name,subj:rpJoin(subs.map(k=>T(rpSub(k).label))),date:rpDMY(r.date),dur:(rpDurL(r.dur)||'—')+t,teacher:r.teacher||'',bis:r.bis!==false,notes,hw,grade:(RPL==='ar'&&RP_GRADES.indexOf(r.grade)>=0)?RP_GRADES_AR[RP_GRADES.indexOf(r.grade)]:r.grade};
 }
 function rpText(m){
-  const L=['📋 Lesson Report','Student’s Name: '+(m.name||'—'),'Subject: '+m.subj,'Duration: '+m.dur,'Date: '+m.date];
-  if(m.teacher) L.push('Teacher: '+m.teacher);
-  L.push('','Lesson Notes');
+  const L=['📋 '+T('Lesson Report'),T('Student’s Name')+': '+(m.name||'—'),T('Subject')+': '+m.subj,T('Duration')+': '+m.dur,T('Date')+': '+m.date];
+  if(m.teacher) L.push(T('Teacher')+': '+m.teacher);
+  L.push('',T('Lesson Notes'));
   m.notes.forEach(n=>{ L.push(n.title+':'); n.rows.forEach(r=>L.push(r[0]?r[0]+': '+r[1]:r[1])); L.push(''); });
-  if(m.hw.length){ L.push('Homework'); m.hw.forEach(x=>L.push(x.title+': '+x.text)); L.push(''); }
-  if(m.grade){ L.push('Grade',m.grade); }
+  if(m.hw.length){ L.push(T('Homework')); m.hw.forEach(x=>L.push(x.title+': '+x.text)); L.push(''); }
+  if(m.grade){ L.push(T('Grade'),m.grade); }
   return L.join('\n').replace(/\n{3,}/g,'\n\n').trim();
 }
 function rpHTML(m){
-  const e=rpEsc, info=[['Student',m.name||'—'],['Date',m.date],['Duration',m.dur],['Subject',m.subj]];
-  let h='<div class="rc"><div class="rc-head">'+(m.bis?'<div class="rc-bis">بسم الله الرحمن الرحيم</div>':'')+'<div class="rc-title">Lesson Report</div>'+(m.teacher?'<div class="rc-teacher">Teacher: '+e(m.teacher)+'</div>':'')+'</div>';
+  const e=rpEsc, info=[[T('Student'),m.name||'—'],[T('Date'),m.date],[T('Duration'),m.dur],[T('Subject'),m.subj]];
+  let h='<div class="rc" dir="'+(RPL==='ar'?'rtl':'ltr')+'"><div class="rc-head">'+(m.bis?'<div class="rc-bis">بسم الله الرحمن الرحيم</div>':'')+'<div class="rc-title">'+T('Lesson Report')+'</div>'+(m.teacher?'<div class="rc-teacher" dir="auto">'+T('Teacher')+': '+e(m.teacher)+'</div>':'')+'</div>';
   h+='<div class="rc-info">'+info.map(x=>'<div><small>'+x[0]+'</small><b dir="auto">'+e(x[1])+'</b></div>').join('')+'</div>';
-  if(m.notes.length) h+='<div class="rc-sec"><div class="rc-h">Lesson Notes</div>'+m.notes.map(n=>'<div class="rc-sub"><div class="rc-subh">'+n.icon+' '+e(n.title)+'</div>'+n.rows.map(r=>'<div class="rc-row" dir="auto">'+(r[0]?'<span class="rc-k">'+e(r[0])+'</span>':'')+e(r[1])+'</div>').join('')+'</div>').join('')+'</div>';
-  if(m.hw.length) h+='<div class="rc-sec"><div class="rc-h">Homework</div>'+m.hw.map(x=>'<div class="rc-sub rc-hw"><div class="rc-subh">'+x.icon+' '+e(x.title)+'</div><div class="rc-row" dir="auto">'+e(x.text)+'</div></div>').join('')+'</div>';
-  if(m.grade) h+='<div class="rc-grade"><small>Grade</small>'+e(m.grade)+'</div>';
+  if(m.notes.length) h+='<div class="rc-sec"><div class="rc-h">'+T('Lesson Notes')+'</div>'+m.notes.map(n=>'<div class="rc-sub"><div class="rc-subh">'+n.icon+' '+e(n.title)+'</div>'+n.rows.map(r=>'<div class="rc-row" dir="auto">'+(r[0]?'<span class="rc-k">'+e(r[0])+'</span>':'')+e(r[1])+'</div>').join('')+'</div>').join('')+'</div>';
+  if(m.hw.length) h+='<div class="rc-sec"><div class="rc-h">'+T('Homework')+'</div>'+m.hw.map(x=>'<div class="rc-sub rc-hw"><div class="rc-subh">'+x.icon+' '+e(x.title)+'</div><div class="rc-row" dir="auto">'+e(x.text)+'</div></div>').join('')+'</div>';
+  if(m.grade) h+='<div class="rc-grade"><small>'+T('Grade')+'</small><span dir="auto">'+e(m.grade)+'</span></div>';
   return h+'</div>';
 }
 function rpQRef(q){ const o=q==='hw'?REPF.hw:REPF.data, k=q==='hw'?'quran':'quran.'+q; if(!Array.isArray(o[k])) o[k]=[]; return o[k]; }
@@ -2520,7 +2548,7 @@ function rpQBlock(q,label){
 function rpBuildSections(){
   const box=$('rpSections'); box.innerHTML='';
   REPF.subjects.forEach(k=>{
-    const S=RP_SUBJECTS[k], c=document.createElement('div'); c.className='rp-card'; let b='<h3><i>'+S.icon+'</i> '+rpEsc(S.label)+'</h3>';
+    const S=rpSub(k), c=document.createElement('div'); c.className='rp-card'; let b='<h3><i>'+S.icon+'</i> '+rpEsc(S.label)+'</h3>';
     if(k==='quran'){ b+=rpQBlock('new','New memorisation')+rpQBlock('rev','Revision')+'<div data-hw="quran">'+rpQBlock('hw','Homework')+'</div>'; }
     else if(k==='noor'){
       const tp=REPF.data['noor.topics']||[];
@@ -2550,7 +2578,7 @@ function rpHint(){
   });
 }
 function rpChips(){
-  $('rpChips').innerHTML=Object.keys(RP_SUBJECTS).map(k=>'<button type="button" class="rp-chip" data-sub="'+k+'" aria-pressed="'+REPF.subjects.includes(k)+'">'+RP_SUBJECTS[k].icon+' '+rpEsc(RP_SUBJECTS[k].label)+'</button>').join('');
+  $('rpChips').innerHTML=allSubKeys([{subjects:REPF.subjects}]).map(k=>'<button type="button" class="rp-chip" data-sub="'+rpEsc(k)+'" aria-pressed="'+REPF.subjects.includes(k)+'" dir="auto">'+rpSub(k).icon+' '+rpEsc(rpSub(k).label)+(k.startsWith('x_')?' <span data-delsub="'+rpEsc(k)+'" title="Remove" style="opacity:.6;margin-inline-start:4px">✕</span>':'')+'</button>').join('');
   $('rpGrades').innerHTML=RP_GRADES.map(g=>'<button type="button" class="rp-chip" data-grade="'+rpEsc(g)+'" aria-pressed="'+(REPF.grade===g)+'">'+rpEsc(g)+'</button>').join('');
   $('rpDurQ').innerHTML=[[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr'],[90,'1 hr 30'],[120,'2 hr']].map(x=>'<button type="button" class="rp-sc" data-dm="'+x[0]+'">⏱ '+x[1]+'</button>').join('');
 }
@@ -2566,12 +2594,12 @@ function rpList(){
   const q=$('rpSearch').value.trim().toLowerCase();
   const rows=all.filter(r=>(!fSel.value||r.name===fSel.value)&&(!q||rpTxtR(r).toLowerCase().includes(q)));
   rpMonthRender();
-  $('rpList').innerHTML=rows.length?rows.map(r=>'<div class="rp-item"><div><b>'+rpEsc(r.name||'—')+'</b><small>'+rpDMY(r.date)+' · '+rpEsc(rpModel(r).subj)+'</small> <span class="rp-badge">'+rpEsc((r.grade||'').split(/[,!]/)[0])+'</span></div><div class="row-actions"><button class="btn small" data-rp="open" data-id="'+r.id+'">Open</button><button class="btn small" data-rp="copy" data-id="'+r.id+'">Copy</button><button class="btn small" data-rp="del" data-id="'+r.id+'">🗑</button></div></div>').join(''):'<p class="help" style="margin-top:10px">No saved reports yet.</p>';
+  $('rpList').innerHTML=rows.length?rows.map(r=>'<div class="rp-item"><div><b>'+rpEsc(r.name||'—')+'</b><small>'+rpDMY(r.date)+' · '+rpEsc(rpModel(r).subj)+'</small> <span class="rp-badge">'+rpEsc((r.grade||'').split(/[,!]/)[0])+'</span></div><div class="row-actions"><button class="btn small" data-rp="open" data-id="'+r.id+'">Open</button><button class="btn small" data-rp="tpl" data-id="'+r.id+'">♻️ Template</button><button class="btn small" data-rp="copy" data-id="'+r.id+'">Copy</button><button class="btn small" data-rp="del" data-id="'+r.id+'">🗑</button></div></div>').join(''):'<p class="help" style="margin-top:10px">No saved reports yet.</p>';
 }
 function rpSetDur(m){ m=+m||0; $('rpH').value=m>=60?Math.floor(m/60):''; $('rpM').value=m%60?m%60:''; }
 function rpLoad(r){
   const cp=o=>JSON.parse(JSON.stringify(o||{}));
-  REPF.id=r.id; REPF.subjects=(r.subjects||[]).filter(k=>RP_SUBJECTS[k]); REPF.data=cp(r.data); REPF.hw=cp(r.hw); REPF.grade=r.grade;
+  REPF.id=r.id; REPF.subjects=(r.subjects||[]).filter(k=>rpSub(k)); REPF.data=cp(r.data); REPF.hw=cp(r.hw); REPF.grade=r.grade;
   $('rpName').value=r.name; $('rpDate').value=r.date; rpSetDur(r.dur); $('rpTime').value=r.timing||''; $('rpTeacher').value=r.teacher||''; $('rpBis').checked=r.bis!==false;
   rpChips(); rpBuildSections(); rpPreview();
 }
@@ -2591,7 +2619,7 @@ function rpPrefs(){ lsSet('lp.rep.prefs',JSON.stringify({subjects:REPF.subjects,
 /* ===== Monthly record ===== */
 function rpMonthModel(){
   const ym=$('rpMonth').value||'', rows=rpAll().filter(r=>(r.date||'').startsWith(ym)).sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.saved||0)-(b.saved||0));
-  const keys=Object.keys(RP_SUBJECTS).filter(k=>rows.some(r=>(r.subjects||[]).includes(k))), labs=keys.map(k=>RP_SUBJECTS[k].label);
+  const keys=allSubKeys(rows).filter(k=>rows.some(r=>(r.subjects||[]).includes(k))), labs=keys.map(k=>rpSub(k).label);
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   let total=0; const by={};
   const list=rows.map((r,i)=>{ const m=+r.dur||0; total+=m; const b=by[r.name]=by[r.name]||{n:0,m:0}; b.n++; b.m+=m;
@@ -2602,16 +2630,13 @@ function rpMonthModel(){
     subj:labs.length>1?labs.slice(0,-1).join(', ')+' & '+labs[labs.length-1]:(labs[0]||'—'),month:title,list,total,by};
 }
 function rpMonthHTML(m){
-  const e=rpEsc, n=m.list.length, tot=m.total.toLocaleString('en-US');
-  const meta=(a,b,c,d)=>'<table><tr><td class="k">'+a[0]+'</td><td>'+e(a[1])+'</td><td class="k">'+b[0]+'</td><td>'+e(b[1])+'</td></tr><tr><td class="k">'+c[0]+'</td><td>'+e(c[1])+'</td><td class="k">'+d[0]+'</td><td>'+e(d[1])+'</td></tr></table>';
-  let h='<div class="mr"><div class="mr-head"><div class="mr-ac">'+e(m.ac.toUpperCase())+'</div><div class="mr-t">Teacher Lesson Record – '+e(m.month)+'</div><div class="mr-s">'+e(m.ac)+' – '+e(m.sub)+'</div></div>';
-  h+='<div class="mr-sec">'+meta(['Teacher Name',m.teacher||'—'],['Subject',m.subj],['Month',m.month],['Total Lessons',n])+'</div>';
-  h+='<div class="mr-sec"><table><thead><tr><th>No.</th><th>Student Name</th><th>Day</th><th>Date</th><th>Lesson Duration</th><th>Notes</th></tr></thead><tbody>'
-    +(n?m.list.map(x=>'<tr><td>'+x.no+'</td><td>'+e(x.name)+'</td><td>'+x.day+'</td><td>'+x.date+'</td><td>'+x.dur+'</td><td>'+e(x.note)+'</td></tr>').join(''):'<tr><td colspan="6">No lessons saved for this month yet.</td></tr>')+'</tbody></table></div>';
-  h+='<div class="mr-sec">'+meta(['Total Lessons',n],['Total Minutes',tot],['Total Hours',rpDur(m.total)||'0'],['Teacher Signature',''])+'</div>';
-  const names=Object.keys(m.by).sort();
-  if(names.length) h+='<div class="mr-sec"><div class="mr-h">Summary by student</div><table><thead><tr><th>Student</th><th>Lessons</th><th>Total time</th></tr></thead><tbody>'+names.map(k=>'<tr><td>'+e(k)+'</td><td>'+m.by[k].n+'</td><td>'+(rpDur(m.by[k].m)||'—')+'</td></tr>').join('')+'</tbody></table></div>';
-  return h+'</div>';
+  const e=rpEsc, n=m.list.length, tot=m.total.toLocaleString('en-US'), k=(a,b)=>'<td class="k">'+a+'</td><td dir="auto">'+e(b)+'</td>';
+  let h='<div class="mw">'+(MR_LOGO?'<div class="mw-logo"><img src="'+MR_LOGO+'" alt=""></div>':'')+'<div class="mw-ac" dir="auto">'+e(m.ac.toUpperCase())+'</div><div class="mw-t">Teacher Lesson Record – '+e(m.month)+'</div>';
+  h+='<table class="mw-a"><tr>'+k('Teacher Name',m.teacher||'—')+k('Subject',m.subj)+'</tr><tr>'+k('Month',m.month)+k('Total Lessons',n)+'</tr></table>';
+  h+='<table class="mw-l"><colgroup><col style="width:6.7%"><col style="width:27.4%"><col style="width:12.6%"><col style="width:13.3%"><col style="width:17%"><col style="width:23%"></colgroup><tr><th>No.</th><th>Student Name</th><th>Day</th><th>Date</th><th>Lesson Duration</th><th>Notes</th></tr>'
+    +m.list.map(x=>'<tr><td>'+x.no+'</td><td dir="auto">'+e(x.name)+'</td><td>'+x.day+'</td><td>'+x.date+'</td><td>'+x.dur+'</td><td dir="auto">'+e(x.note)+'</td></tr>').join('')+'</table>';
+  h+='<table class="mw-a"><tr>'+k('Total Lessons',n)+k('Total Minutes',tot)+'</tr><tr>'+k('Total Hours',rpDur(m.total)||'0')+k('Teacher Signature','')+'</tr></table>';
+  return h+'<div class="mw-f" dir="auto">'+e(m.ac)+' – '+e(m.sub)+'</div></div>';
 }
 function rpMonthRender(){ if($('rpMonthView')) $('rpMonthView').innerHTML=rpMonthHTML(rpMonthModel()); }
 function rpMonthText(){
@@ -2628,6 +2653,16 @@ function rpMonthPrint(){
 function rpMonthDoc(){
   const m=rpMonthModel(), html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>'+RP_CSS+'</style></head><body>'+rpMonthHTML(m)+'</body></html>';
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿',html],{type:'application/msword'})); a.download='Lesson_Record_'+m.month.replace(/\s+/g,'_')+'.doc'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+let MR_LOGO='';
+const MR_CSS=`.mw{max-width:760px;margin:0 auto;background:#fff;color:#000;font-family:Cambria,'Times New Roman',Georgia,serif;font-size:11pt;padding:6px 2px;line-height:1.25}.mw-logo{text-align:center}.mw-logo img{width:158px;height:auto}.mw-ac{text-align:center;font-weight:700;font-size:18pt;margin:6px 0}.mw-t{text-align:center;font-weight:700;font-size:14pt;margin:8px 0 14px}.mw table{border-collapse:collapse;width:100%;margin:0 auto 16px;table-layout:fixed}.mw td,.mw th{border:1px solid #000;padding:1px 6px;text-align:start;vertical-align:middle;font-weight:400;background:#fff;color:#000;word-wrap:break-word}.mw .k,.mw th{font-weight:700}.mw .mw-l{width:91%}.mw .mw-l td,.mw .mw-l th{font-size:9pt}.mw-f{text-align:center;font-style:italic;font-size:9pt}`;
+async function mrLogoLoad(){
+  try{ const buf=mrTpl().bytes, {dv,list}=mrZipList(buf), f=list.find(x=>/^word\/media\/.+\.(jpe?g|png|gif)$/i.test(x.name)); if(!f){ MR_LOGO=''; return; }
+    const ds=f.lo+30+dv.getUint16(f.lo+26,true)+dv.getUint16(f.lo+28,true), d=buf.subarray(ds,ds+f.csize);
+    const u=f.method===0?d:new Uint8Array(await new Response(new Blob([d]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+    const ext=f.name.split('.').pop().toLowerCase(); MR_LOGO='data:image/'+(ext==='jpg'?'jpeg':ext)+';base64,'+mrU2B(u); }catch(e){ MR_LOGO=''; }
+  try{ rpMonthRender(); }catch(e){}
 }
 /* ===== Word form (.docx) fill — uses your uploaded form or the built-in one ===== */
 const MR_KEY='lp.mr.tpl'; let mrMem=null;
@@ -2684,7 +2719,12 @@ function mrFill(xml,m){
     if(!r){ r=doc.createElementNS(W,'w:r'); p.appendChild(r); }
     runs.forEach(x=>Array.from(x.childNodes).filter(n=>n.localName==='t').forEach(n=>x.removeChild(n)));
     runs.slice(1).forEach(x=>p.removeChild(x));
-    if(text!==''){ const t=doc.createElementNS(W,'w:t'); t.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve'); t.textContent=String(text); r.appendChild(t); }
+    if(text!==''){ const t=doc.createElementNS(W,'w:t'); t.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve'); t.textContent=String(text); r.appendChild(t);
+      if(/[\u0600-\u06FF]/.test(text)){ const mk=n=>doc.createElementNS(W,'w:'+n); let pr=Array.from(r.childNodes).find(n=>n.localName==='rPr'); if(!pr){ pr=mk('rPr'); r.insertBefore(pr,r.firstChild); }
+        const has=n=>Array.from(pr.childNodes).find(x=>x.localName===n), sz=has('sz'), b=has('b');
+        if(sz&&!has('szCs')){ const c=mk('szCs'); c.setAttributeNS(W,'w:val',sz.getAttributeNS(W,'val')); sz.after(c); }
+        if(b&&!has('bCs')) b.after(mk('bCs'));
+        if(!/[A-Za-z]/.test(text)&&!has('rtl')) pr.appendChild(mk('rtl')); } }
   };
   let lt=null;
   for(const t of g(doc,'tbl')){ const r0=g(t,'tr')[0]; if(!r0) continue; const h=g(r0,'tc').map(c=>tx(c).toLowerCase()); if(h.some(x=>/^(no\.?|#)$/.test(x))&&h.some(x=>/student|name/.test(x))){ lt=t; break; } }
@@ -2714,7 +2754,7 @@ async function mrUpload(file){
   try{
     const u=new Uint8Array(await file.arrayBuffer()); await mrBuild({month:'Test',teacher:'',total:0,list:[]},u);
     const o={n:file.name,d:mrU2B(u)}; mrMem=o; try{ localStorage.setItem(MR_KEY,JSON.stringify(o)); }catch(e){ toast('Form loaded for this session only (storage full)'); mrStatus(); return; }
-    mrStatus(); toast('Form saved ✅ — Word export will use it');
+    mrStatus(); mrLogoLoad(); toast('Form saved ✅ — Word export will use it');
   }catch(e){ toast('Form needs a lessons table with “No.” and “Student” headers'); }
 }
 
@@ -2722,11 +2762,11 @@ const MR_DEFAULT_TPL="UEsDBBQAAAAIABacXF0pqW2zmAEAAP0GAAATAAAAW0NvbnRlbnRfVHlwZX
 function rpInit(){
   if(!REPF.ready){
     REPF.ready=true;
-    const st=document.createElement('style'); st.textContent=RP_CSS; document.head.appendChild(st);
-    try{ const sv=JSON.parse(lsGet('lp.rep.prefs')||'null'); if(sv){ if(Array.isArray(sv.subjects)&&sv.subjects.length) REPF.subjects=sv.subjects.filter(k=>RP_SUBJECTS[k]); $('rpTeacher').value=sv.teacher||''; $('rpBis').checked=sv.bis!==false; } }catch(e){}
+    const st=document.createElement('style'); st.textContent=RP_CSS+MR_CSS; document.head.appendChild(st);
+    try{ const sv=JSON.parse(lsGet('lp.rep.prefs')||'null'); if(sv){ if(Array.isArray(sv.subjects)&&sv.subjects.length) REPF.subjects=sv.subjects.filter(k=>rpSub(k)); $('rpTeacher').value=sv.teacher||''; $('rpBis').checked=sv.bis!==false; } }catch(e){}
     $('rpDate').value=rpToday(); $('rpMonth').value=rpToday().slice(0,7);
     try{ const ac=JSON.parse(lsGet('lp.rep.acad')||'null'); if(ac){ $('rpAcademy').value=ac.a||''; $('rpAcSub').value=ac.s||''; } else { $('rpAcademy').value='Taybah Academy'; $('rpAcSub').value='Online Qur’an & Islamic Education'; } }catch(e){}
-    rpChips(); rpBuildSections(); clInit(); mrStatus();
+    rpChips(); rpBuildSections(); clInit(); mrStatus(); $('rpLang').value=RPL; mrLogoLoad();
     const view=$('view-reports');
     view.addEventListener('input',e=>{
       const t=e.target, k=t.dataset&&t.dataset.k, qf=t.dataset&&t.dataset.qf;
@@ -2738,10 +2778,11 @@ function rpInit(){
       if(['rpTeacher','rpMonth','rpAcademy','rpAcSub'].includes(t.id)){ if(t.id==='rpAcademy'||t.id==='rpAcSub') lsSet('lp.rep.acad',JSON.stringify({a:$('rpAcademy').value,s:$('rpAcSub').value})); rpMonthRender(); if(t.id!=='rpTeacher') return; }
       rpPreview();
     });
-    view.addEventListener('change',e=>{ if(e.target.id==='rpMTplIn'){ const f=e.target.files[0]; e.target.value=''; if(f) mrUpload(f); return; } if(e.target.id==='rpFilter') rpList(); if(e.target.id==='rpName') rpHint(); });
+    view.addEventListener('change',e=>{ if(e.target.id==='rpLang'){ RPL=e.target.value; lsSet('lp.rep.lang',RPL); rpPreview(); return; } if(e.target.id==='rpMTplIn'){ const f=e.target.files[0]; e.target.value=''; if(f) mrUpload(f); return; } if(e.target.id==='rpFilter') rpList(); if(e.target.id==='rpName') rpHint(); });
     view.addEventListener('click',e=>{
+      const ds=e.target.closest('[data-delsub]'); if(ds){ e.stopPropagation(); const k=ds.dataset.delsub; if(confirm('Remove subject “'+k.slice(2)+'”? Old reports keep it.')){ lsSet('lp.rep.cs',JSON.stringify(rpCS().filter(l=>'x_'+l!==k))); const i=REPF.subjects.indexOf(k); if(i>=0) REPF.subjects.splice(i,1); rpPrefs(); rpChips(); rpBuildSections(); rpPreview(); } return; }
       const b=e.target.closest('button'); if(!b) return; const act=b.dataset.act;
-      if(b.dataset.sub){ const k=b.dataset.sub, i=REPF.subjects.indexOf(k); if(i>=0) REPF.subjects.splice(i,1); else REPF.subjects=Object.keys(RP_SUBJECTS).filter(x=>REPF.subjects.includes(x)||x===k);
+      if(b.dataset.sub){ const k=b.dataset.sub, i=REPF.subjects.indexOf(k); if(i>=0) REPF.subjects.splice(i,1); else REPF.subjects=allSubKeys().filter(x=>REPF.subjects.includes(x)||x===k);
         rpPrefs(); rpChips(); rpBuildSections(); rpPreview(); }
       else if(b.dataset.grade){ REPF.grade=b.dataset.grade; rpChips(); rpPreview(); }
       else if(b.dataset.dm){ rpSetDur(b.dataset.dm); rpPreview(); }
@@ -2759,12 +2800,17 @@ function rpInit(){
       else if(b.id==='rpPrint') rpPrint();
       else if(b.id==='rpMPrint') rpMonthPrint();
       else if(b.id==='rpMDoc') mrDocx();
+      else if(b.id==='rpAddSub'){ const l=$('rpNewSub').value.replace(/["'<>&]/g,'').trim(); if(!l) return; const L=rpCS(); if(!L.includes(l)&&!Object.values(RP_SUBJECTS).some(x=>x.label.toLowerCase()===l.toLowerCase())){ L.push(l); lsSet('lp.rep.cs',JSON.stringify(L)); } if(!REPF.subjects.includes('x_'+l)&&!RP_SUBJECTS[l]) REPF.subjects.push('x_'+l); $('rpNewSub').value=''; rpPrefs(); rpChips(); rpBuildSections(); rpPreview(); }
+      else if(b.id==='rpImg') rpToPng(rpHTML(rpModel(rpCur())),600,'Lesson_Report_'+($('rpName').value.trim()||'student')+'_'+$('rpDate').value);
+      else if(b.id==='rpMImg'){ const m=rpMonthModel(); rpToPng(rpMonthHTML(m),820,'Teacher_Lesson_Record_'+m.month); }
+      else if(b.id==='rpLast') rpLastTemplate();
       else if(b.id==='rpMTpl') $('rpMTplIn').click();
-      else if(b.id==='rpMTplReset'){ mrMem=null; try{localStorage.removeItem(MR_KEY);}catch(e){} mrStatus(); toast('Using built-in form'); }
+      else if(b.id==='rpMTplReset'){ mrMem=null; try{localStorage.removeItem(MR_KEY);}catch(e){} mrStatus(); mrLogoLoad(); toast('Using built-in form'); }
       else if(b.id==='rpMCopy') rpCopyText(rpMonthText());
       else if(b.id==='rpNew') rpReset();
       else if(b.dataset.rp){ const a=rpAll(), r=a.find(x=>x.id===b.dataset.id); if(!r) return;
         if(b.dataset.rp==='open'){ rpLoad(r); window.scrollTo({top:0,behavior:'smooth'}); }
+        else if(b.dataset.rp==='tpl') rpTemplate(r);
         else if(b.dataset.rp==='copy') rpCopyText(rpTxtR(r));
         else if(b.dataset.rp==='del'&&confirm('Delete this report?')){ rpStore(a.filter(x=>x.id!==r.id)); rpTomb(r.id); if(REPF.id===r.id) REPF.id=null; rpList(); clSyncNow(true); } }
     });
