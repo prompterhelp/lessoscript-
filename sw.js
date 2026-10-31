@@ -1,5 +1,5 @@
 /* Service worker: makes the tool installable & works offline */
-const CACHE = 'lesson-prompter-v8';
+const CACHE = 'lesson-prompter-v9';
 const ASSETS = [
   './',
   './index.html',
@@ -21,6 +21,10 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  if (new URL(e.request.url).origin !== self.location.origin) {
+    e.respondWith(fetch(e.request).then(res => { const c = res.clone(); caches.open(CACHE).then(k => k.put(e.request, c)).catch(() => {}); return res; }).catch(() => caches.match(e.request)));
+    return;
+  }
   e.respondWith(
     caches.match(e.request, {ignoreSearch: true}).then(hit => hit || fetch(e.request).then(res => {
       const copy = res.clone();
