@@ -543,6 +543,23 @@ body.presenter #pip{border-color:var(--good)}
 .rp-item b{display:block}.rp-item small{color:var(--muted)}
 .rp-item .row-actions{margin:0}
 .rp-badge{font-size:.72rem; font-weight:800; padding:2px 8px; border-radius:999px; background:var(--surface-2); color:var(--fg)}
+.rp-hwd{margin:6px 0 10px;border:1px dashed var(--line);border-radius:12px;padding:0 12px;background:var(--surface)}
+.rp-hwd>summary{cursor:pointer;font-weight:700;font-size:.88rem;color:var(--muted);padding:11px 2px;list-style:none}
+.rp-hwd>summary::-webkit-details-marker{display:none}
+.rp-hwd[open]{padding-bottom:8px;border-style:solid}
+.rp-hwd[open]>summary{color:var(--fg)}
+.rp-pvsticky{position:sticky;top:0;z-index:6;max-height:46vh;overflow:auto;box-shadow:0 10px 24px rgba(0,0,0,.14)}
+.rp-pvsticky .rc{max-width:100%}
+.ct-wrap,.ct-th{direction:ltr;position:relative;overflow:hidden;width:100%}
+.ct-th{border-radius:8px;border:1px solid var(--line)}
+.ct-gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.ct-gb{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:6px;cursor:pointer;font:inherit;color:var(--fg);text-align:center}
+.ct-gb[aria-pressed="true"]{border-color:var(--accent)}.ct-gb b{display:block;font-size:.8rem;margin-top:4px}
+.ct-pv{position:sticky;top:0;z-index:6;box-shadow:0 10px 24px rgba(0,0,0,.14)}
+.rp-hide{display:none!important}
+#appVer{text-align:center;font-size:.72rem;opacity:.65;padding:8px 0 96px}
+#updBar{position:fixed;left:12px;right:12px;bottom:84px;z-index:99;background:#0F6F66;color:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 10px 30px rgba(0,0,0,.3);font-size:.9rem}
+#updBar button{background:#fff;color:#0F6F66;border:0;border-radius:10px;padding:8px 14px;font-weight:800;cursor:pointer}
 </style>
 </head>
 <body>
@@ -654,6 +671,7 @@ body.presenter #pip{border-color:var(--good)}
         <button type="button" data-tab="write" aria-pressed="true">✍️ Report</button>
         <button type="button" data-tab="design" aria-pressed="false">🎨 Design</button>
         <button type="button" data-tab="month" aria-pressed="false">📅 Monthly</button>
+        <button type="button" data-tab="cert" aria-pressed="false">🏆 Certificate</button>
         <button type="button" data-tab="saved" aria-pressed="false">🗂️ Saved</button>
       </nav>
 
@@ -697,6 +715,7 @@ body.presenter #pip{border-color:var(--good)}
       </div>
 
       <div class="rp-pane" data-pane="design" hidden>
+        <div class="rp-card rp-pvsticky"><h3><i>👁️</i> Live preview</h3><div id="rpDesignPv"></div></div>
         <div class="rp-card">
           <h3><i>🎨</i> Templates</h3>
           <p class="help">Pick a look. It is used for your lesson reports and the monthly record.</p>
@@ -752,6 +771,8 @@ body.presenter #pip{border-color:var(--good)}
         </div>
         <div id="rpMonthView" style="margin-top:12px"></div>
       </div>
+
+      <div class="rp-pane" data-pane="cert" id="rpCertPane" hidden></div>
 
       <div class="rp-pane" data-pane="saved" hidden>
         <div class="rp-card">
@@ -865,6 +886,7 @@ body.presenter #pip{border-color:var(--good)}
     </section>
   </main>
 
+  <div id="appVer">Lesson Prompter v<b>1.1.0</b> · <a href="#" id="appUpd">Check for updates</a></div>
   <footer class="controls" id="controls">
     <button class="back" id="btnPrev" type="button">Back</button>
     <button class="go" id="btnNext" type="button"><span id="goLabel">Next</span><span class="sub" id="goSub"></span></button>
@@ -2511,7 +2533,7 @@ function rpTemplate(r){ if(!r){ toast('No saved reports yet'); return; } const o
 function rpLastTemplate(){ const nm=$('rpName').value.trim().toLowerCase(); let a=rpAll(); const f=nm?a.filter(r=>(r.name||'').toLowerCase()===nm):[]; if(f.length) a=f; a.sort((x,y)=>(y.date||'').localeCompare(x.date||'')||(y.saved||0)-(x.saved||0)); rpTemplate(a[0]); }
 async function rpToPng(html,w,name){
   try{
-    const st=rpImgSet(), css=RP_CSS+MR_CSS+rpThemeCSS(), host=document.createElement('div'); host.style.cssText='position:fixed;left:-99999px;top:0;width:'+w+'px;padding:14px;background:#fff;box-sizing:border-box';
+    const st=rpImgSet(), css=RP_CSS+MR_CSS+rpThemeCSS()+(window.RP_XCSS||''), host=document.createElement('div'); host.style.cssText='position:fixed;left:-99999px;top:0;width:'+w+'px;padding:'+(window.RP_XPAD==null?14:window.RP_XPAD)+'px;background:#fff;box-sizing:border-box';
     host.innerHTML='<style>'+css+'</style>'+html; document.body.appendChild(host);
     try{ await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))]); }catch(e){}
     const H=host.offsetHeight; host.querySelectorAll('style').forEach(x=>x.remove()); host.style.position='static'; host.style.left='auto'; const inner=new XMLSerializer().serializeToString(host); host.remove();
@@ -2534,9 +2556,9 @@ const rpOrig=new WeakMap();
 function rpUI(){
   const v=$('view-reports'); if(!v) return; const ar=RPL==='ar';
   const tr=s=>{ const m=/^([^A-Za-z؀-ۿ]*)([\s\S]*?)(\s*)$/.exec(s), k=m[2], all=/^All students \((\d+)\)$/.exec(k); if(all) return m[1]+'كل الطلاب ('+all[1]+')'+m[3]; const a=RP_AR[k]||RP_AR[s.trim()]; return a?(RP_AR[s.trim()]?'':m[1])+a+m[3]:s; };
-  const w=document.createTreeWalker(v,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentNode.closest('#rpMonthView,#rpPreview,#rpGallery,#rpLangBar,script,style,textarea')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}), ns=[]; while(w.nextNode()) ns.push(w.currentNode);
+  const w=document.createTreeWalker(v,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentNode.closest('#rpMonthView,#rpPreview,#rpGallery,#rpDesignPv,.ct,#rpLangBar,script,style,textarea')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}), ns=[]; while(w.nextNode()) ns.push(w.currentNode);
   ns.forEach(n=>{ let o=rpOrig.get(n); if(o===undefined){ o=n.textContent; rpOrig.set(n,o); } n.textContent=ar?tr(o):o; });
-  v.querySelectorAll('[dir="auto"],[data-da]').forEach(el=>{ if(el.closest('#rpPreview,#rpMonthView,#rpGallery')) return; if(ar){ el.dataset.da='1'; el.dir='rtl'; } else if(el.dataset.da){ el.dir='auto'; delete el.dataset.da; } });
+  v.querySelectorAll('[dir="auto"],[data-da]').forEach(el=>{ if(el.closest('#rpPreview,#rpMonthView,#rpGallery,#rpDesignPv,.ct')) return; if(ar){ el.dataset.da='1'; el.dir='rtl'; } else if(el.dataset.da){ el.dir='auto'; delete el.dataset.da; } });
   ['placeholder','aria-label','title'].forEach(a=>v.querySelectorAll('['+a+']').forEach(el=>{ const k='o'+a.replace('-',''); if(el.dataset[k]===undefined) el.dataset[k]=el.getAttribute(a); el.setAttribute(a,ar?tr(el.dataset[k]):el.dataset[k]); }));
 }
 function rpSetLang(l){ RPL=l==='ar'?'ar':'en'; lsSet('lp.rep.lang',RPL); const v=$('view-reports'); v.dir=RPL==='ar'?'rtl':'ltr'; v.lang=RPL; document.querySelectorAll('#rpLangBar [data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===RPL))); rpChips(); rpBuildSections(); rpPreview(); rpList(); }
@@ -2649,7 +2671,59 @@ const RP_LAY=`.rc{background:var(--bg);border-color:var(--ln)}.rc-info{backgroun
 .mw.lay-modern .mw-ac,.mw.lay-modern .mw-t{text-align:start}.mw.lay-modern td{border-inline:0}.mw.lay-modern th{border-color:var(--g)}
 .mw.lay-geo .mw-ac{color:#fff;background-color:var(--g);background-image:${RP_PAT};background-size:28px 28px;padding:12px;border-bottom:4px double var(--gold)}.mw.lay-geo th{color:var(--gold)}
 .mw.lay-minimal .mw-ac,.mw.lay-minimal .mw-t{text-align:start}.mw.lay-minimal .mw-ac{font-weight:300}.mw.lay-minimal td,.mw.lay-minimal th{border:0;border-bottom:1px solid #ddd}.mw.lay-minimal th{background:none;color:var(--g);text-transform:uppercase;font-size:8pt;letter-spacing:.1em;border-bottom:2px solid var(--g)}.mw.lay-minimal td.k{background:none}
-.mw.lay-kids{border:3px solid var(--gold);border-radius:22px;padding:16px}.mw.lay-kids th:nth-child(odd){background:var(--g)}.mw.lay-kids th:nth-child(even){background:var(--gold)}.mw.lay-kids .mw-ac{color:var(--g)}`;
+.mw.lay-kids{border:3px solid var(--gold);border-radius:22px;padding:16px}.mw.lay-kids th:nth-child(odd){background:var(--g)}.mw.lay-kids th:nth-child(even){background:var(--gold)}.mw.lay-kids .mw-ac{color:var(--g)}
+.rc.lay-aurora{border:0;border-radius:28px;background:var(--bg);box-shadow:0 18px 50px rgba(0,0,0,.14)}
+.rc.lay-aurora .rc-head{background:linear-gradient(135deg,var(--g),var(--g2));border:0;text-align:start;padding:28px 24px 56px;position:relative;overflow:hidden}
+.rc.lay-aurora .rc-head:before{content:"";position:absolute;width:230px;height:230px;border-radius:50%;background:rgba(255,255,255,.13);top:-95px;inset-inline-end:-60px}
+.rc.lay-aurora .rc-head:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);bottom:-55px;inset-inline-start:34%}
+.rc.lay-aurora .rc-title{font-size:1.85rem;font-weight:800;letter-spacing:-.01em;position:relative;z-index:1}
+.rc.lay-aurora .rc-bis{text-align:start;font-size:1.05rem;opacity:.9;position:relative;z-index:1}
+.rc.lay-aurora .rc-teacher{position:relative;z-index:1}
+.rc.lay-aurora .rc-info{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:none;border:0;margin:-36px 16px 4px;position:relative;z-index:2}
+.rc.lay-aurora .rc-info div{background:#fff;border-radius:16px;box-shadow:0 8px 22px rgba(0,0,0,.09);padding:10px 14px}
+.rc.lay-aurora .rc-info small{color:var(--g2)}
+.rc.lay-aurora .rc-sec{padding:14px 16px 2px}
+.rc.lay-aurora .rc-h{color:var(--g);font-size:.78rem}.rc.lay-aurora .rc-h:after{background:linear-gradient(90deg,var(--ln),transparent)}
+.rc.lay-aurora .rc-sub{background:#fff;border:0;border-radius:18px;box-shadow:0 4px 16px rgba(0,0,0,.06);padding:14px 16px;position:relative}
+.rc.lay-aurora .rc-sub:before{content:"";position:absolute;inset-inline-start:0;top:14px;bottom:14px;width:4px;border-radius:4px;background:linear-gradient(var(--g),var(--g2))}
+.rc.lay-aurora .rc-hw:before{background:var(--gold)}
+.rc.lay-aurora .rc-k{background:var(--t1);color:var(--g);border-radius:999px;padding:2px 10px}
+.rc.lay-aurora .rc-grade{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;border:0;border-radius:20px;margin:10px 16px 20px;padding:16px;box-shadow:0 12px 26px rgba(0,0,0,.18)}
+.rc.lay-soft{border:0;border-radius:32px;background:var(--bg);box-shadow:0 12px 36px rgba(0,0,0,.08)}
+.rc.lay-soft .rc-head{background:none;color:var(--g);border:0;padding:30px 20px 10px}
+.rc.lay-soft .rc-bis{color:var(--g2)}
+.rc.lay-soft .rc-title{font-size:1.65rem;font-weight:800}
+.rc.lay-soft .rc-title:after{content:"";display:block;width:56px;height:5px;border-radius:5px;background:var(--gold);margin:10px auto 0}
+.rc.lay-soft .rc-info{display:flex;flex-wrap:wrap;gap:8px;background:none;border:0;padding:8px 16px 4px}
+.rc.lay-soft .rc-info div{flex:1 1 40%;background:#fff;border-radius:999px;padding:8px 18px;text-align:center;box-shadow:inset 0 0 0 1.5px var(--ln)}
+.rc.lay-soft .rc-h{justify-content:center;color:var(--g2)}.rc.lay-soft .rc-h:before,.rc.lay-soft .rc-h:after{content:"";flex:1;height:2px;border-radius:2px;background:var(--ln)}
+.rc.lay-soft .rc-sub{background:#fff;border:0;border-radius:24px;padding:14px 18px;box-shadow:0 3px 0 var(--ln)}
+.rc.lay-soft .rc-k{background:var(--gold);border-radius:999px}
+.rc.lay-soft .rc-grade{border-radius:999px;background:var(--g);color:#fff;border:0;margin:10px 20px 22px}
+.rc.lay-noir{background:#0F1720;color:#E7ECEF;border:1px solid rgba(255,255,255,.08);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.rc.lay-noir .rc-head{background:linear-gradient(180deg,rgba(255,255,255,.06),transparent);color:var(--gold);border:0;border-bottom:1px solid var(--gold);padding:26px 20px 18px}
+.rc.lay-noir .rc-title{font-size:1.7rem;font-weight:700;letter-spacing:.06em}
+.rc.lay-noir .rc-info{background:none;gap:1px;border:0}
+.rc.lay-noir .rc-info div{background:rgba(255,255,255,.04)}.rc.lay-noir .rc-info small{color:var(--gold)}.rc.lay-noir .rc-info b{color:#fff}
+.rc.lay-noir .rc-h{color:var(--gold)}.rc.lay-noir .rc-h:after{background:rgba(255,255,255,.14)}
+.rc.lay-noir .rc-sub{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-inline-start:3px solid var(--gold);border-radius:14px}
+.rc.lay-noir .rc-subh{color:#fff}.rc.lay-noir .rc-k{background:var(--gold);color:#111}
+.rc.lay-noir .rc-grade{background:none;border:1px solid var(--gold);color:var(--gold);border-radius:14px}
+.rc.lay-ribbon{border:0;border-inline-start:14px solid var(--g);border-radius:8px;background:#fff;box-shadow:0 10px 32px rgba(0,0,0,.1)}
+.rc.lay-ribbon .rc-head{background:none;color:var(--g);text-align:start;border:0;padding:26px 22px 8px}
+.rc.lay-ribbon .rc-bis{color:var(--gold)}
+.rc.lay-ribbon .rc-title{font-size:2.1rem;font-weight:800;line-height:1.1;text-transform:uppercase;letter-spacing:.02em}
+.rc.lay-ribbon .rc-title:after{content:"";display:block;width:100%;height:3px;background:linear-gradient(90deg,var(--gold),transparent);margin-top:12px}
+.rc.lay-ribbon .rc-info{display:flex;flex-wrap:wrap;gap:0 24px;background:none;border:0;padding:8px 22px}
+.rc.lay-ribbon .rc-info div{background:none;padding:4px 0;flex:1 1 40%}.rc.lay-ribbon .rc-info small{color:var(--g2)}
+.rc.lay-ribbon .rc-sec{padding:12px 22px 2px}
+.rc.lay-ribbon .rc-h{color:var(--g)}
+.rc.lay-ribbon .rc-sub{background:var(--bg);border:0;border-radius:6px;border-inline-start:4px solid var(--g2)}
+.rc.lay-ribbon .rc-grade{background:var(--g);color:#fff;border:0;border-radius:6px;text-align:start;margin:10px 22px 22px;padding:14px 18px}
+.mw.lay-aurora .mw-ac,.mw.lay-soft .mw-ac,.mw.lay-ribbon .mw-ac,.mw.lay-noir .mw-ac{color:var(--g)}
+.mw.lay-aurora th,.mw.lay-ribbon th{background:linear-gradient(90deg,var(--g),var(--g2));color:#fff}
+.mw.lay-soft td,.mw.lay-soft th{border-radius:0}.mw.lay-noir th{background:var(--g);color:var(--gold)}
+`;
 const REPF={id:null,subjects:['quran','arabic'],data:{},hw:{},grade:RP_GRADES[0],ready:false};
 function rpAll(){ try{ const a=JSON.parse(lsGet('lp.reports')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 function rpStore(a){ lsSet('lp.reports',JSON.stringify(a)); }
@@ -2729,10 +2803,10 @@ function rpBuildSections(){
         +'<div><label class="rp-lbl">Part of page</label><select class="field" data-k="d:noor.part" data-v="'+rpEsc(REPF.data['noor.part']||'')+'"><option value="">Full page</option><option value="first">First half</option><option value="second">Second half</option></select></div></div>'
         +'<label class="rp-lbl">Focus (reading &amp; pronouncing words with…)</label><div class="rp-chips" style="margin-bottom:8px">'+RP_TOPICS.map(t=>'<button type="button" class="rp-chip" data-act="tp" data-t="'+rpEsc(t)+'" aria-pressed="'+tp.includes(t)+'">'+rpEsc(t)+'</button>').join('')+'</div>'
         +'<label class="rp-lbl">Extra note (optional)</label><textarea class="field" data-k="d:noor.note" dir="auto" placeholder="e.g. He read fluently with a few mistakes.">'+rpEsc(REPF.data['noor.note']||'')+'</textarea>'
-        +'<div data-hw="noor"><label class="rp-lbl">Homework</label>'+rpStarters('h:noor',['Re-read today’s pages…'].concat(RP_HWST))+'<textarea class="field" data-k="h:noor" dir="auto" placeholder="Homework for next lesson">'+rpEsc(REPF.hw.noor||'')+'</textarea></div>';
+        +'<details class="rp-hwd" data-hw="noor"'+((REPF.hw.noor||(window.HWO&&HWO.has('noor')))?' open':'')+'><summary>📝 Add homework (optional)</summary>'+rpStarters('h:noor',['Re-read today’s pages…'].concat(RP_HWST))+'<textarea class="field" data-k="h:noor" dir="auto" placeholder="Homework for next lesson">'+rpEsc(REPF.hw.noor||'')+'</textarea></details>';
     } else {
       b+='<label class="rp-lbl">What we covered</label>'+rpStarters('d:'+k+'.done',S.st)+'<textarea class="field" data-k="d:'+k+'.done" dir="auto" placeholder="'+rpEsc(S.ph)+'">'+rpEsc(REPF.data[k+'.done']||'')+'</textarea>'
-        +'<div data-hw="'+k+'"><label class="rp-lbl">Homework</label>'+rpStarters('h:'+k,RP_HWST)+'<textarea class="field" data-k="h:'+k+'" dir="auto" placeholder="Homework for next lesson">'+rpEsc(REPF.hw[k]||'')+'</textarea></div>';
+        +'<details class="rp-hwd" data-hw="'+k+'"'+((REPF.hw[k]||(window.HWO&&HWO.has(k)))?' open':'')+'><summary>📝 Add homework (optional)</summary>'+rpStarters('h:'+k,RP_HWST)+'<textarea class="field" data-k="h:'+k+'" dir="auto" placeholder="Homework for next lesson">'+rpEsc(REPF.hw[k]||'')+'</textarea></details>';
     }
     c.innerHTML=b; box.appendChild(c);
   });
@@ -2747,7 +2821,7 @@ function rpHint(){
   REPF.subjects.forEach(k=>{
     const h=rpVal((last.hw||{})[k]); if(!h) return;
     const w=document.querySelector('[data-hw="'+k+'"]'); if(!w) return;
-    const d=document.createElement('div'); d.className='rp-hint'; d.textContent='Last homework ('+rpDMY(last.date)+'): '+h; w.insertBefore(d,w.firstChild);
+    const d=document.createElement('div'); d.className='rp-hint'; d.textContent='Last homework ('+rpDMY(last.date)+'): '+h; const sm0=w.querySelector('summary'); w.insertBefore(d,sm0?sm0.nextSibling:w.firstChild);
   });
 }
 function rpChips(){
@@ -2795,6 +2869,12 @@ function rpPrefs(){ lsSet('lp.rep.prefs',JSON.stringify({subjects:REPF.subjects,
 Object.assign(RP_AR,{'Add your own grade (e.g. Mumtaz, A+, ممتاز)':'أضف تقديرك الخاص (مثال: ممتاز، A+)','Add grade':'أضف تقدير','Templates, fonts & picture quality':'القوالب والخطوط وجودة الصورة','Student report template':'قالب تقرير الطالب','Monthly record template':'قالب السجل الشهري','Font (any language)':'الخط (لأي لغة)','Arabic / Urdu font':'الخط العربي / الأردي','Picture quality':'جودة الصورة','Picture format':'صيغة الصورة','Make my own template':'أنشئ قالبي الخاص','Template name':'اسم القالب','Main color':'اللون الأساسي','Second color':'اللون الثاني','Accent color':'لون التمييز','Background':'الخلفية','Save as my template':'احفظ كقالب خاص','Delete selected template':'احذف القالب المحدد','Default font':'الخط الافتراضي','Default Arabic font':'الخط العربي الافتراضي','Taybah green':'أخضر طيبة','Official black & white':'رسمي أبيض وأسود','Royal blue':'أزرق ملكي','Plum & rose':'بنفسجي وردي','Warm sunrise':'شروق دافئ','Ocean teal':'أزرق مخضر','Standard (1×)':'عادية (1×)','High (2×)':'عالية (2×)','Very high (3×)':'عالية جدًا (3×)','Ultra (4×)':'فائقة (4×)','PNG (sharp, large)':'PNG (حاد، حجم كبير)','JPG (small file)':'JPG (حجم صغير)','WebP (sharp, small)':'WebP (حاد وصغير)'});
 Object.assign(RP_AR,{'Report':'التقرير','Design':'التصميم','Monthly':'الشهري','Saved':'المحفوظة','Preview':'معاينة','Both reports':'كلا التقريرين','Student report':'تقرير الطالب','Monthly record':'السجل الشهري','Templates':'القوالب','Fonts':'الخطوط','Picture':'صورة','Copy':'نسخ','WhatsApp':'واتساب','Print':'طباعة','Print / PDF':'طباعة / PDF','Copy table':'نسخ الجدول','Word':'وورد','Create my own template':'أنشئ قالبي الخاص','Layout':'التخطيط','Pick a look. It is used for your lesson reports and the monthly record.':'اختر شكلاً. يُستخدم في تقارير الدروس والسجل الشهري.','Choose a layout, colors and the fonts above, then save it to the gallery.':'اختر التخطيط والألوان والخطوط أعلاه ثم احفظه في المعرض.','Golden certificate':'شهادة ذهبية','Royal frame':'إطار ملكي','Modern teal':'عصري أخضر مزرق','Modern violet':'عصري بنفسجي','Madinah geometric':'هندسي المدينة','Blue mosaic':'فسيفساء زرقاء','Clean minimal':'بسيط أنيق','Sunny kids':'أطفال مشمس','Candy kids':'أطفال حلوى','Classic':'كلاسيكي','Elegant frame':'إطار أنيق','Modern card':'بطاقة عصرية','Islamic geometric':'هندسي إسلامي','Minimal':'بسيط','Playful kids':'مرح للأطفال','Upload my Word form':'ارفع نموذج وورد الخاص بي','Built-in form':'النموذج المدمج'});
 const RP_BT=[
+ {id:'aur1',n:'Aurora teal',lay:'aurora',g:'#0F766E',g2:'#14B8A6',gold:'#F59E0B',bg:'#F2FAF9',f:'Plus Jakarta Sans',af:'Alexandria'},
+ {id:'aur2',n:'Aurora indigo',lay:'aurora',g:'#3730A3',g2:'#6366F1',gold:'#F472B6',bg:'#F5F6FF',f:'Manrope',af:'Readex Pro'},
+ {id:'soft1',n:'Soft sage',lay:'soft',g:'#2F5D50',g2:'#6BA292',gold:'#E9B44C',bg:'#F3F7F2',f:'DM Sans',af:'Cairo'},
+ {id:'soft2',n:'Soft rose',lay:'soft',g:'#9D174D',g2:'#EC4899',gold:'#F59E0B',bg:'#FFF5F8',f:'Outfit',af:'Rubik'},
+ {id:'noir1',n:'Midnight gold',lay:'noir',g:'#0F1720',g2:'#1F2A37',gold:'#D4AF37',bg:'#0F1720',f:'Cormorant Garamond',af:'Aref Ruqaa'},
+ {id:'rib1',n:'Ribbon navy',lay:'ribbon',g:'#0B3C5D',g2:'#328CC1',gold:'#D9B310',bg:'#F6F9FC',f:'Montserrat',af:'Noto Kufi Arabic'},
  {id:'classic',n:'Taybah green',lay:'classic',g:'#1F4D43',g2:'#2F6B5C',gold:'#B8923A',bg:'#FBF7EE',f:'',af:''},
  {id:'official',n:'Official black & white',lay:'classic',g:'#222222',g2:'#444444',gold:'#666666',bg:'#FFFFFF',plain:1,f:'',af:''},
  {id:'gold',n:'Golden certificate',lay:'elegant',g:'#6B4A12',g2:'#8A6A2A',gold:'#B8923A',bg:'#FFFBF0',f:'Playfair Display',af:'Amiri'},
@@ -2806,10 +2886,11 @@ const RP_BT=[
  {id:'minimal',n:'Clean minimal',lay:'minimal',g:'#111111',g2:'#444444',gold:'#B8923A',bg:'#FFFFFF',f:'Inter',af:'IBM Plex Sans Arabic'},
  {id:'sunny',n:'Sunny kids',lay:'kids',g:'#E8590C',g2:'#F59F00',gold:'#2B8A3E',bg:'#FFF9DB',f:'Nunito',af:'Cairo'},
  {id:'candy',n:'Candy kids',lay:'kids',g:'#C2255C',g2:'#7048E8',gold:'#F59F00',bg:'#FFF0F6',f:'Nunito',af:'Reem Kufi'}];
-const RP_LAYS=[['classic','Classic'],['elegant','Elegant frame'],['modern','Modern card'],['geo','Islamic geometric'],['minimal','Minimal'],['kids','Playful kids']];
+const RP_LAYS=[['aurora','Aurora (modern)'],['soft','Soft rounded'],['noir','Midnight'],['ribbon','Ribbon'],['classic','Classic'],['elegant','Elegant frame'],['modern','Modern card'],['geo','Islamic geometric'],['minimal','Minimal'],['kids','Playful kids']];
 const RP_FONTS=[
+ {n:'Plus Jakarta Sans',g:'Latin'},{n:'DM Sans',g:'Latin'},{n:'Manrope',g:'Latin'},{n:'Outfit',g:'Latin'},{n:'Sora',g:'Latin'},{n:'Montserrat',g:'Latin'},{n:'Raleway',g:'Latin'},{n:'Space Grotesk',g:'Latin'},{n:'Cormorant Garamond',g:'Latin'},{n:'Fraunces',g:'Latin'},
  {n:'Lora',g:'Latin'},{n:'Playfair Display',g:'Latin'},{n:'Merriweather',g:'Latin'},{n:'Inter',g:'Latin'},{n:'Poppins',g:'Latin'},{n:'Roboto',g:'Latin'},{n:'Open Sans',g:'Latin'},{n:'Nunito',g:'Latin'},
- {n:'Amiri',g:'Arabic'},{n:'Cairo',g:'Arabic'},{n:'Tajawal',g:'Arabic'},{n:'Noto Naskh Arabic',g:'Arabic'},{n:'Noto Kufi Arabic',g:'Arabic'},{n:'Scheherazade New',g:'Arabic'},{n:'Reem Kufi',g:'Arabic'},{n:'Almarai',g:'Arabic'},{n:'IBM Plex Sans Arabic',g:'Arabic'},{n:'El Messiri',g:'Arabic'},{n:'Markazi Text',g:'Arabic'},{n:'Aref Ruqaa',g:'Arabic'},{n:'Lateef',g:'Arabic'},
+ {n:'Alexandria',g:'Arabic'},{n:'Readex Pro',g:'Arabic'},{n:'Rubik',g:'Arabic'},{n:'Mada',g:'Arabic'},{n:'Changa',g:'Arabic'},{n:'Lemonada',g:'Arabic'},{n:'Baloo Bhaijaan 2',g:'Arabic'},{n:'Amiri',g:'Arabic'},{n:'Cairo',g:'Arabic'},{n:'Tajawal',g:'Arabic'},{n:'Noto Naskh Arabic',g:'Arabic'},{n:'Noto Kufi Arabic',g:'Arabic'},{n:'Scheherazade New',g:'Arabic'},{n:'Reem Kufi',g:'Arabic'},{n:'Almarai',g:'Arabic'},{n:'IBM Plex Sans Arabic',g:'Arabic'},{n:'El Messiri',g:'Arabic'},{n:'Markazi Text',g:'Arabic'},{n:'Aref Ruqaa',g:'Arabic'},{n:'Lateef',g:'Arabic'},
  {n:'Noto Nastaliq Urdu',g:'Urdu / Persian'},{n:'Vazirmatn',g:'Urdu / Persian'},
  {n:'Noto Sans',g:'Other scripts'},{n:'Noto Serif',g:'Other scripts'},{n:'Noto Sans Devanagari',g:'Other scripts'},{n:'Noto Sans Bengali',g:'Other scripts'},
  {n:'Georgia',g:'System',sys:1},{n:'Times New Roman',g:'System',sys:1},{n:'Cambria',g:'System',sys:1},{n:'Arial',g:'System',sys:1},{n:'Tahoma',g:'System',sys:1}];
@@ -2879,7 +2960,7 @@ function rpTDel(){
   lsSet('lp.rep.th',JSON.stringify(a.filter(x=>x.id!==id))); ['lp.rep.ths','lp.rep.thm'].forEach(k=>{ if(lsGet(k)===id) lsSet(k,''); }); rpDesignInit(); rpApplyDesign(); rpUI();
 }
 function rpTab(n){
-  if(!['write','design','month','saved'].includes(n)) n='write'; lsSet('lp.rep.tab',n);
+  if(!['write','design','month','saved','cert'].includes(n)) n='write'; lsSet('lp.rep.tab',n);
   document.querySelectorAll('#rpTabs [data-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===n)));
   document.querySelectorAll('#view-reports .rp-pane').forEach(p=>{ p.hidden=p.dataset.pane!==n; });
   if(n==='design'){ rpGalFonts(); rpGallery(); } if(n==='month') rpMonthRender(); if(n==='saved') rpList();
@@ -2889,7 +2970,7 @@ const RP_FC={};
 function rpInRange(r,cps){ return r.split(',').some(p=>{ p=p.trim().replace(/^U\+/i,''); const ab=p.split('-'), lo=parseInt(ab[0].replace(/\?/g,'0'),16), hi=ab[1]?parseInt(ab[1],16):(ab[0].indexOf('?')>=0?parseInt(ab[0].replace(/\?/g,'F'),16):lo); for(const c of cps) if(c>=lo&&c<=hi) return true; return false; }); }
 async function rpFontCSS(html){
   try{
-    const txt=html.replace(/<[^>]*>/g,' '), cps=new Set(Array.from(txt).map(c=>c.codePointAt(0))), fams=rpFonts().slice();
+    const txt=html.replace(/<[^>]*>/g,' '), cps=new Set(Array.from(txt).map(c=>c.codePointAt(0))), fams=rpFonts().slice().concat(window.RP_XF||[]);
     if(/[ऀ-ॿ]/.test(txt)) fams.push({n:'Noto Sans Devanagari'}); if(/[ঀ-৿]/.test(txt)) fams.push({n:'Noto Sans Bengali'});
     let out='';
     for(const f of fams){ if(f.sys) continue; try{
@@ -3085,7 +3166,8 @@ function rpInit(){
           if(t.value.trim()){ sel.size=Math.min(os.length+1,7); if(os.length===1){ sel.value=os[0].value; sel.dispatchEvent(new Event('input',{bubbles:true})); } else if(cur&&os.some(o=>o.value===cur)) sel.value=cur; } else sel.removeAttribute('size'); } return; }
       if(k){ if(k[0]==='d') REPF.data[k.slice(2)]=t.value; else REPF.hw[k.slice(2)]=t.value; }
       if(qf){ const en=rpQRef(t.dataset.q)[+t.dataset.i]; if(en){ en[qf]=t.value;
-        if(qf==='s'){ const n=RP_SURAHS[(+t.value)-1]; en.f=n?'1':''; en.t=n?String(n[1]):''; const row=t.parentNode; row.querySelector('[data-qf="f"]').value=en.f; row.querySelector('[data-qf="t"]').value=en.t; } } }
+        if(qf==='s'){ const n=RP_SURAHS[(+t.value)-1]; en.f=n?'1':''; en.t=n?String(n[1]):''; const row=t.parentNode; row.querySelector('[data-qf="f"]').value=en.f; row.querySelector('[data-qf="t"]').value=en.t;
+          if(t.tagName==='SELECT'){ t.removeAttribute('size'); t.innerHTML=rpOpts('',en.s); t.value=en.s; const si=row.previousElementSibling; if(si&&si.dataset&&si.dataset.qs!==undefined) si.value=''; if(t.blur) t.blur(); } } } }
       if(t.id==='rpName') rpHint();
       if(t.id==='rpSearch') return rpList();
       if(['rpTeacher','rpMonth','rpAcademy','rpAcSub'].includes(t.id)){ if(t.id==='rpAcademy'||t.id==='rpAcSub') lsSet('lp.rep.acad',JSON.stringify({a:$('rpAcademy').value,s:$('rpAcSub').value})); rpMonthRender(); if(t.id!=='rpTeacher') return; }
@@ -3833,7 +3915,7 @@ $('installBtn').addEventListener('click', async () => {
 });
 window.addEventListener('appinstalled', () => { $('installBtn').hidden = true; toast('✅ App installed'); });
 if('serviceWorker' in navigator){
-  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{ try{ r.update(); }catch(e){} }).catch(() => {}); });
 }
 
 /* ===== PRESENTER MODE toggle ===== */
@@ -3970,6 +4052,202 @@ $('pipBtn').addEventListener('click', togglePip);
   setInterval(voiceTick, 120); setInterval(predTick, 80);
   if(S.wake) setWake(true);
 })();
+/* ===== v1.1: homework toggle memory, live design preview, certificates, updates ===== */
+window.HWO=new Set();
+document.addEventListener('toggle',e=>{ const d=e.target; if(d&&d.classList&&d.classList.contains('rp-hwd')){ if(d.open) window.HWO.add(d.dataset.hw); else window.HWO.delete(d.dataset.hw); } },true);
+
+let RP_DRAFT=null;
+function rpDesignPv(){
+  const el=$('rpDesignPv'); if(!el) return; let m;
+  try{ m=rpModel(rpCur()); if(!(m.notes.length||m.hw.length)) m=rpSample(); }catch(e){ m=rpSample(); }
+  let tp=null; if(RP_DRAFT){ tp=Object.assign({},RP_DRAFT,{f:lsGet('lp.rep.font')||'',af:lsGet('lp.rep.afont')||''}); }
+  el.innerHTML=rpHTML(m,tp);
+}
+(function(){ const f=rpApplyDesign; rpApplyDesign=function(){ const r=f.apply(this,arguments); try{ rpDesignPv(); }catch(e){} return r; }; })();
+(function(){ const f=rpPick; rpPick=function(){ RP_DRAFT=null; return f.apply(this,arguments); }; })();
+(function(){ const f=rpTSave; rpTSave=function(){ const r=f.apply(this,arguments); RP_DRAFT=null; try{ rpDesignPv(); }catch(e){} return r; }; })();
+['input','change'].forEach(ev=>document.addEventListener(ev,e=>{
+  const id=e.target&&e.target.id;
+  if(['rpCg','rpCg2','rpCgold','rpCbg','rpTLay'].includes(id)){
+    RP_DRAFT={lay:$('rpTLay').value,g:$('rpCg').value,g2:$('rpCg2').value,gold:$('rpCgold').value,bg:$('rpCbg').value}; rpDesignPv();
+  }
+}));
+
+/* ---------- Certificates ---------- */
+const CT_DES=[
+ {id:'royal',n:'Royal gold',en:'Royal gold',f:'Playfair Display',af:'Amiri',c1:'#6B4A12',c2:'#B8923A'},
+ {id:'emerald',n:'Emerald Islamic',f:'Lora',af:'Amiri',c1:'#1F4D43',c2:'#C9A24B'},
+ {id:'modern',n:'Modern clean',f:'Plus Jakarta Sans',af:'Alexandria',c1:'#0F766E',c2:'#6366F1'},
+ {id:'midnight',n:'Midnight gold',f:'Cormorant Garamond',af:'Aref Ruqaa',c1:'#E9CF86',c2:'#D4AF37'},
+ {id:'kids',n:'Happy kids',f:'Nunito',af:'Cairo',c1:'#E8590C',c2:'#7048E8'}];
+const CT_GR={ex:['Excellent','ممتاز'],vg:['Very good','جيد جدًا'],gd:['Good','جيد'],ms:['Mastered','متقن']};
+const CT_CSS=`.ct{position:relative;width:1123px;height:794px;box-sizing:border-box;overflow:hidden;font-family:var(--cf),var(--ca),Georgia,serif;color:var(--tx);background:var(--bg);text-align:center;line-height:1.25}
+.ct *{box-sizing:border-box;margin:0}
+.ct-fr{position:absolute;inset:0;pointer-events:none}
+.ct-in{position:absolute;inset:0;padding:50px 90px 46px;display:flex;flex-direction:column;align-items:center}
+.ct-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.ct-bis{font-family:var(--ca),serif;font-size:32px;color:var(--c2);direction:rtl;line-height:1.5}
+.ct-acad{font-size:17px;letter-spacing:.26em;text-transform:uppercase;color:var(--c1);font-weight:700;margin-top:2px}
+.ct-t{font-size:56px;line-height:1.1;color:var(--c1);font-weight:700;margin-top:10px}
+.ct-ta{font-family:var(--ca),serif;font-size:42px;color:var(--c1);line-height:1.5;font-weight:700}
+.ct-p{font-size:21px;color:var(--mu);margin-top:14px}
+.ct-pa{font-family:var(--ca),serif;font-size:24px;color:var(--mu);line-height:1.5}
+.ct-name{font-size:60px;line-height:1.25;color:var(--c2);font-weight:700;min-width:520px;max-width:100%;padding:0 36px 2px;border-bottom:2px solid var(--c2);margin-top:8px}
+.ct-ach{font-size:29px;font-weight:700;color:var(--c1);margin-top:10px;max-width:880px}
+.ct-acha{font-family:var(--ca),serif;font-size:33px;font-weight:700;color:var(--c1);line-height:1.5;max-width:880px}
+.ct.both .ct-t{font-size:50px;margin-top:6px}.ct.both .ct-ta{font-size:36px}.ct.both .ct-name{font-size:54px}.ct.both .ct-ach{font-size:26px;margin-top:6px}.ct.both .ct-acha{font-size:29px}.ct.both .ct-p{margin-top:8px;font-size:19px}.ct.both .ct-pa{font-size:21px}
+.ct-ft{width:100%;display:flex;justify-content:space-between;align-items:flex-end;margin-top:8px}
+.ct-sg{width:270px;text-align:center}.ct-sg .v{min-height:36px;font-size:24px;color:var(--c1);border-bottom:2px solid var(--c2);padding-bottom:4px;font-weight:700}
+.ct-sg .l{margin-top:6px;font-size:16px;color:var(--mu)}
+.ct-seal{width:128px;height:128px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--c2),var(--c1));color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 6px var(--bg),0 0 0 8px var(--c2);font-size:15px;font-weight:700;line-height:1.2;padding:10px}
+.ct-seal b{font-size:46px;line-height:1}
+.cd-royal{--bg:#FFFBF0;--tx:#3b2a08;--mu:#7a6a4a}
+.cd-royal .ct-fr{inset:20px;border:3px solid var(--c2);box-shadow:inset 0 0 0 9px var(--bg),inset 0 0 0 11px var(--c2)}
+.cd-royal .ct-fr:before,.cd-royal .ct-fr:after{content:"\\2756";position:absolute;left:50%;transform:translateX(-50%);font-size:34px;color:var(--c2);background:var(--bg);line-height:1;padding:2px 8px}
+.cd-royal .ct-fr:before{top:-22px}.cd-royal .ct-fr:after{bottom:-22px}
+.cd-emerald{--bg:#FBF7EE;--tx:#25302D;--mu:#6B756F}
+.cd-emerald .ct-fr:before{content:"";position:absolute;left:0;right:0;top:0;height:250px;background-color:var(--c1);background-image:${RP_PAT};background-size:28px 28px;border-bottom:6px double var(--c2)}
+.cd-emerald .ct-fr:after{content:"";position:absolute;inset:14px;border:2px solid var(--c2)}
+.cd-emerald .ct-in{padding-top:34px}.cd-emerald .ct-mid{justify-content:flex-start}.ct.cd-emerald .ct-p{margin-top:42px}.ct.cd-emerald.both .ct-p{margin-top:40px}
+.cd-emerald .ct-bis{color:var(--c2)}.cd-emerald .ct-acad,.cd-emerald .ct-t,.cd-emerald .ct-ta{color:#fff}
+.cd-emerald .ct-name{color:var(--c1);border-color:var(--c2)}
+.cd-modern{--bg:#FFFFFF;--tx:#1b2430;--mu:#6b7686}
+.cd-modern .ct-fr{background:linear-gradient(180deg,var(--c1),var(--c2)) left/64px 100% no-repeat}
+.cd-modern .ct-fr:before{content:"";position:absolute;right:-110px;top:-110px;width:330px;height:330px;border-radius:50%;background:var(--c2);opacity:.12}
+.cd-modern .ct-fr:after{content:"";position:absolute;left:64px;bottom:-130px;width:300px;height:300px;border-radius:50%;background:var(--c1);opacity:.1}
+.cd-modern .ct-in{padding-inline-start:150px}
+.cd-modern .ct-name{color:var(--c1);border-color:var(--c2)}.cd-modern .ct-t{font-weight:800}
+.cd-midnight{--bg:#0E1A2B;--tx:#E8EDF4;--mu:#9FB0C6;background:radial-gradient(ellipse at 50% 0,#21395a,#0E1A2B 65%)}
+.cd-midnight .ct-fr{inset:22px;border:2px solid var(--c2)}.cd-midnight .ct-fr:before{content:"";position:absolute;inset:8px;border:1px solid rgba(212,175,55,.45)}
+.cd-midnight .ct-name{color:var(--c2)}.cd-midnight .ct-seal{color:#0E1A2B}.cd-midnight .ct-sg .v{color:#fff}
+.cd-kids{--bg:#FFF9DB;--tx:#3b2f2f;--mu:#7a6a5a}
+.cd-kids .ct-fr{inset:18px;border:8px dashed var(--c1);border-radius:38px}
+.cd-kids .ct-fr:before{content:"\\2B50 \\1F319 \\2B50";position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-size:36px;background:var(--bg);padding:0 14px;line-height:1}
+.cd-kids .ct-fr:after{content:"\\1F31F";position:absolute;bottom:-22px;right:60px;font-size:40px;background:var(--bg);padding:0 8px;line-height:1}
+.cd-kids .ct-t,.cd-kids .ct-ta{color:var(--c1)}.cd-kids .ct-name{color:var(--c2);border-bottom-style:dotted;border-bottom-width:4px}`;
+(function(){ const s=document.createElement('style'); s.id='ctStyle'; s.textContent=CT_CSS; document.head.appendChild(s); })();
+
+const CT=Object.assign({name:'',kind:'surah',surah:'',juz:'1',verb:'mem',gender:'m',custEn:'',custAr:'',grade:'ex',date:'',lang:'both',design:'royal',c1:'',c2:'',teacher:'',academy:'',font:'',afont:''},rpJ('lp.cert',{}));
+function ctSave(){ lsSet('lp.cert',JSON.stringify(CT)); }
+function ctStack(f){ return f?"'"+f+"',":''; }
+function ctWhat(c){
+  const si=(+c.surah||0)-1, sEn=RP_SURAHS[si]?RP_SURAHS[si][0]:'…', sAr=RP_SURAHS_AR[si]||'…', f=c.gender==='f';
+  const V={mem:['for successfully memorising','لإتمام'+(f?'ها':'ه')+' حفظ'],rec:['for successfully completing the recitation of','لإتمام'+(f?'ها':'ه')+' تلاوة'],rev:['for successfully completing the revision of','لإتمام'+(f?'ها':'ه')+' مراجعة']}[c.verb]||['',''];
+  if(c.kind==='surah') return {t:['Certificate of Completion','شهادة إتمام'],en:V[0]+' Surah '+sEn,ar:V[1]+' سورة '+sAr};
+  if(c.kind==='juz') return {t:['Certificate of Completion','شهادة إتمام'],en:V[0]+' Juz’ '+(c.juz||'1'),ar:V[1]+' الجزء '+(c.juz||'1')};
+  if(c.kind==='quran') return {t:['Certificate of Completion','شهادة إتمام'],en:V[0]+' the entire Holy Qur’an',ar:V[1]+' القرآن الكريم كاملاً'};
+  if(c.kind==='noor') return {t:['Certificate of Completion','شهادة إتمام'],en:'for successfully completing the Noor Al-Bayan primer',ar:'لإتمام'+(f?'ها':'ه')+' القاعدة النورانية'};
+  if(c.kind==='excel') return {t:['Certificate of Excellence','شهادة تميّز'],en:'for outstanding performance and excellent conduct',ar:f?'لتميّزها وحسن سلوكها':'لتميّزه وحسن سلوكه'};
+  return {t:['Certificate of Achievement','شهادة تقدير'],en:c.custEn||'',ar:c.custAr||''};
+}
+function ctDes(id){ return CT_DES.find(d=>d.id===id)||CT_DES[0]; }
+function ctHTML(c,desId){
+  const d=ctDes(desId||c.design), w=ctWhat(c), en=c.lang!=='ar', ar=c.lang!=='en', both=en&&ar, f=c.gender==='f';
+  const acad=c.academy||'', teacher=c.teacher||'', gr=CT_GR[c.grade]||null;
+  const c1=c.c1||d.c1, c2=c.c2||d.c2, cf=c.font||d.f, ca=c.afont||d.af;
+  const e=rpEsc, nm=e(c.name||(ar&&!en?'اسم الطالب':'Student Name'));
+  let h='<div class="ct cd-'+d.id+(both?' both':'')+'" dir="'+(ar&&!en?'rtl':'ltr')+'" style="--c1:'+c1+';--c2:'+c2+';--cf:'+ctStack(cf).replace(/,$/,'')+';--ca:'+ctStack(ca).replace(/,$/,'')+'"><div class="ct-fr"></div><div class="ct-in">';
+  h+='<div class="ct-bis">بسم الله الرحمن الرحيم</div>'+(acad?'<div class="ct-acad" dir="auto">'+e(acad)+'</div>':'');
+  h+='<div class="ct-mid">';
+  if(en) h+='<div class="ct-t">'+w.t[0]+'</div>'; if(ar) h+='<div class="ct-ta">'+w.t[1]+'</div>';
+  if(en) h+='<div class="ct-p">This certificate is proudly presented to</div>'; if(ar) h+='<div class="ct-pa">'+'تُمنح هذه الشهادة إلى'+'</div>';
+  h+='<div class="ct-name" dir="auto">'+nm+'</div>';
+  if(en&&w.en) h+='<div class="ct-ach" dir="auto">'+e(w.en)+'</div>'; if(ar&&w.ar) h+='<div class="ct-acha" dir="rtl">'+e(w.ar)+'</div>';
+  h+='</div><div class="ct-ft">';
+  const lab=(a,b)=>(en?a:'')+(both?' · ':'')+(ar?b:'');
+  h+='<div class="ct-sg"><div class="v" dir="auto">'+e(teacher)+'</div><div class="l">'+lab('Teacher','المعلّم'+(f?'':''))+'</div></div>';
+  h+='<div class="ct-seal"><b>★</b>'+(gr?'<span>'+(en?gr[0]:'')+(both?'<br>':'')+(ar?gr[1]:'')+'</span>':'')+'</div>';
+  h+='<div class="ct-sg"><div class="v" dir="ltr">'+e(rpDMY(c.date))+'</div><div class="l">'+lab('Date','التاريخ')+'</div></div>';
+  return h+'</div></div></div>';
+}
+function ctFonts(c){ const d=ctDes(c.design); return [rpFam(c.font||d.f),rpFam(c.afont||d.af)].filter(Boolean); }
+function ctLoadFonts(){
+  const all=[].concat.apply([],CT_DES.map(d=>[rpFam(d.f),rpFam(d.af)])).concat(ctFonts(CT)).filter(Boolean);
+  const u=rpFontURL(all); let lk=$('ctFontLink'); if(!u) return;
+  if(!lk){ lk=document.createElement('link'); lk.id='ctFontLink'; lk.rel='stylesheet'; document.head.appendChild(lk); } if(lk.getAttribute('href')!==u) lk.href=u;
+}
+function ctFit(){
+  document.querySelectorAll('#rpCertPane [data-ctfit]').forEach(w=>{ const c=w.firstElementChild; if(!c) return; const s=w.clientWidth/1123; if(!s) return; c.style.transformOrigin='top left'; c.style.transform='scale('+s+')'; w.style.height=(794*s)+'px'; });
+}
+function ctRender(){
+  const pv=$('ctPv'); if(!pv) return; pv.innerHTML=ctHTML(CT);
+  document.querySelectorAll('#ctGal [data-des]').forEach(b=>{ b.querySelector('.ct-th').innerHTML=ctHTML(CT,b.dataset.des); b.setAttribute('aria-pressed',String(b.dataset.des===CT.design)); });
+  ctFit();
+}
+function ctSubVis(){
+  const k=CT.kind; const sh=(id,on)=>{ const el=$(id); if(el) el.classList.toggle('rp-hide',!on); };
+  sh('ctRowSurah',k==='surah'); sh('ctRowJuz',k==='juz'); sh('ctRowVerb',['surah','juz','quran'].includes(k)); sh('ctRowCust',k==='custom');
+}
+function ctBuild(){
+  const p=$('rpCertPane'); if(!p) return;
+  const acad=rpJ('lp.rep.acad',{}); if(!CT.date) CT.date=rpToday(); if(!CT.teacher) CT.teacher=($('rpTeacher')&&$('rpTeacher').value)||''; if(!CT.academy) CT.academy=acad.a||'';
+  const opt=(v,t,s)=>'<option value="'+rpEsc(v)+'"'+(s?' selected':'')+'>'+rpEsc(t)+'</option>';
+  const fgrp=(arr,cur,def)=>opt('',def,!cur)+[...new Set(arr.map(f=>f.g))].map(g=>'<optgroup label="'+g+'">'+arr.filter(f=>f.g===g).map(f=>opt(f.n,f.n,f.n===cur)).join('')+'</optgroup>').join('');
+  const chip=(k,v,t)=>'<button type="button" class="rp-chip" data-cc="'+k+'" data-v="'+v+'" aria-pressed="'+(CT[k]===v)+'">'+t+'</button>';
+  p.innerHTML='<div class="rp-card ct-pv"><div class="ct-wrap" data-ctfit="1"><div id="ctPv"></div></div></div>'
+  +'<div class="rp-card"><h3><i>🏆</i> Certificate</h3><p class="help">Create a certificate when a student finishes a surah, a juz’, the Qur’an or a level. The preview above updates as you type.</p>'
+  +'<div class="rp-grid"><div><label class="rp-lbl" for="ctName">Student’s name</label><input class="field" id="ctName" data-c="name" dir="auto" list="rpNames" autocomplete="off" value="'+rpEsc(CT.name)+'"></div>'
+  +'<div><label class="rp-lbl" for="ctDate">Date</label><input class="field" id="ctDate" type="date" data-c="date" value="'+rpEsc(CT.date)+'"></div>'
+  +'<div style="grid-column:1/-1"><label class="rp-lbl" for="ctKind">Awarded for</label><select class="field" id="ctKind" data-c="kind">'+[['surah','Finishing a surah'],['juz','Finishing a juz’'],['quran','Finishing the whole Qur’an'],['noor','Finishing Noor Al-Bayan'],['excel','Excellence & good conduct'],['custom','Custom text']].map(x=>opt(x[0],x[1],x[0]===CT.kind)).join('')+'</select></div>'
+  +'<div id="ctRowSurah" style="grid-column:1/-1"><label class="rp-lbl" for="ctSurah">Surah</label><select class="field" id="ctSurah" data-c="surah">'+rpOpts('',CT.surah)+'</select></div>'
+  +'<div id="ctRowJuz"><label class="rp-lbl" for="ctJuz">Juz’</label><select class="field" id="ctJuz" data-c="juz">'+Array.from({length:30},(_,i)=>opt(String(i+1),String(i+1),String(i+1)===String(CT.juz))).join('')+'</select></div>'
+  +'<div id="ctRowVerb" style="grid-column:1/-1"><span class="rp-lbl">Type</span><div class="rp-chips">'+chip('verb','mem','Memorisation')+chip('verb','rec','Recitation')+chip('verb','rev','Revision')+'</div></div>'
+  +'<div id="ctRowCust" style="grid-column:1/-1"><label class="rp-lbl" for="ctCE">Text in English (after “for…”)</label><input class="field" id="ctCE" data-c="custEn" dir="ltr" value="'+rpEsc(CT.custEn)+'" placeholder="for outstanding progress in Tajweed"><label class="rp-lbl" for="ctCA">Text in Arabic</label><input class="field" id="ctCA" data-c="custAr" dir="rtl" value="'+rpEsc(CT.custAr)+'" placeholder="لتميّزه في أحكام التجويد"></div>'
+  +'<div><label class="rp-lbl" for="ctGrade">Grade on the seal</label><select class="field" id="ctGrade" data-c="grade">'+opt('','None',!CT.grade)+Object.keys(CT_GR).map(k=>opt(k,CT_GR[k][0]+' · '+CT_GR[k][1],k===CT.grade)).join('')+'</select></div>'
+  +'<div><span class="rp-lbl">Student</span><div class="rp-chips">'+chip('gender','m','👦 Boy')+chip('gender','f','👧 Girl')+'</div></div>'
+  +'<div><label class="rp-lbl" for="ctTeacher">Teacher name</label><input class="field" id="ctTeacher" data-c="teacher" dir="auto" value="'+rpEsc(CT.teacher)+'"></div>'
+  +'<div><label class="rp-lbl" for="ctAcad">Academy name</label><input class="field" id="ctAcad" data-c="academy" dir="auto" value="'+rpEsc(CT.academy)+'" placeholder="Taybah Academy"></div></div>'
+  +'<span class="rp-lbl" style="margin-top:10px">Certificate language</span><div class="rp-chips">'+chip('lang','en','English')+chip('lang','ar','العربية')+chip('lang','both','English + العربية')+'</div></div>'
+  +'<div class="rp-card"><h3><i>🎨</i> Design</h3><div class="ct-gal" id="ctGal">'+CT_DES.map(d=>'<button type="button" class="ct-gb" data-des="'+d.id+'" aria-pressed="'+(d.id===CT.design)+'"><div class="ct-th" data-ctfit="1"><div></div></div><b>'+d.n+'</b></button>').join('')+'</div>'
+  +'<div class="rp-grid" style="margin-top:10px"><div><label class="rp-lbl" for="ctF">Font (English)</label><select class="field" id="ctF" data-c="font">'+fgrp(RP_FONTS.filter(f=>f.g!=='Arabic'&&f.g!=='Urdu / Persian'&&!f.sys),CT.font,'Design default')+'</select></div>'
+  +'<div><label class="rp-lbl" for="ctAF">Font (Arabic)</label><select class="field" id="ctAF" data-c="afont">'+fgrp(RP_FONTS.filter(f=>f.g==='Arabic'),CT.afont,'Design default')+'</select></div>'
+  +'<div><label class="rp-lbl" for="ctC1">Main color</label><input class="field" id="ctC1" type="color" data-c="c1" value="'+(CT.c1||ctDes(CT.design).c1)+'"></div>'
+  +'<div><label class="rp-lbl" for="ctC2">Accent color</label><input class="field" id="ctC2" type="color" data-c="c2" value="'+(CT.c2||ctDes(CT.design).c2)+'"></div></div>'
+  +'<div class="row-actions"><button class="btn small" type="button" data-ca="reset">↺ Reset colors & fonts</button></div></div>'
+  +'<div class="rp-bar"><div class="rp-act" style="grid-template-columns:repeat(2,1fr)"><button class="btn primary" type="button" data-ca="print"><span>🖨️</span>Print / PDF</button><button class="btn" type="button" data-ca="img"><span>🖼️</span>Picture</button></div></div>';
+  ctSubVis(); ctLoadFonts(); ctRender(); try{ rpUI(); }catch(e){}
+  if(!p.dataset.bound){ p.dataset.bound='1';
+    const upd=t=>{ const k=t.dataset&&t.dataset.c; if(!k) return; CT[k]=t.value; if(k==='kind') ctSubVis(); if(k==='font'||k==='afont') ctLoadFonts(); ctSave(); ctRender(); };
+    p.addEventListener('input',e=>upd(e.target)); p.addEventListener('change',e=>upd(e.target));
+    p.addEventListener('click',e=>{
+      const b=e.target.closest('button'); if(!b) return;
+      if(b.dataset.cc){ CT[b.dataset.cc]=b.dataset.v; b.parentNode.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); ctSave(); ctRender(); return; }
+      if(b.dataset.des){ CT.design=b.dataset.des; CT.c1=''; CT.c2=''; const d=ctDes(CT.design); $('ctC1').value=d.c1; $('ctC2').value=d.c2; ctSave(); ctLoadFonts(); ctRender(); return; }
+      if(b.dataset.ca==='reset'){ CT.c1=CT.c2=CT.font=CT.afont=''; ctSave(); ctBuild(); return; }
+      if(b.dataset.ca==='print') ctPrint(); if(b.dataset.ca==='img') ctPng();
+    });
+    window.addEventListener('resize',ctFit);
+  }
+  setTimeout(ctFit,50);
+}
+function ctPrint(){
+  const w=window.open('','_blank'); if(!w){ toast('Allow pop-ups to print'); return; }
+  const all=[].concat.apply([],CT_DES.map(d=>[rpFam(d.f),rpFam(d.af)])).concat(ctFonts(CT)).filter(Boolean), u=rpFontURL(all);
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+CT_CSS+'@page{size:A4 landscape;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff}</style></head><body>'+ctHTML(CT)+'<scr'+'ipt>Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,2500)})]).then(function(){setTimeout(function(){print()},250)})<\/scr'+'ipt></body></html>');
+  w.document.close();
+}
+async function ctPng(){
+  window.RP_XF=ctFonts(CT); window.RP_XCSS=CT_CSS; window.RP_XPAD=0;
+  try{ await rpToPng(ctHTML(CT),1123,'Certificate_'+(CT.name||'student')); } finally { window.RP_XF=null; window.RP_XCSS=''; window.RP_XPAD=null; }
+}
+(function(){ const f=rpTab; rpTab=function(n){ const r=f.apply(this,arguments); if(n==='cert'){ ctBuild(); } return r; }; })();
+
+/* Arabic labels */
+Object.assign(RP_AR,{'Certificate':'شهادة','Create a certificate when a student finishes a surah, a juz’, the Qur’an or a level. The preview above updates as you type.':'أنشئ شهادة عند إتمام الطالب سورة أو جزءًا أو القرآن أو مستوى. تتحدّث المعاينة أعلاه أثناء الكتابة.','Awarded for':'تُمنح عن','Finishing a surah':'إتمام سورة','Finishing a juz’':'إتمام جزء','Finishing the whole Qur’an':'إتمام القرآن كاملاً','Finishing Noor Al-Bayan':'إتمام القاعدة النورانية','Excellence & good conduct':'التميّز وحسن السلوك','Custom text':'نص مخصص','Surah':'السورة','Juz’':'الجزء','Type':'النوع','Memorisation':'حفظ','Recitation':'تلاوة','Revision':'مراجعة','Text in English (after “for…”)':'النص بالإنجليزية (بعد “for…”)','Text in Arabic':'النص بالعربية','Grade on the seal':'التقدير على الختم','None':'بدون','Student':'الطالب','👦 Boy':'ولد','👧 Girl':'بنت','Academy name':'اسم الأكاديمية','Certificate language':'لغة الشهادة','Design':'التصميم','Font (English)':'الخط (الإنجليزي)','Font (Arabic)':'الخط (العربي)','Main color':'اللون الأساسي','Accent color':'لون التمييز','Design default':'افتراضي التصميم','↺ Reset colors & fonts':'↺ إعادة الألوان والخطوط','Print / PDF':'طباعة / PDF','Picture':'صورة','Add homework (optional)':'إضافة واجب (اختياري)','Live preview':'معاينة مباشرة','Check for updates':'التحقق من التحديثات','Reload':'إعادة التحميل','New version installed':'تم تثبيت إصدار جديد','Aurora teal':'أورورا تركوازي','Aurora indigo':'أورورا نيلي','Soft sage':'ناعم أخضر','Soft rose':'ناعم وردي','Midnight gold':'منتصف الليل الذهبي','Ribbon navy':'شريط كحلي','Royal gold':'ذهبي ملكي','Emerald Islamic':'إسلامي زمردي','Modern clean':'عصري نظيف','Happy kids':'أطفال سعداء','Aurora':'أورورا','Soft':'ناعم','Midnight':'ليلي','Ribbon':'شريط'});
+
+/* ---------- App version & updates ---------- */
+const APP_VERSION='1.1.0';
+(function(){
+  const v=$('appVer'); if(v) v.querySelector('b').textContent=APP_VERSION;
+  function bar(){ if($('updBar')) return; const d=document.createElement('div'); d.id='updBar'; d.innerHTML='<span>✨ New version installed</span><button type="button">Reload</button>'; d.querySelector('button').onclick=()=>location.reload(); document.body.appendChild(d); }
+  if('serviceWorker' in navigator){
+    const had=!!navigator.serviceWorker.controller; let shown=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(had&&!shown){ shown=true; bar(); } });
+    const u=$('appUpd'); if(u) u.addEventListener('click',async e=>{ e.preventDefault(); try{ const reg=await navigator.serviceWorker.getRegistration(); if(reg){ await reg.update(); } toast('Checking… if a new version exists a Reload bar will appear'); setTimeout(()=>{ if(!$('updBar')) toast('You already have the latest version ✅'); },2500); }catch(x){ toast('Could not check right now'); } });
+  }
+})();
+
+try{ if(lsGet('lp.rep.tab')==='cert') rpTab('cert'); else rpDesignPv(); }catch(e){}
 </script>
 </body>
 </html>
