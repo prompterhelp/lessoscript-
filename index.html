@@ -4405,11 +4405,11 @@ function ctBuild(){
 function ctPrint(){
   const w=window.open('','_blank'); if(!w){ toast('Allow pop-ups to print'); return; }
   const all=[].concat.apply([],CT_DES.map(d=>[rpFam(d.f),rpFam(d.af)])).concat(ctFonts(CT)).filter(Boolean), u=rpFontURL(all);
-  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+CT_CSS+'@page{size:A4 landscape;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff}</style></head><body>'+ctHTML(CT)+'<scr'+'ipt>Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,2500)})]).then(function(){setTimeout(function(){print()},250)})<\/scr'+'ipt></body></html>');
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+'@page{size:A4 landscape;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff}</style></head><body>'+ctHTML(CT)+'<scr'+'ipt>Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,2500)})]).then(function(){setTimeout(function(){print()},250)})<\/scr'+'ipt></body></html>');
   w.document.close();
 }
 async function ctPng(){
-  window.RP_XF=ctFonts(CT); window.RP_XCSS=CT_CSS; window.RP_XPAD=0;
+  window.RP_XF=ctFonts(CT); window.RP_XCSS=CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:''); window.RP_XPAD=0;
   try{ await rpToPng(ctHTML(CT),1123,'Certificate_'+(CT.name||'student')); } finally { window.RP_XF=null; window.RP_XCSS=''; window.RP_XPAD=null; }
 }
 (function(){ const f=rpTab; rpTab=function(n){ const r=f.apply(this,arguments); if(n==='cert'){ ctBuild(); } return r; }; })();
