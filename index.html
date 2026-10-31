@@ -592,7 +592,7 @@ body.fulltext .line.k-ask[dir=rtl],body.fulltext .stage .line.k-ask[dir=rtl]{bor
 .pv-on{cursor:text}
 .pv-edit{outline:2px dashed #3b82f6!important;outline-offset:2px;border-radius:3px;background:rgba(59,130,246,.10)!important;-webkit-user-select:text;user-select:text;cursor:text}
 .pv-ed{text-decoration:underline dotted rgba(59,130,246,.55);text-underline-offset:3px}
-.pv-bar{flex-wrap:wrap}.pv-btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.pv-lbl{cursor:pointer;display:inline-flex;align-items:center}.pv-sel{outline:2px solid #3b82f6!important;outline-offset:2px}
+.pv-move{touch-action:none}.pv-move *{cursor:move!important;-webkit-user-select:none;user-select:none}.pv-bar{flex-wrap:wrap}.pv-btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.pv-lbl{cursor:pointer;display:inline-flex;align-items:center}.pv-sel{outline:2px solid #3b82f6!important;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -4253,7 +4253,7 @@ const CT_CSS=`.ct{position:relative;width:1123px;height:794px;box-sizing:border-
 .cd-kids .ct-fr:after{content:"\\1F31F";position:absolute;bottom:-22px;right:60px;font-size:40px;background:var(--bg);padding:0 8px;line-height:1}
 .cd-kids .ct-t,.cd-kids .ct-ta{color:var(--c1)}.cd-kids .ct-name{color:var(--c2);border-bottom-style:dotted;border-bottom-width:4px}`;
 (function(){ const s=document.createElement('style'); s.id='ctStyle'; s.textContent=CT_CSS; document.head.appendChild(s); })();
-const CT_CSS2=`.ct-dua{margin-top:10px;max-width:880px}.ct-dua .a{font-family:var(--ca),'Amiri',serif;font-size:25px;color:var(--c2);line-height:1.5;direction:rtl}.ct-dua .e{font-size:15px;color:var(--mu);font-style:italic;margin-top:2px;line-height:1.3}.ct-msg{font-size:21px;color:var(--mu);margin-top:12px;max-width:820px;font-style:italic}.cd-mihrab{--bg:#FFFBF1;--tx:#2a2a1f;--mu:#6d6a55;background-color:var(--c1);background-image:${RP_PAT};background-size:28px 28px}
+const CT_CSS2=`.ct-mid{gap:4px}.ct-ta{margin-top:2px}.ct-pa{margin-top:6px}.ct-name{margin-top:12px;margin-bottom:4px}.ct-ach,.ct-acha{margin-top:12px;line-height:1.55}.ct-dua{margin-top:8px;max-width:880px}.ct-dua .a{font-family:var(--ca),'Amiri',serif;font-size:22px;color:var(--c2);line-height:1.5;direction:rtl}.ct-dua .e{font-size:14px;color:var(--mu);font-style:italic;margin-top:2px;line-height:1.3}.ct-msg{font-size:18px;color:var(--mu);margin-top:8px;max-width:820px;font-style:italic}.cd-mihrab{--bg:#FFFBF1;--tx:#2a2a1f;--mu:#6d6a55;background-color:var(--c1);background-image:${RP_PAT};background-size:28px 28px}
 .cd-mihrab .ct-fr:before{content:"";position:absolute;left:150px;right:150px;top:34px;bottom:34px;background:var(--bg);border-radius:360px 360px 16px 16px;border:3px solid var(--c2);box-shadow:0 0 0 7px var(--c1),0 0 0 9px var(--c2)}
 .cd-mihrab .ct-fr:after{content:"\\2756";position:absolute;left:50%;top:6px;transform:translateX(-50%);font-size:26px;color:var(--c2);line-height:1}
 .cd-mihrab .ct-in{padding:74px 200px 56px}.cd-mihrab .ct-sg{width:190px}.cd-mihrab .ct-name{min-width:0;color:var(--c1);border-color:var(--c2)}.cd-mihrab .ct-bis{font-size:28px;color:var(--c1)}.cd-mihrab .ct-seal{width:112px;height:112px}
@@ -4682,7 +4682,7 @@ try{ if(lsGet('lp.rep.tab')==='cert') rpTab('cert'); else rpDesignPv(); }catch(e
   deco();
 })();
 /* ===== Tap-to-edit previews v2: edit any text, add text/logo, resize, drag, reset ===== */
-const PVE = { S:{report:{},design:{},cert:{}}, hint:0, sel:null };
+const PVE = { S:{report:{},design:{},cert:{}}, hint:0, sel:null, snap:(lsGet('lp.pve.snap')==='lines'?'lines':'free') };
 try{ const j = JSON.parse(lsGet('lp.pve')||'{}'); ['report','design','cert'].forEach(k => { if(j[k] && typeof j[k]==='object') PVE.S[k] = j[k]; }); }catch(e){}
 const pvSave = () => lsSet('lp.pve', JSON.stringify(PVE.S));
 const PV_ROOT = {report:'rpPreview', design:'rpDesignPv', cert:'ctPv'};
@@ -4706,55 +4706,79 @@ function pvLayer(box, items, live){
     d.style.cssText = c; L.appendChild(d); });
   box.appendChild(L);
 }
-function pvApply(root, S, mark){ let n = 0;
-  pvEntries(S).forEach(p => { const v = S[p], el = pvAt(root, p); if(el && pvOK(el) && el.textContent === v.o){ if(v.t !== v.o) el.textContent = v.t; if(v.f && v.f !== 1) el.style.zoom = v.f; if(mark && (v.t !== v.o || v.f)) el.classList.add('pv-ed'); n++; } });
+function pvPos(el, v, W){ if(v.dx || v.dy){ el.style.translate = (v.dx * W) + 'px ' + (v.dy * W) + 'px'; if(PV_INL.test(el.tagName)) el.style.display = 'inline-block'; } else el.style.translate = ''; }
+function pvGuide(box, on){ let g = box.querySelector(':scope > .pv-guide'); if(!on){ if(g) g.remove(); return; } if(g) return; if(!box.classList.contains('ct') && !box.style.position) box.style.position = 'relative'; g = document.createElement('div'); g.className = 'pv-guide'; g.style.cssText = 'position:absolute;left:50%;top:0;bottom:0;width:0;border-left:1px dashed #3b82f6;z-index:60;pointer-events:none'; box.appendChild(g); }
+function pvApply(root, S, mark, bw){ let n = 0; const W = bw || (root.firstElementChild && root.firstElementChild.offsetWidth) || 1123;
+  pvEntries(S).forEach(p => { const v = S[p], el = pvAt(root, p); if(el && pvOK(el) && el.textContent === v.o){ if(v.t !== v.o) el.textContent = v.t; if(v.f && v.b) el.style.setProperty('font-size', (v.b * v.f) + 'px', 'important'); pvPos(el, v, W); if(mark && (v.t !== v.o || v.f || v.dx || v.dy)) el.classList.add('pv-ed'); n++; } });
   pvLayer(root.firstElementChild, S._x, mark); return n; }
-function pvStr(html, key){ const S = PVE.S[key]; if(!pvCount(S)) return html; const d = document.createElement('div'); d.innerHTML = html; pvApply(d, S, false); return d.innerHTML; }
-function pvExport(html){ try{ const d = document.createElement('div'); d.innerHTML = html; const key = d.querySelector('.ct-in') ? 'cert' : d.querySelector('.rc') ? 'report' : ''; return key ? pvStr(html, key) : html; }catch(e){ return html; } }
+function ctFitMid(ct){ const m = ct && ct.querySelector('.ct-mid'); if(!m) return; m.style.transform = ''; const kids = [].slice.call(m.children); if(!kids.length) return;
+  const top = Math.min.apply(null, kids.map(c => c.offsetTop)), bot = Math.max.apply(null, kids.map(c => c.offsetTop + c.offsetHeight)), need = bot - top + 10, k = m.clientHeight / need;
+  if(k < .995){ m.style.transformOrigin = 'center center'; m.style.transform = 'scale(' + Math.max(.6, k).toFixed(3) + ')'; } }
+function pvExport(html, w){ try{ const d = document.createElement('div'); d.innerHTML = html; const key = d.querySelector('.ct-in') ? 'cert' : d.querySelector('.rc') ? 'report' : ''; if(!key) return html;
+  const S = PVE.S[key]; if(key === 'report' && !pvCount(S)) return html;
+  pvApply(d, S, false, key === 'cert' ? 1123 : (w ? w - 28 : 560));
+  if(key === 'cert'){ d.style.cssText = 'position:fixed;left:-99999px;top:0;width:1123px'; document.body.appendChild(d); try{ ctFitMid(d.querySelector('.ct')); }finally{ d.remove(); d.style.cssText = ''; } }
+  return d.innerHTML; }catch(e){ return html; } }
 function pvMark(root, key){ root.querySelectorAll('.pv-sel').forEach(x => x.classList.remove('pv-sel')); const s = PVE.sel; if(!s || s.key !== key) return;
   const el = s.id ? root.querySelector('.pv-it[data-id="' + s.id + '"]') : pvAt(root, s.p); if(el) el.classList.add('pv-sel'); }
 function pvBar(root, key){
   const anchor = root.closest('.ct-wrap') || root; let bar = anchor.parentNode.querySelector('[data-pvbar="' + key + '"]');
   if(!bar){ bar = document.createElement('div'); bar.className = 'pv-bar'; bar.dataset.pvbar = key; bar.dir = 'ltr';
-    bar.innerHTML = '<span>✏️ Tap text to edit · drag added items</span><div class="pv-btns"><button type="button" class="btn small" data-pv="addt">＋ Text</button><label class="btn small pv-lbl">🖼️ Logo<input type="file" accept="image/*" hidden data-pvfile></label><button type="button" class="btn small" data-pv="sm" title="Smaller">A−</button><button type="button" class="btn small" data-pv="lg" title="Bigger">A+</button><button type="button" class="btn small" data-pv="del" title="Delete added item">🗑</button><button type="button" class="btn small" data-pvreset="' + key + '">↺ Reset</button></div>';
+    bar.innerHTML = '<span>✏️ Tap text to edit · drag added items</span><div class="pv-btns"><button type="button" class="btn small" data-pv="addt">＋ Text</button><label class="btn small pv-lbl">🖼️ Logo<input type="file" accept="image/*" hidden data-pvfile></label><button type="button" class="btn small" data-pv="mv" title="Move texts by dragging">✋ Move</button><button type="button" class="btn small" data-pv="snap" title="Free or straight lines">📏 Free</button><button type="button" class="btn small" data-pv="sm" title="Smaller">A−</button><button type="button" class="btn small" data-pv="lg" title="Bigger">A+</button><button type="button" class="btn small" data-pv="selall" title="Select all text in the box you are editing">Select all</button><button type="button" class="btn small" data-pv="clear" title="Delete all text in the box you are editing">Clear</button><button type="button" class="btn small" data-pv="del" title="Delete added item">🗑</button><button type="button" class="btn small" data-pvreset="' + key + '">↺ Reset</button></div>';
     bar.addEventListener('mousedown', e => { if(e.target.closest('button')) e.preventDefault(); });
     anchor.parentNode.insertBefore(bar, anchor); }
   const n = pvCount(PVE.S[key]), r = bar.querySelector('[data-pvreset]'); r.disabled = !n; r.textContent = n ? '↺ Reset (' + n + ')' : '↺ Reset';
+  bar.querySelector('[data-pv="mv"]').textContent = PVE.move ? '✋ Move: ON' : '✋ Move'; bar.querySelector('[data-pv="mv"]').setAttribute('aria-pressed', String(!!PVE.move));
+  bar.querySelector('[data-pv="snap"]').textContent = PVE.snap === 'lines' ? '📏 Lines' : '📏 Free';
   bar.querySelector('[data-pv="del"]').disabled = !(PVE.sel && PVE.sel.key === key && PVE.sel.id);
 }
 function pvEdit(el, done){ el.contentEditable = 'plaintext-only'; if(el.contentEditable !== 'plaintext-only') el.contentEditable = 'true'; el.classList.add('pv-edit'); el.focus();
-  try{ const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }catch(e){}
+  try{ const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }catch(e){}
   let cancel = false;
   const fin = () => { el.removeEventListener('blur', fin); el.removeEventListener('keydown', kd); el.removeEventListener('paste', ps); el.removeAttribute('contenteditable'); el.classList.remove('pv-edit'); done(cancel ? null : el.textContent.replace(/\s+/g,' ').trim()); };
   const kd = e => { if(e.key === 'Enter'){ e.preventDefault(); el.blur(); } else if(e.key === 'Escape'){ cancel = true; el.blur(); } };
   const ps = e => { e.preventDefault(); document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text').replace(/\s+/g,' ')); };
   el.addEventListener('blur', fin); el.addEventListener('keydown', kd); el.addEventListener('paste', ps); }
 function pvStart(root, key, el){
-  const S = PVE.S[key], p = pvPath(root, el), o = S[p] ? S[p].o : el.textContent, f = S[p] ? S[p].f : 0, before = el.textContent;
+  const S = PVE.S[key], p = pvPath(root, el), cur = S[p] || {}, o = cur.o !== undefined ? cur.o : el.textContent, before = el.textContent;
   PVE.sel = {key:key, p:p}; pvMark(root, key); pvBar(root, key);
-  pvEdit(el, t => { const nt = (t === null || !t) ? before : t; el.textContent = nt;
-    if(nt === o && !f) delete S[p]; else S[p] = {o:o, t:nt, f:f || 0};
-    if(S[p] && (nt !== o)) el.classList.add('pv-ed'); else if(!f) el.classList.remove('pv-ed');
+  pvEdit(el, t => { const nt = (t === null) ? before : t; el.textContent = nt; if(nt === '' && o) toast('Text hidden — ↺ Reset brings it back'); const v = {o:o, t:nt, f:cur.f || 0, b:cur.b || 0, dx:cur.dx || 0, dy:cur.dy || 0};
+    if(nt === o && !v.f && !v.dx && !v.dy){ delete S[p]; el.classList.remove('pv-ed'); } else { S[p] = v; el.classList.add('pv-ed'); }
     pvSave(); pvBar(root, key); }); }
+function pvMoveEl(root, key, el, e){
+  const S = PVE.S[key], p = pvPath(root, el), box = root.firstElementChild, W = box.offsetWidth || 1, br = box.getBoundingClientRect(), sc = (br.width / W) || 1, v0 = S[p] || {o:el.textContent, t:el.textContent, f:0, b:0, dx:0, dy:0};
+  const er = el.getBoundingClientRect(), c0 = (er.left + er.width / 2 - br.left) / sc, lines = PVE.snap === 'lines', sx = e.clientX, sy = e.clientY;
+  let dx = v0.dx || 0, dy = v0.dy || 0, moved = false, axis = ''; e.preventDefault(); PVE.sel = {key:key, p:p}; pvMark(root, key); pvBar(root, key);
+  const mv = ev => { let ax = (ev.clientX - sx) / sc, ay = (ev.clientY - sy) / sc; if(!moved && Math.hypot(ax, ay) < 3) return; moved = true;
+    if(lines){ if(!axis && Math.hypot(ax, ay) > 8) axis = Math.abs(ax) >= Math.abs(ay) ? 'x' : 'y'; if(axis === 'x') ay = 0; else if(axis === 'y') ax = 0; ax = Math.round(ax / 8) * 8; ay = Math.round(ay / 8) * 8;
+      const nc = c0 + ax, near = axis !== 'y' && Math.abs(nc - W / 2) < 8; if(near) ax += W / 2 - nc; pvGuide(box, near); }
+    dx = (v0.dx || 0) + ax / W; dy = (v0.dy || 0) + ay / W; pvPos(el, {dx:dx, dy:dy}, W); };
+  const up = () => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up); pvGuide(box, false);
+    if(!moved) return; v0.dx = +dx.toFixed(4); v0.dy = +dy.toFixed(4); S[p] = v0; el.classList.add('pv-ed'); pvSave(); pvBar(root, key); };
+  document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up); }
 function pvItem(key, id){ return (PVE.S[key]._x || []).find(i => i.id === id); }
 function pvDrag(root, key, e){
   const t = e.target.closest('.pv-it'); if(!t || t.hasAttribute('contenteditable')) return; const it = pvItem(key, t.dataset.id); if(!it) return;
   e.preventDefault(); PVE.sel = {key:key, id:it.id}; pvMark(root, key); pvBar(root, key);
   const box = root.firstElementChild, sx = e.clientX, sy = e.clientY; let moved = false;
+  const x0 = it.x, y0 = it.y, lines = PVE.snap === 'lines'; let axis = '';
   const mv = ev => { if(!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return; moved = true; const r = box.getBoundingClientRect();
-    it.x = Math.max(0, Math.min(100, Math.round((ev.clientX - r.left) / r.width * 1000) / 10)); it.y = Math.max(0, Math.min(100, Math.round((ev.clientY - r.top) / r.height * 1000) / 10)); t.style.left = it.x + '%'; t.style.top = it.y + '%'; };
-  const up = () => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up);
+    let px = (ev.clientX - r.left) / r.width * 100, py = (ev.clientY - r.top) / r.height * 100, near = false;
+    if(lines){ const ax = ev.clientX - sx, ay = ev.clientY - sy; if(!axis && Math.hypot(ax, ay) > 8) axis = Math.abs(ax) >= Math.abs(ay) ? 'x' : 'y'; if(axis === 'x') py = y0; else if(axis === 'y') px = x0; px = Math.round(px / 2) * 2; py = Math.round(py / 2) * 2; if(axis !== 'y' && Math.abs(px - 50) < 2){ px = 50; near = true; } }
+    pvGuide(box, near); it.x = Math.max(0, Math.min(100, Math.round(px * 10) / 10)); it.y = Math.max(0, Math.min(100, Math.round(py * 10) / 10)); t.style.left = it.x + '%'; t.style.top = it.y + '%'; };
+  const up = () => { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up); pvGuide(box, false);
     if(moved){ pvSave(); return; }
     if(it.k === 't') pvEdit(t, txt => { if(txt === null) { t.textContent = it.txt; return; } if(!txt){ PVE.S[key]._x = PVE.S[key]._x.filter(i => i !== it); PVE.sel = null; pvSave(); PV_RR[key](); return; } it.txt = txt; t.textContent = txt; pvSave(); }); };
   document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up); }
 function pvAfter(id, key){
   const root = $(id); if(!root) return; pvApply(root, PVE.S[key], true);
   if(!root._pv){ root._pv = 1; root.classList.add('pv-on');
-    root.addEventListener('pointerdown', e => { if(e.target.closest('.pv-it')) pvDrag(root, key, e); });
-    root.addEventListener('click', e => { if(e.target.closest('[contenteditable],.pv-it')) return;
+    root.addEventListener('pointerdown', e => { if(e.target.closest('.pv-it')) return pvDrag(root, key, e); if(!PVE.move) return; const h = document.elementsFromPoint(e.clientX, e.clientY).find(x => x !== root && root.contains(x) && pvOK(x)); if(h) pvMoveEl(root, key, h, e); });
+    root.addEventListener('click', e => { if(PVE.move || e.target.closest('[contenteditable],.pv-it')) return;
       const hit = document.elementsFromPoint(e.clientX, e.clientY).find(x => x !== root && root.contains(x) && pvOK(x));
       if(!hit){ PVE.sel = null; pvMark(root, key); pvBar(root, key); if(!PVE.hint){ PVE.hint = 1; toast('Tap directly on a line of text to edit it'); } return; }
       pvStart(root, key, hit); }); }
+  root.classList.toggle('pv-move', !!PVE.move); if(key === 'cert') ctFitMid(root.querySelector('.ct'));
   pvMark(root, key); pvBar(root, key);
 }
 function pvLogo(key, file){
@@ -4766,17 +4790,21 @@ document.addEventListener('click', e => { const r = e.target.closest('[data-pvre
   const key = (r || b).closest('[data-pvbar]').dataset.pvbar, S = PVE.S[key], root = $(PV_ROOT[key]); if(!root) return;
   if(r){ PVE.S[key] = {}; if(PVE.sel && PVE.sel.key === key) PVE.sel = null; pvSave(); PV_RR[key](); toast('Edits reset ↺'); return; }
   const act = b.dataset.pv;
+  if(act === 'snap'){ PVE.snap = PVE.snap === 'lines' ? 'free' : 'lines'; lsSet('lp.pve.snap', PVE.snap); Object.keys(PV_ROOT).forEach(k => { const r2 = $(PV_ROOT[k]); if(r2) pvBar(r2, k); }); toast(PVE.snap === 'lines' ? 'Lines: straight moves, snaps to a grid and the center line' : 'Free: move anywhere'); return; }
+  if(act === 'selall' || act === 'clear'){ const ed = root.querySelector('[contenteditable]'); if(!ed){ toast('Tap a text to edit first'); return; } ed.focus(); if(act === 'selall'){ const r = document.createRange(); r.selectNodeContents(ed); const sl = getSelection(); sl.removeAllRanges(); sl.addRange(r); } else { ed.textContent = ''; ed.focus(); } return; }
+  if(act === 'mv'){ PVE.move = !PVE.move; Object.keys(PV_ROOT).forEach(k => { const r2 = $(PV_ROOT[k]); if(r2){ r2.classList.toggle('pv-move', !!PVE.move); pvBar(r2, k); } }); toast(PVE.move ? 'Move ON — drag any text or item, tap ✋ again to edit text' : 'Move off — tap text to edit'); return; }
   if(act === 'addt'){ S._x = S._x || []; const it = {id:'t' + Date.now().toString(36), k:'t', x:50, y:50, fs:4, txt:'Your text', c:''}; S._x.push(it); PVE.sel = {key:key, id:it.id}; pvSave(); PV_RR[key](); toast('Tap the new text to edit it, drag to move'); return; }
   const s = PVE.sel; if(!s || s.key !== key){ toast('Tap a text or an added item first'); return; }
   if(act === 'del'){ if(s.id){ S._x = (S._x || []).filter(i => i.id !== s.id); PVE.sel = null; pvSave(); PV_RR[key](); } return; }
   const m = act === 'lg' ? 1.12 : 1 / 1.12;
   if(s.id){ const it = pvItem(key, s.id); if(!it) return; if(it.k === 'i') it.w = Math.max(4, Math.min(90, +(it.w * m).toFixed(1))); else it.fs = Math.max(1.2, Math.min(16, +(it.fs * m).toFixed(2))); }
-  else { const el = pvAt(root, s.p); if(!el) return; const v = S[s.p] || {o:el.textContent, t:el.textContent, f:0}; v.f = Math.max(.4, Math.min(3, +((v.f || 1) * m).toFixed(2))); if(Math.abs(v.f - 1) < .03) v.f = 0; if(v.t === v.o && !v.f) delete S[s.p]; else S[s.p] = v; el.style.zoom = v.f || ''; }
+  else { const el = pvAt(root, s.p); if(!el) return; const v = S[s.p] || {o:el.textContent, t:el.textContent, f:0, b:0, dx:0, dy:0}; if(!v.b){ el.style.removeProperty('font-size'); v.b = parseFloat(getComputedStyle(el).fontSize) || 16; }
+    v.f = Math.max(.4, Math.min(3, +((v.f || 1) * m).toFixed(2))); if(Math.abs(v.f - 1) < .03) v.f = 0; if(v.t === v.o && !v.f && !v.dx && !v.dy) delete S[s.p]; else S[s.p] = v; if(v.f) el.style.setProperty('font-size', (v.b * v.f) + 'px', 'important'); else el.style.removeProperty('font-size'); }
   pvSave(); if(s.id) PV_RR[key](); else pvBar(root, key); });
 (function(){ const f = rpPreview; rpPreview = function(){ const r = f.apply(this, arguments); pvAfter('rpPreview','report'); return r; }; })();
 (function(){ const f = rpDesignPv; rpDesignPv = function(){ const r = f.apply(this, arguments); pvAfter('rpDesignPv','design'); return r; }; })();
 (function(){ const f = ctRender; ctRender = function(){ const r = f.apply(this, arguments); pvAfter('ctPv','cert'); return r; }; })();
-(function(){ const f = rpToPng; rpToPng = function(html, w, name){ return f.call(this, pvExport(html), w, name); }; })();
+(function(){ const f = rpToPng; rpToPng = function(html, w, name){ return f.call(this, pvExport(html, w), w, name); }; })();
 (function(){ const f = rpPrintDoc; rpPrintDoc = function(t, html, css){ return f.call(this, t, pvExport(html), css); }; })();
 pvAfter('rpPreview','report'); pvAfter('rpDesignPv','design'); pvAfter('ctPv','cert');
 
