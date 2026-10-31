@@ -520,6 +520,21 @@ body.presenter #pip{border-color:var(--good)}
 .rp-dur{flex-wrap:nowrap}.rp-dur .field{width:4.4rem!important;flex:none;text-align:center;font-size:1.15rem;font-weight:700;direction:ltr}.rp-dur span{white-space:nowrap;font-size:.9rem}
 .rp-dw{display:none;gap:6px;direction:rtl}.rp-dw .field{flex:1;min-width:0;margin:0!important;padding-inline:6px}
 #view-reports input[type=color].field{padding:3px;height:44px}
+#view-reports .rp-card{border-radius:18px;padding:16px;margin-top:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+#view-reports .rp-lbl{text-transform:none;letter-spacing:0;font-size:.8rem;font-weight:700;margin:10px 0 5px}
+#view-reports .rp-grid{gap:12px}
+.rp-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;margin:0 0 4px;overflow-x:auto}
+.rp-tabs button{flex:1;border:0;background:none;padding:10px 12px;border-radius:999px;font-weight:700;font-size:.88rem;white-space:nowrap;color:var(--muted);cursor:pointer}
+.rp-tabs button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.rp-pvh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.rp-pvh h3{margin:0}.rp-pvh .field{width:auto;max-width:55%;margin:0!important;min-height:38px;font-size:.85rem}
+.rp-bar{margin-top:14px;display:grid;gap:10px}.rp-save{width:100%;padding:14px;font-size:1rem}
+.rp-act{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.rp-act .btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;font-size:.78rem;text-align:center}.rp-act .btn span{font-size:1.2rem}
+.rp-act2{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.tp-grid{display:grid;grid-template-columns:repeat(auto-fill,168px);gap:12px;justify-content:center;margin-top:12px}
+.tp{text-align:start;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:3px;color:var(--fg);font:inherit}
+.tp[aria-pressed="true"]{border-color:var(--accent)}.tp b{font-size:.86rem}.tp small{color:var(--muted);min-height:1em}
+.tp-sc{height:236px;overflow:hidden;border-radius:10px;background:#fff;position:relative;pointer-events:none}
+.tp-sc .rc{width:390px;max-width:none;margin:0;transform:scale(.39);transform-origin:top left}
 @media(max-width:560px){.rp-q{grid-template-columns:1fr 1fr 40px}.rp-q select{grid-column:1/-1}}
 .rp-opt{display:flex; gap:8px; align-items:center; margin-top:10px; font-size:.85rem}
 .rp-hint{font-size:.78rem; color:var(--muted); margin:-2px 0 8px; padding:6px 10px; border-left:3px solid var(--accent); background:var(--surface-2); border-radius:0 8px 8px 0}
@@ -635,9 +650,14 @@ body.presenter #pip{border-color:var(--good)}
 
     <section class="view panel" id="view-reports" hidden>
       <div class="rp-chips" id="rpLangBar" dir="ltr" style="margin-bottom:12px"><button type="button" class="rp-chip" data-lang="en" aria-pressed="true">English</button><button type="button" class="rp-chip" data-lang="ar" aria-pressed="false">العربية</button></div>
-      <h2>Lesson report</h2>
-      <p class="help">Fill the form, copy the report, and send it to the parent. Every report is saved on this device.</p>
+      <nav class="rp-tabs" id="rpTabs" aria-label="Reports sections">
+        <button type="button" data-tab="write" aria-pressed="true">✍️ Report</button>
+        <button type="button" data-tab="design" aria-pressed="false">🎨 Design</button>
+        <button type="button" data-tab="month" aria-pressed="false">📅 Monthly</button>
+        <button type="button" data-tab="saved" aria-pressed="false">🗂️ Saved</button>
+      </nav>
 
+      <div class="rp-pane" data-pane="write">
       <div class="rp-card">
         <h3><i>👤</i> Student & lesson</h3>
         <div class="rp-grid">
@@ -654,28 +674,55 @@ body.presenter #pip{border-color:var(--good)}
         <div class="rp-grid" style="margin-top:8px"><input class="field" id="rpNewSub" dir="auto" maxlength="40" placeholder="Add your own subject (e.g. Fiqh, Hadith, سيرة)" style="margin:0"><button class="btn small" id="rpAddSub" type="button">＋ Add subject</button></div>
         <label class="rp-opt"><input type="checkbox" id="rpBis" checked> Show Bismillah at the top of the report</label>
       </div>
-
       <div id="rpSections"></div>
-
       <div class="rp-card">
         <h3><i>⭐</i> Grade</h3>
         <div class="rp-chips" id="rpGrades"></div>
         <div class="rp-grid" style="margin-top:8px"><input class="field" id="rpNewGrade" dir="auto" maxlength="40" placeholder="Add your own grade (e.g. Mumtaz, A+, ممتاز)" style="margin:0"><button class="btn small" id="rpAddGrade" type="button">＋ Add grade</button></div>
       </div>
-
-      <div class="rp-card" id="rpDesign">
-        <h3><i>🎨</i> Templates, fonts &amp; picture quality</h3>
-        <div class="rp-grid">
-          <div><label class="rp-lbl" for="rpThS">Student report template</label><select class="field" id="rpThS"></select></div>
-          <div><label class="rp-lbl" for="rpThM">Monthly record template</label><select class="field" id="rpThM"></select></div>
-          <div><label class="rp-lbl" for="rpFont">Font (any language)</label><select class="field" id="rpFont"></select></div>
-          <div><label class="rp-lbl" for="rpAFont">Arabic / Urdu font</label><select class="field" id="rpAFont"></select></div>
-          <div><label class="rp-lbl" for="rpQual">Picture quality</label><select class="field" id="rpQual"><option value="1">Standard (1×)</option><option value="2">High (2×)</option><option value="3">Very high (3×)</option><option value="4">Ultra (4×)</option></select></div>
-          <div><label class="rp-lbl" for="rpFmt">Picture format</label><select class="field" id="rpFmt"><option value="png">PNG (sharp, large)</option><option value="jpg">JPG (small file)</option><option value="webp">WebP (sharp, small)</option></select></div>
+      <div class="rp-card">
+        <div class="rp-pvh"><h3><i>👁️</i> Preview</h3><select class="field" id="rpThQ" aria-label="Template"></select></div>
+        <div id="rpPreview"></div>
+      </div>
+      <div class="rp-bar">
+        <button class="btn primary rp-save" id="rpSave" type="button">💾 Save report</button>
+        <div class="rp-act">
+          <button class="btn" id="rpCopy" type="button"><span>📋</span>Copy</button>
+          <button class="btn" id="rpWa" type="button"><span>📲</span>WhatsApp</button>
+          <button class="btn" id="rpPrint" type="button"><span>🖨️</span>Print</button>
+          <button class="btn" id="rpImg" type="button"><span>🖼️</span>Picture</button>
         </div>
-        <details style="margin-top:10px"><summary style="font-weight:800; cursor:pointer">Make my own template</summary>
-          <div class="rp-grid" style="margin-top:8px">
+        <div class="rp-act2"><button class="btn small" id="rpNew" type="button">➕ New report</button><button class="btn small" id="rpLast" type="button">♻️ Start from last report</button></div>
+      </div>
+      </div>
+
+      <div class="rp-pane" data-pane="design" hidden>
+        <div class="rp-card">
+          <h3><i>🎨</i> Templates</h3>
+          <p class="help">Pick a look. It is used for your lesson reports and the monthly record.</p>
+          <div class="rp-chips" id="rpApply"><button type="button" data-ap="both" aria-pressed="true">Both reports</button><button type="button" data-ap="s" aria-pressed="false">Student report</button><button type="button" data-ap="m" aria-pressed="false">Monthly record</button></div>
+          <div class="tp-grid" id="rpGallery"></div>
+        </div>
+        <div class="rp-card">
+          <h3><i>🔤</i> Fonts</h3>
+          <div class="rp-grid">
+            <div><label class="rp-lbl" for="rpFont">Font (any language)</label><select class="field" id="rpFont"></select></div>
+            <div><label class="rp-lbl" for="rpAFont">Arabic / Urdu font</label><select class="field" id="rpAFont"></select></div>
+          </div>
+        </div>
+        <div class="rp-card">
+          <h3><i>🖼️</i> Picture</h3>
+          <div class="rp-grid">
+            <div><label class="rp-lbl" for="rpQual">Picture quality</label><select class="field" id="rpQual"><option value="1">Standard (1×)</option><option value="2">High (2×)</option><option value="3">Very high (3×)</option><option value="4">Ultra (4×)</option></select></div>
+            <div><label class="rp-lbl" for="rpFmt">Picture format</label><select class="field" id="rpFmt"><option value="png">PNG (sharp, large)</option><option value="jpg">JPG (small file)</option><option value="webp">WebP (sharp, small)</option></select></div>
+          </div>
+        </div>
+        <details class="rp-card">
+          <summary style="font-weight:800; cursor:pointer">Create my own template</summary>
+          <p class="help">Choose a layout, colors and the fonts above, then save it to the gallery.</p>
+          <div class="rp-grid">
             <div><label class="rp-lbl" for="rpTName">Template name</label><input class="field" id="rpTName" dir="auto" maxlength="30"></div>
+            <div><label class="rp-lbl" for="rpTLay">Layout</label><select class="field" id="rpTLay"></select></div>
             <div><label class="rp-lbl" for="rpCg">Main color</label><input class="field" id="rpCg" type="color" value="#1F4D43"></div>
             <div><label class="rp-lbl" for="rpCg2">Second color</label><input class="field" id="rpCg2" type="color" value="#2F6B5C"></div>
             <div><label class="rp-lbl" for="rpCgold">Accent color</label><input class="field" id="rpCgold" type="color" value="#B8923A"></div>
@@ -685,19 +732,37 @@ body.presenter #pip{border-color:var(--good)}
         </details>
       </div>
 
-      <h2 style="margin-top:18px">Report preview</h2>
-      <div id="rpPreview"></div>
-      <div class="row-actions">
-        <button class="btn primary" id="rpSave" type="button">💾 Save report</button>
-        <button class="btn" id="rpCopy" type="button">📋 Copy text</button>
-        <button class="btn" id="rpWa" type="button">📲 WhatsApp</button>
-        <button class="btn" id="rpPrint" type="button">🖨️ Print / PDF</button>
-        <button class="btn" id="rpImg" type="button">🖼️ Save as picture</button>
-        <button class="btn" id="rpNew" type="button">➕ New report</button>
-        <button class="btn" id="rpLast" type="button">♻️ Start from last report</button>
+      <div class="rp-pane" data-pane="month" hidden>
+        <div class="rp-card">
+          <h3><i>📅</i> Monthly record</h3>
+          <p class="help">A month-end lesson record built from your saved reports.</p>
+          <div class="rp-grid">
+            <div><label class="rp-lbl" for="rpMonth">Month</label><input class="field" id="rpMonth" type="month" style="margin:0"></div>
+            <div><label class="rp-lbl" for="rpAcademy">Academy name</label><input class="field" id="rpAcademy" dir="auto" style="margin:0" placeholder="Taybah Academy"></div>
+            <div><label class="rp-lbl" for="rpAcSub">Academy tagline</label><input class="field" id="rpAcSub" dir="auto" style="margin:0" placeholder="Online Qur’an &amp; Islamic Education"></div>
+          </div>
+          <div class="rp-act" style="margin-top:12px">
+            <button class="btn primary" id="rpMPrint" type="button"><span>🖨️</span>Print / PDF</button>
+            <button class="btn" id="rpMImg" type="button"><span>🖼️</span>Picture</button>
+            <button class="btn" id="rpMDoc" type="button"><span>📄</span>Word</button>
+            <button class="btn" id="rpMCopy" type="button"><span>📋</span>Copy table</button>
+          </div>
+          <div class="rp-act2"><button class="btn small" id="rpMTpl" type="button">📎 Upload my Word form</button><button class="btn small" id="rpMTplReset" type="button">↩︎ Built-in form</button><input type="file" id="rpMTplIn" accept=".docx" class="sr"></div>
+          <p class="help" id="rpMTplName" style="margin:8px 0 0"></p>
+        </div>
+        <div id="rpMonthView" style="margin-top:12px"></div>
       </div>
 
-      <details class="rp-card" id="rpCloud">
+      <div class="rp-pane" data-pane="saved" hidden>
+        <div class="rp-card">
+          <h3><i>🗂️</i> Saved reports</h3>
+          <div class="rp-grid" style="margin-bottom:8px">
+            <select class="field" id="rpFilter" style="margin:0" aria-label="Filter by student"></select>
+            <input class="field" id="rpSearch" type="search" placeholder="Search reports…" style="margin:0">
+          </div>
+          <div id="rpList"></div>
+        </div>
+        <details class="rp-card" id="rpCloud">
         <summary style="font-weight:800; cursor:pointer">☁️ Cloud sync (optional)</summary>
         <p class="help">Sync reports across your devices with a free Supabase project. Setup steps are in <code>SUPABASE-SETUP.md</code>.</p>
         <div class="rp-grid">
@@ -713,32 +778,7 @@ body.presenter #pip{border-color:var(--good)}
         </div>
         <p class="help" id="clMsg" role="status"></p>
       </details>
-
-      <h2 style="margin-top:22px">📅 Monthly record</h2>
-      <p class="help">A month-end lesson record built from your saved reports. Pick the month, then print / save as PDF or download as a Word file.</p>
-      <div class="rp-grid">
-        <div><label class="rp-lbl" for="rpMonth">Month</label><input class="field" id="rpMonth" type="month" style="margin:0"></div>
-        <div><label class="rp-lbl" for="rpAcademy">Academy name</label><input class="field" id="rpAcademy" dir="auto" style="margin:0" placeholder="Taybah Academy"></div>
-        <div><label class="rp-lbl" for="rpAcSub">Academy tagline</label><input class="field" id="rpAcSub" dir="auto" style="margin:0" placeholder="Online Qur’an &amp; Islamic Education"></div>
       </div>
-      <div class="row-actions" style="margin-top:10px">
-        <button class="btn primary" id="rpMPrint" type="button">🖨️ Print / PDF</button>
-        <button class="btn" id="rpMImg" type="button">🖼️ Picture</button>
-        <button class="btn" id="rpMDoc" type="button">📄 Word (.docx)</button>
-        <button class="btn" id="rpMTpl" type="button">📎 Upload my form</button>
-        <button class="btn" id="rpMTplReset" type="button">↩︎ Built-in form</button>
-        <input type="file" id="rpMTplIn" accept=".docx" class="sr">
-        <button class="btn" id="rpMCopy" type="button">📋 Copy table</button>
-      </div>
-      <p class="help" id="rpMTplName" style="margin:8px 0 0"></p>
-      <div id="rpMonthView" style="margin-top:12px"></div>
-
-      <h2 style="margin-top:22px">Saved reports</h2>
-      <div class="rp-grid" style="margin-bottom:4px">
-        <select class="field" id="rpFilter" style="margin:0" aria-label="Filter by student"></select>
-        <input class="field" id="rpSearch" type="search" placeholder="Search reports…" style="margin:0">
-      </div>
-      <div id="rpList"></div>
     </section>
 
     <section class="view panel" id="view-history" hidden>
@@ -1671,7 +1711,7 @@ function showVoiceFeedback(text){
 }
 
 /* ---------- Voice follow: word-by-word tracking (highlights where you stopped) ---------- */
-const VT = { words:[], lastNS:-1, idx:0, disp:0, off:0, hp:0, all:0, pos:-1, lastSpeech:0, done:false, lead:0, rate:2.6, leadT:0, advT:0 };
+const VT = { lastMatch:0, words:[], lastNS:-1, idx:0, disp:0, off:0, hp:0, all:0, pos:-1, lastSpeech:0, done:false, lead:0, rate:2.6, leadT:0, advT:0 };
 const STOPW = new Set(['the','a','an','and','of','to','in','on','is','it','he','she','they','we','you','i','was','are','that','this','for','with','as','at','by','be','or','so','his','her','their','but','not','do','did','had','has','have','will','what','who','why','how','if','then']);
 const NUMW = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
 const norm = w => { const n = String(w||'').toLowerCase().replace(/[^\p{L}\p{N}]/gu, ''); return /^\d+$/.test(n) && NUMW[+n] ? NUMW[+n] : n; };
@@ -1685,24 +1725,26 @@ function lev(a,b){
 function similar(t,h){
   if(t===h) return true;
   if(t.length<3||h.length<3) return false;
-  if((t.startsWith(h)&&h.length>=3)||(h.startsWith(t)&&t.length>=3)) return true;
-  if(t.length>=4 && h.length>=4 && skel(t).length>=2 && skel(t)===skel(h)) return true;
+  const mn=Math.min(t.length,h.length);
+  if(mn>=4 && (t.startsWith(h)||h.startsWith(t)) && mn/Math.max(t.length,h.length)>=0.6) return true;
+  if(t.length>=5 && h.length>=5 && t[0]===h[0] && skel(t).length>=3 && skel(t)===skel(h)) return true;
   const L=Math.max(t.length,h.length);
   return lev(t,h) <= (L>=9?2:L>=5?1:0);
 }
+/* Strict follow: a heard word only moves the cursor if it is the next script word, or within 2 content words ahead.
+   Words that are not in the script are ignored (cursor stays put) until you say words from the current section again. */
 function matchFrom(start, hw){
   const h = norm(hw); if(!h) return -1;
-  const win = STOPW.has(h) ? 3 : 9;
-  let seen = 0;
-  for(let j=start; j<VT.words.length && seen<win; j++){
+  const maxSkip = STOPW.has(h) ? 0 : 2; let skipped=0, scanned=0;
+  for(let j=start; j<VT.words.length && scanned<7; j++){
     const t = VT.words[j]; if(t.skip) continue;
-    seen++;
-    if(seen>3 && h.length<4) break;
+    scanned++;
     if(similar(t.n, h)) return j+1;
+    if(!STOPW.has(t.n) && ++skipped>maxSkip) break;
   }
   return -1;
 }
-function voiceReset(){ VT.lead=0; VT.idx=0; VT.disp=0; VT.hp=0; VT.off=VT.all; VT.done=false; VT.lastSpeech=Date.now(); }
+function voiceReset(){ VT.lastMatch=0; VT.lead=0; VT.idx=0; VT.disp=0; VT.hp=0; VT.off=VT.all; VT.done=false; VT.lastSpeech=Date.now(); }
 
 function buildTrack(){
   VT.words=[]; VT.lastNS=-1; VT.lead=0;
@@ -1757,9 +1799,9 @@ function showVoiceFeedback(t){ setVoiceBadge(t); setTimeout(()=>{ if(S.voice) se
    (max 2 words) so it matches your voice; real recognised words correct it instantly. */
 function predTick(){
   if(!S.voice || RD.on || !VT.words.length || S.view!=='follow') return;
-  const now=Date.now(), speaking=now-VT.lastSpeech<800;
-  if(speaking && VT.disp+VT.lead<=VT.lastNS && VT.lead<2 && now-VT.leadT>=1000/VT.rate){ VT.lead++; VT.leadT=now; renderTrack(true); }
-  else if(!speaking && VT.lead>0 && now-VT.lastSpeech>900){ VT.lead=0; renderTrack(false); }
+  const now=Date.now(), live=now-VT.lastMatch<650;   // only run ahead while your words are really matching the script
+  if(live && VT.disp+VT.lead<=VT.lastNS && VT.lead<1 && now-VT.leadT>=1000/VT.rate){ VT.lead++; VT.leadT=now; renderTrack(true); }
+  else if(!live && VT.lead>0){ VT.lead=0; renderTrack(false); }
 }
 function voiceTick(){
   if(!S.voice || RD.on || !S.model || VT.lastNS<0 || S.view!=='follow') return;
@@ -1813,7 +1855,7 @@ function onVoiceResult(e){
   let nd = Math.max(VT.disp, VT.idx, t);
   if(nd===VT.disp && H.length>=2){            // lost the thread? re-find it from the last two heard words
     const a=norm(H[H.length-2]), b=norm(H[H.length-1]);
-    if(a.length>=3 && b.length>=3){
+    if(a.length>=3 && b.length>=3 && !(STOPW.has(a)&&STOPW.has(b))){
       let seen=0;
       for(let j=VT.disp; j<VT.words.length && seen<40; j++){
         if(VT.words[j].skip) continue; seen++;
@@ -1825,7 +1867,7 @@ function onVoiceResult(e){
   if(nd!==VT.disp){
     const now=Date.now(), d=nd-VT.disp, dt=(now-VT.advT)/1000;
     if(VT.advT && dt>0.05 && dt<2.5 && d<=6) VT.rate=Math.min(4.8,Math.max(1.6,VT.rate*0.6+(d/dt)*0.4));
-    VT.advT=now; VT.lead=Math.max(0,VT.lead-d); VT.disp=nd; renderTrack(true);
+    VT.advT=now; VT.lastMatch=now; VT.lead=Math.max(0,VT.lead-d); VT.disp=nd; renderTrack(true);
   }
 }
 
@@ -2492,9 +2534,9 @@ const rpOrig=new WeakMap();
 function rpUI(){
   const v=$('view-reports'); if(!v) return; const ar=RPL==='ar';
   const tr=s=>{ const m=/^([^A-Za-z؀-ۿ]*)([\s\S]*?)(\s*)$/.exec(s), k=m[2], all=/^All students \((\d+)\)$/.exec(k); if(all) return m[1]+'كل الطلاب ('+all[1]+')'+m[3]; const a=RP_AR[k]||RP_AR[s.trim()]; return a?(RP_AR[s.trim()]?'':m[1])+a+m[3]:s; };
-  const w=document.createTreeWalker(v,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentNode.closest('#rpMonthView,#rpPreview,#rpLangBar,script,style,textarea')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}), ns=[]; while(w.nextNode()) ns.push(w.currentNode);
+  const w=document.createTreeWalker(v,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentNode.closest('#rpMonthView,#rpPreview,#rpGallery,#rpLangBar,script,style,textarea')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}), ns=[]; while(w.nextNode()) ns.push(w.currentNode);
   ns.forEach(n=>{ let o=rpOrig.get(n); if(o===undefined){ o=n.textContent; rpOrig.set(n,o); } n.textContent=ar?tr(o):o; });
-  v.querySelectorAll('[dir="auto"],[data-da]').forEach(el=>{ if(el.closest('#rpPreview,#rpMonthView')) return; if(ar){ el.dataset.da='1'; el.dir='rtl'; } else if(el.dataset.da){ el.dir='auto'; delete el.dataset.da; } });
+  v.querySelectorAll('[dir="auto"],[data-da]').forEach(el=>{ if(el.closest('#rpPreview,#rpMonthView,#rpGallery')) return; if(ar){ el.dataset.da='1'; el.dir='rtl'; } else if(el.dataset.da){ el.dir='auto'; delete el.dataset.da; } });
   ['placeholder','aria-label','title'].forEach(a=>v.querySelectorAll('['+a+']').forEach(el=>{ const k='o'+a.replace('-',''); if(el.dataset[k]===undefined) el.dataset[k]=el.getAttribute(a); el.setAttribute(a,ar?tr(el.dataset[k]):el.dataset[k]); }));
 }
 function rpSetLang(l){ RPL=l==='ar'?'ar':'en'; lsSet('lp.rep.lang',RPL); const v=$('view-reports'); v.dir=RPL==='ar'?'rtl':'ltr'; v.lang=RPL; document.querySelectorAll('#rpLangBar [data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===RPL))); rpChips(); rpBuildSections(); rpPreview(); rpList(); }
@@ -2549,6 +2591,65 @@ const RP_CSS=`.rc{--g:#1F4D43;--g2:#2F6B5C;--gold:#B8923A;--mut:#6B756F;max-widt
 .mr th{background:#F3ECD6;color:#1F4D43;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase}
 .mr td.k{background:#FBF7EE;font-weight:700;color:#1F4D43;width:22%}
 .mr tbody tr:nth-child(even) td{background:#FCFAF3}`;
+const RP_PAT='radial-gradient(circle at 50% 50%,transparent 0 7px,rgba(255,255,255,.14) 7px 8px,transparent 8px),conic-gradient(from 45deg at 50% 50%,rgba(255,255,255,.08) 0 25%,transparent 0 50%,rgba(255,255,255,.08) 0 75%,transparent 0)';
+const RP_LAY=`.rc{background:var(--bg);border-color:var(--ln)}.rc-info{background:var(--ln);border-bottom-color:var(--ln)}.rc-h:after{background:var(--ln)}.rc-sub{border-block-color:var(--ln);border-inline-end-color:var(--ln)}.rc-grade{background:var(--tg);border-color:var(--gold);color:var(--g)}
+.rc.lay-elegant{border:4px double var(--gold);border-radius:6px;box-shadow:none;padding:8px 6px}
+.rc.lay-elegant .rc-head{background:none;color:var(--g);border:0;padding:20px 12px 8px}
+.rc.lay-elegant .rc-bis{color:var(--gold);font-size:1.3rem}
+.rc.lay-elegant .rc-title{font-size:1.9rem;font-weight:600;letter-spacing:.08em}
+.rc.lay-elegant .rc-title:after{content:"✦  ✦  ✦";display:block;font-size:.55rem;color:var(--gold);letter-spacing:.5em;margin-top:8px}
+.rc.lay-elegant .rc-teacher{color:var(--g2)}
+.rc.lay-elegant .rc-info{display:flex;flex-wrap:wrap;gap:0;background:none;border:0;border-block:1px solid var(--gold);margin:6px 16px}
+.rc.lay-elegant .rc-info div{background:none;flex:1 1 45%;text-align:center;padding:8px 6px}
+.rc.lay-elegant .rc-info small{color:var(--gold)}.rc.lay-elegant .rc-info b{color:var(--g)}
+.rc.lay-elegant .rc-h{justify-content:center;color:var(--g)}.rc.lay-elegant .rc-h:before{content:"";flex:1;height:1px;background:var(--gold)}.rc.lay-elegant .rc-h:after{background:var(--gold)}
+.rc.lay-elegant .rc-sub{background:none;border:0;border-bottom:1px dashed var(--gold);border-radius:0;padding:6px 4px}
+.rc.lay-elegant .rc-k{background:none;color:var(--gold);border:1px solid var(--gold)}
+.rc.lay-elegant .rc-grade{background:none;border:3px double var(--gold);border-radius:50px;width:72%;margin:14px auto 18px;color:var(--g)}
+.rc.lay-modern{border:0;border-radius:24px;background:#fff;box-shadow:0 10px 40px rgba(0,0,0,.12)}
+.rc.lay-modern .rc-head{background:none;color:var(--g);text-align:start;padding:24px 22px 8px;border:0}
+.rc.lay-modern .rc-head:before{content:"";display:block;width:46px;height:6px;border-radius:6px;background:var(--gold);margin-bottom:12px}
+.rc.lay-modern .rc-title{font-size:1.7rem;font-weight:800;letter-spacing:0}.rc.lay-modern .rc-bis{font-size:1rem;opacity:.7}
+.rc.lay-modern .rc-info{display:flex;flex-wrap:wrap;gap:8px;background:none;border:0;padding:8px 22px 4px}
+.rc.lay-modern .rc-info div{flex:1 1 120px;background:var(--bg);border-radius:12px;padding:8px 12px}
+.rc.lay-modern .rc-h{color:var(--g);letter-spacing:.04em;text-transform:none;font-size:.9rem}.rc.lay-modern .rc-h:after{display:none}
+.rc.lay-modern .rc-h:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.rc.lay-modern .rc-sec{padding:12px 22px 2px}
+.rc.lay-modern .rc-sub{background:var(--bg);border:0;border-radius:14px;padding:12px 14px}
+.rc.lay-modern .rc-k{background:var(--g)}
+.rc.lay-modern .rc-grade{margin:8px 22px 22px;background:linear-gradient(120deg,var(--g),var(--g2));color:#fff;border:0;border-radius:16px;padding:14px 18px}
+.rc.lay-geo{border:2px solid var(--g);border-radius:0 0 22px 22px}
+.rc.lay-geo .rc-head{background-color:var(--g);background-image:${RP_PAT};background-size:28px 28px;border-bottom:5px double var(--gold);border-radius:0 0 50% 50%/0 0 22px 22px;padding:26px 18px 32px}
+.rc.lay-geo .rc-bis{color:var(--gold)}
+.rc.lay-geo .rc-title:before,.rc.lay-geo .rc-title:after{content:"❖";color:var(--gold);margin:0 .5em;font-size:.7em}
+.rc.lay-geo .rc-info{gap:8px;padding:14px 12px 4px;background:none;border:0}
+.rc.lay-geo .rc-info div{background:#fff;border:1px solid var(--ln);border-radius:4px 14px 4px 14px}
+.rc.lay-geo .rc-h{color:var(--g)}.rc.lay-geo .rc-h:before{content:"◆";color:var(--gold)}
+.rc.lay-geo .rc-sub{background:#fff;border-radius:4px 14px 4px 14px;border-inline-start-color:var(--gold)}
+.rc.lay-geo .rc-grade{border-radius:4px 14px 4px 14px;background:var(--g);color:var(--gold);border:2px solid var(--gold)}
+.rc.lay-minimal{border:0;border-radius:0;box-shadow:none;background:#fff;color:#222}
+.rc.lay-minimal .rc-head{background:none;color:#111;text-align:start;padding:26px 22px 10px;border:0}
+.rc.lay-minimal .rc-title{font-size:2rem;font-weight:300;letter-spacing:-.01em}.rc.lay-minimal .rc-bis,.rc.lay-minimal .rc-teacher{color:#777}
+.rc.lay-minimal .rc-info{display:flex;flex-wrap:wrap;gap:0 26px;background:none;border:0;border-block:1px solid #ddd;margin:6px 22px;padding:10px 0}
+.rc.lay-minimal .rc-info div{background:none;padding:4px 0}.rc.lay-minimal .rc-info small{color:var(--gold)}
+.rc.lay-minimal .rc-h{color:var(--g);letter-spacing:.2em;font-size:.68rem}.rc.lay-minimal .rc-h:after{background:#ddd}
+.rc.lay-minimal .rc-sub{background:none;border:0;border-bottom:1px solid #eee;border-radius:0;padding:8px 0}
+.rc.lay-minimal .rc-k{background:none;color:var(--g);padding:0;border-bottom:2px solid var(--gold);border-radius:0}
+.rc.lay-minimal .rc-grade{background:none;border:0;border-top:2px solid var(--g);border-radius:0;text-align:start;color:var(--g);margin:10px 22px 22px;padding:12px 0 0}
+.rc.lay-kids{border:4px solid var(--g);border-radius:30px}
+.rc.lay-kids .rc-head{background:linear-gradient(135deg,var(--g),var(--g2));border:0;border-radius:0 0 40px 40px;padding:22px 16px 28px}
+.rc.lay-kids .rc-title{font-size:1.7rem;font-weight:800}.rc.lay-kids .rc-title:before{content:"🌟 "}.rc.lay-kids .rc-title:after{content:" 🌟"}
+.rc.lay-kids .rc-info{display:flex;flex-wrap:wrap;gap:8px;background:none;border:0;padding:14px 12px 4px}
+.rc.lay-kids .rc-info div{flex:1 1 40%;background:#fff;border:2px dashed var(--gold);border-radius:16px}.rc.lay-kids .rc-info b{color:var(--g)}
+.rc.lay-kids .rc-h{color:var(--g)}
+.rc.lay-kids .rc-sub{border:0;border-radius:20px}.rc.lay-kids .rc-sub:nth-child(3n+2){background:var(--t1)}.rc.lay-kids .rc-sub:nth-child(3n){background:var(--t2)}.rc.lay-kids .rc-sub:nth-child(3n+1){background:var(--t3)}
+.rc.lay-kids .rc-grade{border-radius:999px;background:var(--gold);color:#fff;border:4px solid #fff;box-shadow:0 0 0 3px var(--gold);font-size:1.2rem}.rc.lay-kids .rc-grade:before{content:"⭐ "}
+.mw.t .mw-ac{color:var(--g)}.mw.t .mw-t{color:var(--gold)}.mw.t td,.mw.t th{border-color:var(--ln)}.mw.t th{background:var(--g);color:#fff}.mw.t td.k{background:var(--bg);color:var(--g)}.mw.t .mw-l tr:nth-child(even) td{background:var(--bg)}.mw.t .mw-f{color:var(--gold)}
+.mw.lay-elegant{border:4px double var(--gold);padding:16px 14px}.mw.lay-elegant .mw-ac{font-weight:600;letter-spacing:.14em}.mw.lay-elegant .mw-t:after{content:"✦ ✦ ✦";display:block;font-size:8pt;letter-spacing:.4em;color:var(--gold)}.mw.lay-elegant th{background:none;color:var(--g);border-bottom:2px solid var(--gold)}
+.mw.lay-modern .mw-ac,.mw.lay-modern .mw-t{text-align:start}.mw.lay-modern td{border-inline:0}.mw.lay-modern th{border-color:var(--g)}
+.mw.lay-geo .mw-ac{color:#fff;background-color:var(--g);background-image:${RP_PAT};background-size:28px 28px;padding:12px;border-bottom:4px double var(--gold)}.mw.lay-geo th{color:var(--gold)}
+.mw.lay-minimal .mw-ac,.mw.lay-minimal .mw-t{text-align:start}.mw.lay-minimal .mw-ac{font-weight:300}.mw.lay-minimal td,.mw.lay-minimal th{border:0;border-bottom:1px solid #ddd}.mw.lay-minimal th{background:none;color:var(--g);text-transform:uppercase;font-size:8pt;letter-spacing:.1em;border-bottom:2px solid var(--g)}.mw.lay-minimal td.k{background:none}
+.mw.lay-kids{border:3px solid var(--gold);border-radius:22px;padding:16px}.mw.lay-kids th:nth-child(odd){background:var(--g)}.mw.lay-kids th:nth-child(even){background:var(--gold)}.mw.lay-kids .mw-ac{color:var(--g)}`;
 const REPF={id:null,subjects:['quran','arabic'],data:{},hw:{},grade:RP_GRADES[0],ready:false};
 function rpAll(){ try{ const a=JSON.parse(lsGet('lp.reports')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 function rpStore(a){ lsSet('lp.reports',JSON.stringify(a)); }
@@ -2597,9 +2698,9 @@ function rpText(m){
   if(m.grade){ L.push(T('Grade'),m.grade); }
   return L.join('\n').replace(/\n{3,}/g,'\n\n').trim();
 }
-function rpHTML(m){
+function rpHTML(m,tp){
   const D=RPL==='ar'?'rtl':'ltr', e=rpEsc, info=[[T('Student'),m.name||'—'],[T('Date'),m.date],[T('Duration'),m.dur],[T('Subject'),m.subj]];
-  let h='<div class="rc" dir="'+(RPL==='ar'?'rtl':'ltr')+'"><div class="rc-head">'+(m.bis?'<div class="rc-bis">بسم الله الرحمن الرحيم</div>':'')+'<div class="rc-title">'+T('Lesson Report')+'</div>'+(m.teacher?'<div class="rc-teacher" dir="'+D+'">'+T('Teacher')+': '+e(m.teacher)+'</div>':'')+'</div>';
+  const th=tp||rpTh('s'), sf=tp?rpStackFor(tp.f,tp.af):''; let h='<div class="rc lay-'+(th.lay||'classic')+'"'+(tp?' style="'+rpVars(tp)+(sf?';font-family:'+sf:'')+'"':'')+' dir="'+(RPL==='ar'?'rtl':'ltr')+'"><div class="rc-head">'+(m.bis?'<div class="rc-bis">بسم الله الرحمن الرحيم</div>':'')+'<div class="rc-title">'+T('Lesson Report')+'</div>'+(m.teacher?'<div class="rc-teacher" dir="'+D+'">'+T('Teacher')+': '+e(m.teacher)+'</div>':'')+'</div>';
   h+='<div class="rc-info">'+info.map(x=>'<div><small>'+x[0]+'</small><b dir="'+D+'">'+e(x[1])+'</b></div>').join('')+'</div>';
   if(m.notes.length) h+='<div class="rc-sec"><div class="rc-h">'+T('Lesson Notes')+'</div>'+m.notes.map(n=>'<div class="rc-sub"><div class="rc-subh">'+n.icon+' '+e(n.title)+'</div>'+n.rows.map(r=>'<div class="rc-row" dir="'+D+'">'+(r[0]?'<span class="rc-k">'+e(r[0])+'</span>':'')+e(r[1])+'</div>').join('')+'</div>').join('')+'</div>';
   if(m.hw.length) h+='<div class="rc-sec"><div class="rc-h">'+T('Homework')+'</div>'+m.hw.map(x=>'<div class="rc-sub rc-hw"><div class="rc-subh">'+x.icon+' '+e(x.title)+'</div><div class="rc-row" dir="'+D+'">'+e(x.text)+'</div></div>').join('')+'</div>';
@@ -2692,13 +2793,20 @@ function rpPrefs(){ lsSet('lp.rep.prefs',JSON.stringify({subjects:REPF.subjects,
 
 /* ===== Templates, fonts, picture quality, grades, RTL dates ===== */
 Object.assign(RP_AR,{'Add your own grade (e.g. Mumtaz, A+, ممتاز)':'أضف تقديرك الخاص (مثال: ممتاز، A+)','Add grade':'أضف تقدير','Templates, fonts & picture quality':'القوالب والخطوط وجودة الصورة','Student report template':'قالب تقرير الطالب','Monthly record template':'قالب السجل الشهري','Font (any language)':'الخط (لأي لغة)','Arabic / Urdu font':'الخط العربي / الأردي','Picture quality':'جودة الصورة','Picture format':'صيغة الصورة','Make my own template':'أنشئ قالبي الخاص','Template name':'اسم القالب','Main color':'اللون الأساسي','Second color':'اللون الثاني','Accent color':'لون التمييز','Background':'الخلفية','Save as my template':'احفظ كقالب خاص','Delete selected template':'احذف القالب المحدد','Default font':'الخط الافتراضي','Default Arabic font':'الخط العربي الافتراضي','Taybah green':'أخضر طيبة','Official black & white':'رسمي أبيض وأسود','Royal blue':'أزرق ملكي','Plum & rose':'بنفسجي وردي','Warm sunrise':'شروق دافئ','Ocean teal':'أزرق مخضر','Standard (1×)':'عادية (1×)','High (2×)':'عالية (2×)','Very high (3×)':'عالية جدًا (3×)','Ultra (4×)':'فائقة (4×)','PNG (sharp, large)':'PNG (حاد، حجم كبير)','JPG (small file)':'JPG (حجم صغير)','WebP (sharp, small)':'WebP (حاد وصغير)'});
+Object.assign(RP_AR,{'Report':'التقرير','Design':'التصميم','Monthly':'الشهري','Saved':'المحفوظة','Preview':'معاينة','Both reports':'كلا التقريرين','Student report':'تقرير الطالب','Monthly record':'السجل الشهري','Templates':'القوالب','Fonts':'الخطوط','Picture':'صورة','Copy':'نسخ','WhatsApp':'واتساب','Print':'طباعة','Print / PDF':'طباعة / PDF','Copy table':'نسخ الجدول','Word':'وورد','Create my own template':'أنشئ قالبي الخاص','Layout':'التخطيط','Pick a look. It is used for your lesson reports and the monthly record.':'اختر شكلاً. يُستخدم في تقارير الدروس والسجل الشهري.','Choose a layout, colors and the fonts above, then save it to the gallery.':'اختر التخطيط والألوان والخطوط أعلاه ثم احفظه في المعرض.','Golden certificate':'شهادة ذهبية','Royal frame':'إطار ملكي','Modern teal':'عصري أخضر مزرق','Modern violet':'عصري بنفسجي','Madinah geometric':'هندسي المدينة','Blue mosaic':'فسيفساء زرقاء','Clean minimal':'بسيط أنيق','Sunny kids':'أطفال مشمس','Candy kids':'أطفال حلوى','Classic':'كلاسيكي','Elegant frame':'إطار أنيق','Modern card':'بطاقة عصرية','Islamic geometric':'هندسي إسلامي','Minimal':'بسيط','Playful kids':'مرح للأطفال','Upload my Word form':'ارفع نموذج وورد الخاص بي','Built-in form':'النموذج المدمج'});
 const RP_BT=[
- {id:'classic',n:'Taybah green',g:'#1F4D43',g2:'#2F6B5C',gold:'#B8923A',bg:'#FBF7EE'},
- {id:'official',n:'Official black & white',g:'#222222',g2:'#444444',gold:'#666666',bg:'#FFFFFF',plain:1},
- {id:'royal',n:'Royal blue',g:'#1B3A6B',g2:'#2D5A9E',gold:'#C9A227',bg:'#F5F8FD'},
- {id:'plum',n:'Plum & rose',g:'#5B2A5E',g2:'#86478A',gold:'#C98A5A',bg:'#FBF5FA'},
- {id:'sunrise',n:'Warm sunrise',g:'#9A4310',g2:'#C96A24',gold:'#D9A100',bg:'#FFF8EF'},
- {id:'ocean',n:'Ocean teal',g:'#0F4C5C',g2:'#1B7F8E',gold:'#E09F3E',bg:'#F2FAFB'}];
+ {id:'classic',n:'Taybah green',lay:'classic',g:'#1F4D43',g2:'#2F6B5C',gold:'#B8923A',bg:'#FBF7EE',f:'',af:''},
+ {id:'official',n:'Official black & white',lay:'classic',g:'#222222',g2:'#444444',gold:'#666666',bg:'#FFFFFF',plain:1,f:'',af:''},
+ {id:'gold',n:'Golden certificate',lay:'elegant',g:'#6B4A12',g2:'#8A6A2A',gold:'#B8923A',bg:'#FFFBF0',f:'Playfair Display',af:'Amiri'},
+ {id:'navy',n:'Royal frame',lay:'elegant',g:'#14305C',g2:'#2D5A9E',gold:'#C9A227',bg:'#F7F9FD',f:'Lora',af:'Scheherazade New'},
+ {id:'teal',n:'Modern teal',lay:'modern',g:'#0F766E',g2:'#14B8A6',gold:'#F59E0B',bg:'#F0FDFA',f:'Poppins',af:'Cairo'},
+ {id:'violet',n:'Modern violet',lay:'modern',g:'#4C1D95',g2:'#7C3AED',gold:'#F472B6',bg:'#F5F3FF',f:'Inter',af:'IBM Plex Sans Arabic'},
+ {id:'madinah',n:'Madinah geometric',lay:'geo',g:'#1F4D43',g2:'#2F6B5C',gold:'#C9A24B',bg:'#FBF7EE',f:'Lora',af:'Amiri'},
+ {id:'mosaic',n:'Blue mosaic',lay:'geo',g:'#17406F',g2:'#2D6CA3',gold:'#D4A84B',bg:'#F4F8FC',f:'Merriweather',af:'Noto Naskh Arabic'},
+ {id:'minimal',n:'Clean minimal',lay:'minimal',g:'#111111',g2:'#444444',gold:'#B8923A',bg:'#FFFFFF',f:'Inter',af:'IBM Plex Sans Arabic'},
+ {id:'sunny',n:'Sunny kids',lay:'kids',g:'#E8590C',g2:'#F59F00',gold:'#2B8A3E',bg:'#FFF9DB',f:'Nunito',af:'Cairo'},
+ {id:'candy',n:'Candy kids',lay:'kids',g:'#C2255C',g2:'#7048E8',gold:'#F59F00',bg:'#FFF0F6',f:'Nunito',af:'Reem Kufi'}];
+const RP_LAYS=[['classic','Classic'],['elegant','Elegant frame'],['modern','Modern card'],['geo','Islamic geometric'],['minimal','Minimal'],['kids','Playful kids']];
 const RP_FONTS=[
  {n:'Lora',g:'Latin'},{n:'Playfair Display',g:'Latin'},{n:'Merriweather',g:'Latin'},{n:'Inter',g:'Latin'},{n:'Poppins',g:'Latin'},{n:'Roboto',g:'Latin'},{n:'Open Sans',g:'Latin'},{n:'Nunito',g:'Latin'},
  {n:'Amiri',g:'Arabic'},{n:'Cairo',g:'Arabic'},{n:'Tajawal',g:'Arabic'},{n:'Noto Naskh Arabic',g:'Arabic'},{n:'Noto Kufi Arabic',g:'Arabic'},{n:'Scheherazade New',g:'Arabic'},{n:'Reem Kufi',g:'Arabic'},{n:'Almarai',g:'Arabic'},{n:'IBM Plex Sans Arabic',g:'Arabic'},{n:'El Messiri',g:'Arabic'},{n:'Markazi Text',g:'Arabic'},{n:'Aref Ruqaa',g:'Arabic'},{n:'Lateef',g:'Arabic'},
@@ -2706,61 +2814,77 @@ const RP_FONTS=[
  {n:'Noto Sans',g:'Other scripts'},{n:'Noto Serif',g:'Other scripts'},{n:'Noto Sans Devanagari',g:'Other scripts'},{n:'Noto Sans Bengali',g:'Other scripts'},
  {n:'Georgia',g:'System',sys:1},{n:'Times New Roman',g:'System',sys:1},{n:'Cambria',g:'System',sys:1},{n:'Arial',g:'System',sys:1},{n:'Tahoma',g:'System',sys:1}];
 const RP_TAIL=['Noto Sans','Noto Naskh Arabic','Noto Sans Devanagari','Noto Sans Bengali','Noto Nastaliq Urdu'];
+let RP_AP='both';
 function rpJ(k,d){ try{ const v=JSON.parse(lsGet(k)||'null'); return v==null?d:v; }catch(e){ return d; } }
 function rpCT(){ const a=rpJ('lp.rep.th',[]); return Array.isArray(a)?a:[]; }
 function rpCG(){ const a=rpJ('lp.rep.cg',[]); return Array.isArray(a)?a:[]; }
-function rpTh(w){ const id=lsGet(w==='s'?'lp.rep.ths':'lp.rep.thm')||(w==='s'?'classic':'official'); return RP_BT.concat(rpCT()).find(t=>t.id===id)||RP_BT[w==='s'?0:1]; }
+function rpAllT(){ return RP_BT.concat(rpCT()); }
+function rpTh(w){ const id=lsGet(w==='s'?'lp.rep.ths':'lp.rep.thm')||(w==='s'?'classic':'official'); return rpAllT().find(t=>t.id===id)||RP_BT[w==='s'?0:1]; }
 function rpFam(n){ return RP_FONTS.find(f=>f.n===n)||null; }
 function rpFonts(){ return [rpFam(lsGet('lp.rep.font')),rpFam(lsGet('lp.rep.afont'))].filter((x,i,r)=>x&&r.indexOf(x)===i); }
-function rpStack(){ const fs=rpFonts(); if(!fs.length) return ''; return fs.map(f=>"'"+f.n+"'").concat(RP_TAIL.map(x=>"'"+x+"'"),['Georgia','serif']).join(','); }
+function rpStackFor(f,af){ const fs=[rpFam(f),rpFam(af)].filter((x,i,r)=>x&&r.indexOf(x)===i); if(!fs.length) return ''; return fs.map(x=>"'"+x.n+"'").concat(RP_TAIL.map(x=>"'"+x+"'"),['Georgia','serif']).join(','); }
+function rpStack(){ return rpStackFor(lsGet('lp.rep.font'),lsGet('lp.rep.afont')); }
 function rpFontURL(list){ const seen=new Set(), q=list.filter(f=>!f.sys&&!seen.has(f.n)&&seen.add(f.n)).map(f=>'family='+f.n.replace(/ /g,'+')+':wght@400;700'); return q.length?'https://fonts.googleapis.com/css2?'+q.join('&')+'&display=swap':''; }
 function rpLinkFams(){ return rpFonts().concat(RP_TAIL.map(n=>({n}))); }
 function rpMix(a,b,p){ const h=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16)), A=h(a), B=h(b); return '#'+A.map((v,i)=>Math.round(v*p+B[i]*(1-p)).toString(16).padStart(2,'0')).join(''); }
+function rpVars(t){ const W='#ffffff'; return '--g:'+t.g+';--g2:'+t.g2+';--gold:'+t.gold+';--bg:'+t.bg+';--ln:'+rpMix(t.gold,W,.35)+';--tg:'+rpMix(t.gold,W,.16)+';--t1:'+rpMix(t.g,W,.14)+';--t2:'+rpMix(t.gold,W,.22)+';--t3:'+rpMix(t.g2,W,.14); }
 function rpThemeCSS(){
-  const s=rpTh('s'), m=rpTh('m'), F=rpStack(), ln=t=>rpMix(t.gold,'#ffffff',.35), fa=rpFonts().find(f=>f.g==='Arabic'||f.g==='Urdu / Persian');
-  let c='.rc{--g:'+s.g+';--g2:'+s.g2+';--gold:'+s.gold+';background:'+s.bg+';border-color:'+ln(s)+(F?';font-family:'+F:'')+'}'
-   +'.rc-info{background:'+ln(s)+';border-bottom-color:'+ln(s)+'}.rc-h:after{background:'+ln(s)+'}.rc-sub{border-block-color:'+ln(s)+';border-inline-end-color:'+ln(s)+'}.rc-grade{background:'+rpMix(s.gold,'#ffffff',.16)+';border-color:'+s.gold+';color:'+s.g+'}'
-   +(fa?'.rc-bis{font-family:\''+fa.n+'\',serif}':'')+(F?'.mw{font-family:'+F+'}':'');
-  if(!m.plain) c+='.mw.t .mw-ac{color:'+m.g+'}.mw.t .mw-t{color:'+m.gold+'}.mw.t td,.mw.t th{border-color:'+ln(m)+'}.mw.t th{background:'+m.g+';color:#fff}.mw.t td.k{background:'+m.bg+';color:'+m.g+'}.mw.t .mw-l tr:nth-child(even) td{background:'+m.bg+'}.mw.t .mw-f{color:'+m.gold+'}';
-  return c;
+  const F=rpStack(), fa=rpFonts().find(f=>f.g==='Arabic'||f.g==='Urdu / Persian');
+  return RP_LAY+'.rc{'+rpVars(rpTh('s'))+(F?';font-family:'+F:'')+'}.mw{'+rpVars(rpTh('m'))+(F?';font-family:'+F:'')+'}'+(fa?'.rc-bis{font-family:\''+fa.n+'\',serif}':'');
 }
 function rpApplyDesign(){
   let st=$('rpThemeStyle'); if(!st){ st=document.createElement('style'); st.id='rpThemeStyle'; document.head.appendChild(st); }
   st.textContent=rpThemeCSS();
   let lk=$('rpFontLink'); const u=rpFonts().length?rpFontURL(rpLinkFams()):'';
   if(u){ if(!lk){ lk=document.createElement('link'); lk.id='rpFontLink'; lk.rel='stylesheet'; document.head.appendChild(lk); } if(lk.getAttribute('href')!==u) lk.href=u; } else if(lk) lk.remove();
-  try{ rpPreview(); rpMonthRender(); }catch(e){}
+  try{ rpPreview(); rpMonthRender(); rpGallery(); }catch(e){}
 }
-function rpImgSet(){ const q=rpJ('lp.rep.img',{}); return {q:Math.min(4,Math.max(1,+q.q||2)),f:['png','jpg','webp'].includes(q.f)?q.f:'png'}; }
+function rpGalFonts(){ if($('rpGalLink')) return; const u=rpFontURL([].concat.apply([],rpAllT().map(t=>[rpFam(t.f),rpFam(t.af)])).filter(Boolean)); if(!u) return; const lk=document.createElement('link'); lk.id='rpGalLink'; lk.rel='stylesheet'; lk.href=u; document.head.appendChild(lk); }
+function rpSample(){ const ar=RPL==='ar'; return {name:ar?'حمزة':'Hamza',subj:ar?'القرآن':'Qur’an',date:'31/10/2026',dur:ar?'ساعة':'1 hour',teacher:'',bis:true,notes:[{icon:'📖',title:ar?'القرآن':'Qur’an',rows:[['',ar?'سورة الفاتحة (كاملة)':'Surah Al-Fatihah (full surah)']]}],hw:[{icon:'📖',title:ar?'القرآن':'Qur’an',text:ar?'مراجعة السورة':'Revise the surah'}],grade:ar?'ممتاز ما شاء الله ⭐':'Excellent, MashaAllah! ⭐'}; }
+function rpGallery(){
+  const g=$('rpGallery'); if(!g) return; const sm=rpSample(), sId=rpTh('s').id, mId=rpTh('m').id, ar=RPL==='ar';
+  g.innerHTML=rpAllT().map(t=>'<button type="button" class="tp" data-th="'+rpEsc(t.id)+'" aria-pressed="'+(t.id===sId||t.id===mId)+'"><div class="tp-sc">'+rpHTML(sm,t)+'</div><b>'+rpEsc(T(t.n))+'</b><small>'+(t.id===sId?'✓ '+T('Student')+' ':'')+(t.id===mId?'✓ '+(ar?'الشهري':'Monthly'):'')+'</small></button>').join('');
+}
+function rpPick(id){
+  const t=rpAllT().find(x=>x.id===id); if(!t) return;
+  if(RP_AP!=='m') lsSet('lp.rep.ths',id); if(RP_AP!=='s') lsSet('lp.rep.thm',id);
+  lsSet('lp.rep.font',t.f||''); lsSet('lp.rep.afont',t.af||'');
+  rpDesignInit(); rpApplyDesign(); toast('Template applied ✅');
+}
 function rpDesignInit(){
-  const opt=(v,t,sel)=>'<option value="'+rpEsc(v)+'"'+(sel?' selected':'')+'>'+rpEsc(t)+'</option>', all=RP_BT.concat(rpCT());
-  const th=w=>{ const cur=rpTh(w).id; return all.map(t=>opt(t.id,t.n,t.id===cur)).join(''); };
-  $('rpThS').innerHTML=th('s'); $('rpThM').innerHTML=th('m');
+  const opt=(v,t,sel)=>'<option value="'+rpEsc(v)+'"'+(sel?' selected':'')+'>'+rpEsc(t)+'</option>';
+  $('rpThQ').innerHTML=rpAllT().map(t=>opt(t.id,t.n,t.id===rpTh('s').id)).join('');
   const grp=(arr,cur)=>[...new Set(arr.map(f=>f.g))].map(g=>'<optgroup label="'+g+'">'+arr.filter(f=>f.g===g).map(f=>opt(f.n,f.n,f.n===cur)).join('')+'</optgroup>').join('');
   const cf=lsGet('lp.rep.font')||'', ca=lsGet('lp.rep.afont')||'';
   $('rpFont').innerHTML=opt('','Default font',!cf)+grp(RP_FONTS,cf);
   $('rpAFont').innerHTML=opt('','Default Arabic font',!ca)+grp(RP_FONTS.filter(f=>f.g==='Arabic'||f.g==='Urdu / Persian'),ca);
+  const t=rpTh('s'); $('rpTLay').innerHTML=RP_LAYS.map(l=>opt(l[0],l[1],l[0]===(t.lay||'classic'))).join('');
   const q=rpImgSet(); $('rpQual').value=String(q.q); $('rpFmt').value=q.f;
-  const t=rpTh('s'); $('rpCg').value=t.g; $('rpCg2').value=t.g2; $('rpCgold').value=t.gold; $('rpCbg').value=t.bg;
+  $('rpCg').value=t.g; $('rpCg2').value=t.g2; $('rpCgold').value=t.gold; $('rpCbg').value=t.bg;
 }
 function rpDesignChange(t){
   const id=t.id;
-  if(id==='rpThS'||id==='rpThM'){ lsSet(id==='rpThS'?'lp.rep.ths':'lp.rep.thm',t.value); const th=RP_BT.concat(rpCT()).find(x=>x.id===t.value);
-    if(th){ $('rpCg').value=th.g; $('rpCg2').value=th.g2; $('rpCgold').value=th.gold; $('rpCbg').value=th.bg; if(th.f!==undefined){ lsSet('lp.rep.font',th.f||''); lsSet('lp.rep.afont',th.af||''); $('rpFont').value=th.f||''; $('rpAFont').value=th.af||''; } }
-    rpApplyDesign(); return true; }
+  if(id==='rpThQ'){ lsSet('lp.rep.ths',t.value); rpApplyDesign(); return true; }
   if(id==='rpFont'||id==='rpAFont'){ lsSet(id==='rpFont'?'lp.rep.font':'lp.rep.afont',t.value); rpApplyDesign(); return true; }
   if(id==='rpQual'||id==='rpFmt'){ lsSet('lp.rep.img',JSON.stringify({q:+$('rpQual').value,f:$('rpFmt').value})); toast('Saved ✅'); return true; }
   return false;
 }
 function rpTSave(){
   const n=$('rpTName').value.replace(/[<>&"]/g,'').trim(); if(!n){ toast('Name your template'); $('rpTName').focus(); return; }
-  const a=rpCT(), t={id:'c'+Date.now().toString(36),n,g:$('rpCg').value.toUpperCase(),g2:$('rpCg2').value.toUpperCase(),gold:$('rpCgold').value.toUpperCase(),bg:$('rpCbg').value.toUpperCase(),f:lsGet('lp.rep.font')||'',af:lsGet('lp.rep.afont')||''};
+  const a=rpCT(), t={id:'c'+Date.now().toString(36),n,lay:$('rpTLay').value,g:$('rpCg').value.toUpperCase(),g2:$('rpCg2').value.toUpperCase(),gold:$('rpCgold').value.toUpperCase(),bg:$('rpCbg').value.toUpperCase(),f:lsGet('lp.rep.font')||'',af:lsGet('lp.rep.afont')||''};
   a.push(t); lsSet('lp.rep.th',JSON.stringify(a)); lsSet('lp.rep.ths',t.id); lsSet('lp.rep.thm',t.id); $('rpTName').value=''; rpDesignInit(); rpApplyDesign(); rpUI(); toast('Template saved ✅');
 }
 function rpTDel(){
-  const id=$('rpThS').value, a=rpCT(); if(!a.some(x=>x.id===id)){ toast('Built-in templates can’t be deleted'); return; } if(!confirm('Delete this template?')) return;
+  const id=rpTh('s').id, a=rpCT(); if(!a.some(x=>x.id===id)){ toast('Select one of your own templates first (built-in ones can’t be deleted)'); return; } if(!confirm('Delete this template?')) return;
   lsSet('lp.rep.th',JSON.stringify(a.filter(x=>x.id!==id))); ['lp.rep.ths','lp.rep.thm'].forEach(k=>{ if(lsGet(k)===id) lsSet(k,''); }); rpDesignInit(); rpApplyDesign(); rpUI();
 }
+function rpTab(n){
+  if(!['write','design','month','saved'].includes(n)) n='write'; lsSet('lp.rep.tab',n);
+  document.querySelectorAll('#rpTabs [data-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===n)));
+  document.querySelectorAll('#view-reports .rp-pane').forEach(p=>{ p.hidden=p.dataset.pane!==n; });
+  if(n==='design'){ rpGalFonts(); rpGallery(); } if(n==='month') rpMonthRender(); if(n==='saved') rpList();
+}
+function rpImgSet(){ const q=rpJ('lp.rep.img',{}); return {q:Math.min(4,Math.max(1,+q.q||2)),f:['png','jpg','webp'].includes(q.f)?q.f:'png'}; }
 const RP_FC={};
 function rpInRange(r,cps){ return r.split(',').some(p=>{ p=p.trim().replace(/^U\+/i,''); const ab=p.split('-'), lo=parseInt(ab[0].replace(/\?/g,'0'),16), hi=ab[1]?parseInt(ab[1],16):(ab[0].indexOf('?')>=0?parseInt(ab[0].replace(/\?/g,'F'),16):lo); for(const c of cps) if(c>=lo&&c<=hi) return true; return false; }); }
 async function rpFontCSS(html){
@@ -2794,7 +2918,7 @@ function rpDW(){
       +'<select class="field" aria-label="Year">'+Array.from({length:y1-y0+1},(_,i)=>'<option value="'+(y0+i)+'"'+(y0+i===y?' selected':'')+'>'+(y0+i)+'</option>').join('')+'</select>';
   });
 }
-['rpLoad','rpReset','rpSetLang'].forEach(n=>{ const f=window[n]; window[n]=function(){ const r=f.apply(this,arguments); try{ rpDW(); }catch(e){} return r; }; });
+['rpLoad','rpReset','rpSetLang'].forEach(n=>{ const f=window[n]; window[n]=function(){ const r=f.apply(this,arguments); try{ rpDW(); if(n==='rpSetLang') rpGallery(); else rpTab('write'); }catch(e){} return r; }; });
 
 /* ===== Monthly record ===== */
 function rpMonthModel(){
@@ -2811,7 +2935,7 @@ function rpMonthModel(){
 }
 function rpMonthHTML(m){
   const e=rpEsc, n=m.list.length, tot=m.total.toLocaleString('en-US'), k=(a,b)=>'<td class="k">'+a+'</td><td dir="auto">'+e(b)+'</td>';
-  let h='<div class="mw'+(rpTh('m').plain?'':' t')+'">'+(MR_LOGO?'<div class="mw-logo"><img src="'+MR_LOGO+'" alt=""></div>':'')+'<div class="mw-ac" dir="auto">'+e(m.ac.toUpperCase())+'</div><div class="mw-t">Teacher Lesson Record – '+e(m.month)+'</div>';
+  let h='<div class="mw lay-'+(rpTh('m').lay||'classic')+(rpTh('m').plain?'':' t')+'">'+(MR_LOGO?'<div class="mw-logo"><img src="'+MR_LOGO+'" alt=""></div>':'')+'<div class="mw-ac" dir="auto">'+e(m.ac.toUpperCase())+'</div><div class="mw-t">Teacher Lesson Record – '+e(m.month)+'</div>';
   h+='<table class="mw-a"><tr>'+k('Teacher Name',m.teacher||'—')+k('Subject',m.subj)+'</tr><tr>'+k('Month',m.month)+k('Total Lessons',n)+'</tr></table>';
   h+='<table class="mw-l"><colgroup><col style="width:6.7%"><col style="width:27.4%"><col style="width:12.6%"><col style="width:13.3%"><col style="width:17%"><col style="width:23%"></colgroup><tr><th>No.</th><th>Student Name</th><th>Day</th><th>Date</th><th>Lesson Duration</th><th>Notes</th></tr>'
     +m.list.map(x=>'<tr><td>'+x.no+'</td><td dir="auto">'+e(x.name)+'</td><td>'+x.day+'</td><td>'+x.date+'</td><td>'+x.dur+'</td><td dir="auto">'+e(x.note)+'</td></tr>').join('')+'</table>';
@@ -2942,13 +3066,16 @@ function rpInit(){
     try{ const sv=JSON.parse(lsGet('lp.rep.prefs')||'null'); if(sv){ if(Array.isArray(sv.subjects)&&sv.subjects.length) REPF.subjects=sv.subjects.filter(k=>rpSub(k)); $('rpTeacher').value=sv.teacher||''; $('rpBis').checked=sv.bis!==false; } }catch(e){}
     $('rpDate').value=rpToday(); $('rpMonth').value=rpToday().slice(0,7);
     try{ const ac=JSON.parse(lsGet('lp.rep.acad')||'null'); if(ac){ $('rpAcademy').value=ac.a||''; $('rpAcSub').value=ac.s||''; } else { $('rpAcademy').value='Taybah Academy'; $('rpAcSub').value='Online Qur’an & Islamic Education'; } }catch(e){}
-    rpChips(); rpBuildSections(); clInit(); mrStatus(); rpDesignInit(); rpApplyDesign(); rpSetLang(RPL); mrLogoLoad();
+    rpChips(); rpBuildSections(); clInit(); mrStatus(); rpDesignInit(); rpApplyDesign(); rpSetLang(RPL); rpTab(lsGet('lp.rep.tab')||'write'); mrLogoLoad();
     const view=$('view-reports');
     view.addEventListener('input',e=>{ const t=e.target; if(t.id==='rpH'||t.id==='rpM') t.value=t.value.replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).replace(/[۰-۹]/g,c=>c.charCodeAt(0)-1776).replace(/\D/g,'').slice(0,t.id==='rpH'?2:3); },true);
     view.addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.target.id==='rpNewGrade'||e.target.id==='rpTName')){ e.preventDefault(); (e.target.id==='rpNewGrade'?$('rpAddGrade'):$('rpTSave')).click(); } });
     view.addEventListener('click',e=>{
       const dg=e.target.closest('[data-delgrade]'); if(dg){ e.stopImmediatePropagation(); const g=dg.dataset.delgrade; lsSet('lp.rep.cg',JSON.stringify(rpCG().filter(x=>x!==g))); rpChips(); return; }
       const b=e.target.closest('button'); if(!b) return;
+      if(b.dataset.tab){ rpTab(b.dataset.tab); return; }
+      if(b.dataset.th){ rpPick(b.dataset.th); return; }
+      if(b.dataset.ap){ RP_AP=b.dataset.ap; document.querySelectorAll('#rpApply [data-ap]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.ap===RP_AP))); return; }
       if(b.id==='rpAddGrade'){ const g=$('rpNewGrade').value.trim(); if(!g) return; const L=rpCG(); if(!L.includes(g)&&!RP_GRADES.includes(g)){ L.push(g); lsSet('lp.rep.cg',JSON.stringify(L)); } REPF.grade=g; $('rpNewGrade').value=''; rpChips(); rpPreview(); }
       else if(b.id==='rpTSave') rpTSave(); else if(b.id==='rpTDel') rpTDel();
     });
