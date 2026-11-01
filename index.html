@@ -548,7 +548,7 @@ body.presenter #pip{border-color:var(--good)}
 .rp-tabs button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 .rp-pvh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.rp-pvh h3{margin:0}.rp-pvh .field{width:auto;max-width:55%;margin:0!important;min-height:38px;font-size:.85rem}
 .rp-bar{margin-top:14px;display:grid;gap:10px}.rp-save{width:100%;padding:14px;font-size:1rem}
-.rp-act{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.rp-act .btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;font-size:.78rem;text-align:center}.rp-act .btn span{font-size:1.2rem}
+.rp-act{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}#view-reports .rp-bar>.rp-act:not([style]){grid-template-columns:repeat(3,1fr)}.rp-act .btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;font-size:.78rem;text-align:center}.rp-act .btn span{font-size:1.2rem}
 .rp-act2{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .tp-grid{display:grid;grid-template-columns:repeat(auto-fill,168px);gap:12px;justify-content:center;margin-top:12px}
 .tp{text-align:start;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:3px;color:var(--fg);font:inherit}
@@ -765,6 +765,7 @@ div.ct:not(.both) .ct-msg{margin-top:10px}
           <button class="btn" id="rpCopy" type="button"><span>📋</span>Copy</button>
           <button class="btn" id="rpWa" type="button"><span>📲</span>WhatsApp</button>
           <button class="btn" id="rpWaImg" type="button"><span>📷</span>WhatsApp + picture</button>
+          <button class="btn" id="rpWaPdf" type="button"><span>📄</span>WhatsApp + PDF</button>
           <button class="btn" id="rpPrint" type="button"><span>🖨️</span>Print</button>
           <button class="btn" id="rpImg" type="button"><span>🖼️</span>Picture</button>
         </div>
@@ -2663,6 +2664,25 @@ function allSubKeys(rows){ const ks=Object.keys(RP_SUBJECTS).concat(rpCS().map(l
 function rpDurL(m){ if(RPL!=='ar') return rpDur(m); m=+m||0; if(!m) return ''; const h=Math.floor(m/60), r=m%60; return (h?(h===1?'ساعة':h===2?'ساعتان':h+(h<11?' ساعات':' ساعة')):'')+(h&&r?' و ':'')+(r?(r===1?'دقيقة':r===2?'دقيقتان':r+(r<11?' دقائق':' دقيقة')):''); }
 function rpTemplate(r){ if(!r){ toast('No saved reports yet'); return; } const o=JSON.parse(JSON.stringify(r)); o.id=null; o.date=rpToday(); rpLoad(o); REPF.id=null; toast('Template loaded — edit and save ♻️'); window.scrollTo({top:0,behavior:'smooth'}); }
 function rpLastTemplate(){ const nm=$('rpName').value.trim().toLowerCase(); let a=rpAll(); const f=nm?a.filter(r=>(r.name||'').toLowerCase()===nm):[]; if(f.length) a=f; a.sort((x,y)=>(y.date||'').localeCompare(x.date||'')||(y.saved||0)-(x.saved||0)); rpTemplate(a[0]); }
+async function rpMakePdf(jb,pw,ph,w,H){
+  const jpg=new Uint8Array(await jb.arrayBuffer());
+  const W=595.28, Hh=+(W*H/w).toFixed(2);
+  const enc=new TextEncoder(), parts=[], offs=[]; let len=0;
+  const add=x=>{ const u=typeof x==='string'?enc.encode(x):x; parts.push(u); len+=u.length; };
+  const obj=(n,body)=>{ offs[n]=len; add(n+' 0 obj\n'+body+'\nendobj\n'); };
+  add('%PDF-1.4\n');
+  obj(1,'<</Type/Catalog/Pages 2 0 R>>');
+  obj(2,'<</Type/Pages/Kids[3 0 R]/Count 1>>');
+  obj(3,'<</Type/Page/Parent 2 0 R/MediaBox[0 0 '+W+' '+Hh+']/Resources<</XObject<</Im0 4 0 R>>>>/Contents 5 0 R>>');
+  offs[4]=len; add('4 0 obj\n<</Type/XObject/Subtype/Image/Width '+pw+'/Height '+ph+'/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length '+jpg.length+'>>\nstream\n'); add(jpg); add('\nendstream\nendobj\n');
+  const cs='q '+W+' 0 0 '+Hh+' 0 0 cm /Im0 Do Q';
+  obj(5,'<</Length '+cs.length+'>>\nstream\n'+cs+'\nendstream');
+  const xr=len; let x='xref\n0 6\n0000000000 65535 f \n';
+  for(let i=1;i<=5;i++) x+=String(offs[i]).padStart(10,'0')+' 00000 n \n';
+  add(x+'trailer\n<</Size 6/Root 1 0 R>>\nstartxref\n'+xr+'\n%%EOF');
+  return new Blob(parts,{type:'application/pdf'});
+}
+
 async function rpToPng(html,w,name,text){
   try{
     const st=rpImgSet(), css=RP_CSS+MR_CSS+rpThemeCSS()+(window.RP_XCSS||''), host=document.createElement('div'); host.style.cssText='position:fixed;left:-99999px;top:0;width:'+w+'px;padding:'+(window.RP_XPAD==null?14:window.RP_XPAD)+'px;background:#fff;box-sizing:border-box';
@@ -2674,8 +2694,9 @@ async function rpToPng(html,w,name,text){
     const img=new Image(); img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); await img.decode();
     const k=Math.max(1,Math.min(st.q,Math.sqrt(16e6/(w*H))));
     const c=document.createElement('canvas'); c.width=Math.round(w*k); c.height=Math.round(H*k); const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.scale(k,k); x.drawImage(img,0,0,w,H);
-    const mime={png:'image/png',jpg:'image/jpeg',webp:'image/webp'}[st.f], b=await new Promise(r=>c.toBlob(r,mime,.95)); if(!b) throw 0;
-    const ext=b.type==='image/jpeg'?'jpg':b.type==='image/webp'?'webp':'png';
+    const mime=window.RP_PDF?'image/jpeg':{png:'image/png',jpg:'image/jpeg',webp:'image/webp'}[st.f], b0=await new Promise(r=>c.toBlob(r,mime,.95)); if(!b0) throw 0;
+    const b=window.RP_PDF?await rpMakePdf(b0,c.width,c.height,w,H):b0;
+    const ext=b.type==='application/pdf'?'pdf':b.type==='image/jpeg'?'jpg':b.type==='image/webp'?'webp':'png';
     const fname=(name||'report').replace(/[^\w\u0600-\u06FF-]+/g,'_')+'.'+ext;
     if((text||(window.matchMedia&&matchMedia('(pointer:coarse)').matches))&&navigator.canShare){ const f=new File([b],fname,{type:b.type}); if(navigator.canShare({files:[f]})){ try{ await navigator.share(text?{files:[f],text}:{files:[f]}); return; }catch(e){ if(e&&e.name==='AbortError') return; } } }
     const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=fname; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); toast('Picture saved \u2713 '+c.width+'\u00d7'+c.height+(k<st.q?' (max for this device)':'')); if(text) setTimeout(()=>window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank'),500);
@@ -3031,9 +3052,12 @@ function rpReset(){
 }
 function rpCopyText(t){ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Copied ✅'),()=>{ const a=document.createElement('textarea'); a.value=t; document.body.appendChild(a); a.select(); try{ document.execCommand('copy'); toast('Copied ✅'); }catch(e){} a.remove(); }); }
 function pvPrintDoc(html){
-  const f=document.createElement('iframe'); f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden'; document.body.appendChild(f);
+  const land=/A4 landscape/.test(html), f=document.createElement('iframe');
+  f.style.cssText='position:fixed;left:-9999px;top:0;width:'+(land?1123:794)+'px;height:1123px;border:0;visibility:hidden'; document.body.appendChild(f);
   const w=f.contentWindow, d=w.document; d.open(); d.write(html); d.close();
-  const go=()=>{ try{ w.focus(); w.print(); }catch(e){ toast('Print failed - use Picture instead'); } setTimeout(()=>f.remove(),120000); };
+  const fit=()=>{ try{ const mm=96/25.4, mg=land?0:12*mm, aw=(land?297:210)*mm-2*mg, ah=(land?210:297)*mm-2*mg, el=d.body; el.style.zoom=''; el.style.overflow='hidden';
+    const k=Math.max(.5,Math.min(1,aw/el.scrollWidth,ah/el.scrollHeight)); if(k<.995) el.style.zoom=k; }catch(e){} };
+  const go=()=>{ fit(); try{ w.focus(); w.print(); }catch(e){ toast('Print failed - use Picture instead'); } setTimeout(()=>f.remove(),120000); };
   const fr=(d.fonts&&d.fonts.ready)?Promise.race([d.fonts.ready,new Promise(r=>setTimeout(r,2500))]):Promise.resolve();
   fr.then(()=>setTimeout(go,350));
 }
@@ -3429,6 +3453,7 @@ function rpInit(){
       else if(b.id==='rpCopy') rpCopyText(rpText(rpModel(rpCur())));
       else if(b.id==='rpWa') window.open('https://wa.me/?text='+encodeURIComponent(rpText(rpModel(rpCur()))),'_blank');
       else if(b.id==='rpWaImg'){ const m=rpModel(rpCur()); rpToPng(rpHTML(m),600,'Lesson_Report_'+($('rpName').value.trim()||'student')+'_'+$('rpDate').value,rpText(m)); }
+      else if(b.id==='rpWaPdf'){ const m=rpModel(rpCur()); window.RP_PDF=true; Promise.resolve(rpToPng(rpHTML(m),600,'Lesson_Report_'+($('rpName').value.trim()||'student')+'_'+$('rpDate').value,rpText(m))).finally(()=>{window.RP_PDF=false;}); }
       else if(b.id==='rpPrint') rpPrint();
       else if(b.id==='rpMPrint') rpMonthPrint();
       else if(b.id==='rpMDoc') mrDocx();
