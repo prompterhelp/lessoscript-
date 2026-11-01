@@ -2660,6 +2660,7 @@ const RP_SUBJECTS={
 let RPL=lsGet('lp.rep.lang')||'en';
 const RP_AR={'Jazakum Allahu khayran':'جزاكم الله خيرًا','Academy':'الأكاديمية','Lesson Report':'تقرير الدرس','Student':'الطالب','Student’s Name':'اسم الطالب','Date':'التاريخ','Duration':'المدة','Subject':'المادة','Lesson Notes':'ملاحظات الدرس','Homework':'الواجب','Grade':'التقييم','Teacher':'المعلم','New Memorisation':'حفظ جديد','Revision':'مراجعة','Qur’an':'القرآن الكريم','Arabic Language':'اللغة العربية','Noor El-Bayan':'نور البيان','Tajweed':'التجويد','Islamic Studies':'الدراسات الإسلامية',' (late)':' (متأخر)',' (shortened)':' (مختصر)',' (extended)':' (ممتد)'};
 const RP_GRADES_AR=['ممتاز، ما شاء الله! ⭐','جيد جدًا، استمر! 👏','جيد 👍','يحتاج إلى مزيد من التدريب 🔁'];
+Object.assign(RP_AR,{'Last lesson’s homework':'واجب الدرس السابق'});
 Object.assign(RP_AR,{"Lesson report": "تقرير الدرس", "Fill the form, copy the report, and send it to the parent. Every report is saved on this device.": "املأ النموذج، وانسخ التقرير، وأرسله إلى ولي الأمر. يُحفظ كل تقرير على هذا الجهاز.", "Student & lesson": "الطالب والدرس", "Student’s name": "اسم الطالب", "Date": "التاريخ", "Duration": "المدة", "hr": "ساعة", "min": "دقيقة", "Timing": "التوقيت", "On time": "في الموعد", "Late": "متأخر", "Shortened": "مختصر", "Extended": "ممتد", "Teacher name (optional)": "اسم المعلم (اختياري)", "Subjects taught (tap to add / remove)": "المواد التي تم تدريسها (اضغط للإضافة / الحذف)", "＋ Add subject": "＋ إضافة مادة", "Show Bismillah at the top of the report": "إظهار البسملة في أعلى التقرير", "New memorisation": "حفظ جديد", "Select surah…": "اختر السورة…", "＋ Add surah": "＋ إضافة سورة", "Revision": "مراجعة", "Homework": "الواجب", "↳ Same as today’s new": "↳ نفس حفظ اليوم", "What we covered": "ما تناولناه", "Page": "الصفحة", "To page (optional)": "إلى صفحة (اختياري)", "Part of page": "جزء من الصفحة", "Full page": "الصفحة كاملة", "First half": "النصف الأول", "Second half": "النصف الثاني", "Focus (reading & pronouncing words with…)": "التركيز (قراءة ونطق الكلمات التي فيها…)", "Extra note (optional)": "ملاحظة إضافية (اختياري)", "Grade": "التقييم", "Report preview": "معاينة التقرير", "💾 Save report": "💾 حفظ التقرير", "📋 Copy text": "📋 نسخ النص", "📲 WhatsApp": "📲 واتساب", "🖨️ Print / PDF": "🖨️ طباعة / PDF", "🖼️ Save as picture": "🖼️ حفظ كصورة", "➕ New report": "➕ تقرير جديد", "♻️ Start from last report": "♻️ البدء من آخر تقرير", "☁️ Cloud sync (optional)": "☁️ المزامنة السحابية (اختياري)", "Project URL": "رابط المشروع", "Anon key": "المفتاح العام", "Email": "البريد الإلكتروني", "Password": "كلمة المرور", "Sign in": "تسجيل الدخول", "🔄 Sync now": "🔄 مزامنة الآن", "Sign out": "تسجيل الخروج", "Not signed in. Reports are saved on this device only.": "لم يتم تسجيل الدخول. تُحفظ التقارير على هذا الجهاز فقط.", "📅 Monthly record": "📅 السجل الشهري", "A month-end lesson record built from your saved reports. Pick the month, then print / save as PDF or download as a Word file.": "سجل دروس شهري مبني على تقاريرك المحفوظة. اختر الشهر ثم اطبع / احفظ PDF أو نزّل ملف Word.", "Month": "الشهر", "Academy name": "اسم الأكاديمية", "Academy tagline": "شعار الأكاديمية", "🖼️ Picture": "🖼️ صورة", "📄 Word (.docx)": "📄 Word (.docx)", "📎 Upload my form": "📎 رفع نموذجي", "↩︎ Built-in form": "↩︎ النموذج الأساسي", "📋 Copy table": "📋 نسخ الجدول", "Saved reports": "التقارير المحفوظة", "No saved reports yet.": "لا توجد تقارير محفوظة بعد.", "Open": "فتح", "Copy": "نسخ", "♻️ Template": "♻️ قالب", "Hours": "ساعات", "Minutes": "دقائق", "Surah": "السورة", "From verse": "من آية", "To verse": "إلى آية", "Remove": "حذف", "Homework for next lesson": "الواجب للدرس القادم", "Search reports…": "ابحث في التقارير…", "Filter by student": "تصفية حسب الطالب", "Shown on the report": "يظهر في التقرير", "Add your own subject (e.g. Fiqh, Hadith, سيرة)": "أضف مادة (فقه، حديث…)", "e.g. Hamza": "مثال: حمزة", "e.g. 68": "مثال: 68", "e.g. He read fluently with a few mistakes.": "مثال: قرأ بطلاقة مع بعض الأخطاء.", "Tap a starter above, then finish the sentence…": "اضغط على عبارة أعلاه ثم أكمل الجملة…", "🔍 Search surah (name or number)…": "🔍 ابحث عن السورة (الاسم أو الرقم)…", "We covered…": "تناولنا…", "We practised reading…": "تدرّبنا على القراءة…", "We learned the letters…": "تعلّمنا الحروف…", "We reviewed…": "راجعنا…", "We practised writing…": "تدرّبنا على الكتابة…", "Vocabulary: …": "المفردات: …", "We studied the rule of…": "درسنا حكم…", "We practised applying…": "تدرّبنا على تطبيق…", "We studied…": "درسنا…", "We discussed…": "ناقشنا…", "We learned about…": "تعلّمنا عن…", "We practised…": "تدرّبنا على…", "We learned…": "تعلّمنا…", "Revise…": "مراجعة…", "Memorise…": "حفظ…", "Practise reading…": "التدرّب على القراءة…", "Write…": "كتابة…", "Review today’s lesson": "مراجعة درس اليوم", "Re-read today’s pages…": "إعادة قراءة صفحات اليوم…", "Shaddah": "الشدّة", "Kasrah": "الكسرة", "Fathah": "الفتحة", "Dammah": "الضمّة", "Sukoon": "السكون", "Tanween": "التنوين", "Madd (long vowels)": "المدّ", "Alif Lam (Al-)": "أل التعريف"});
 const RP_SURAHS_AR=["الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس", "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"];
 Object.assign(RP_AR,{'✨ Polish with AI':'✨ تحسين بالذكاء الاصطناعي','↩︎ Undo':'↩︎ تراجع','Add your own phrase…':'أضف عبارتك الخاصة…'});
@@ -2926,6 +2927,12 @@ function rpModel(r){
   return {name:r.name,subj:rpJoin(subs.map(k=>T(rpSub(k).label))),date:rpDMY(r.date),dur:(rpDurL(r.dur)||'—')+t,teacher:r.teacher||'',bis:r.bis!==false,ac:(r.showAc===false?'':(r.ac||'')),notes,hw,grade:(RPL==='ar'&&RP_GRADES.indexOf(r.grade)>=0)?RP_GRADES_AR[RP_GRADES.indexOf(r.grade)]:r.grade};
 }
 function rpText(m){
+  let t=rpText0(m);
+  if(m.bis) t='بسم الله الرحمن الرحيم\n'+t;
+  if(RPL==='ar') t=t.split('\n').map(l=>{ if(!l.trim()) return l; const mm=/^[*_~\-\s]*/.exec(l)[0], rest=l.slice(mm.length); return /^[\u0590-\u08FF\u200F]/.test(rest)?l:mm+'\u200F'+rest; }).join('\n');
+  return t;
+}
+function rpText0(m){
   const sty=lsGet('lp.rep.style')||'exec';
   if(sty==='classic') return rpTextClassic(m);
   if(sty==='exec'){
@@ -2973,7 +2980,7 @@ function rpTextClassic(m){
 }
 function rpHTML(m,tp){
   const D=RPL==='ar'?'rtl':'ltr', e=rpEsc, info=[[T('Student'),m.name||'—'],[T('Date'),m.date],[T('Duration'),m.dur],[T('Subject'),m.subj]];
-  const th=tp||rpTh('s'), sf=tp?rpStackFor(tp.f,tp.af):''; let h='<div class="rc lay-'+(th.lay||'classic')+'"'+(tp?' style="'+rpVars(tp)+(sf?';font-family:'+sf:'')+'"':'')+' dir="'+(RPL==='ar'?'rtl':'ltr')+'"><div class="rc-head"><div class="rc-title">'+T('Lesson Report')+'</div>'+(m.bis?'<div class="rc-bis">بسم الله الرحمن الرحيم</div>':'')+(m.teacher?'<div class="rc-teacher" dir="'+D+'">'+T('Teacher')+': '+e(m.teacher)+'</div>':'')+(m.ac?'<div class="rc-ac" dir="auto">'+e(m.ac)+'</div>':'')+'</div>';
+  const th=tp||rpTh('s'), sf=tp?rpStackFor(tp.f,tp.af):''; let h='<div class="rc lay-'+(th.lay||'classic')+'"'+(tp?' style="'+rpVars(tp)+(sf?';font-family:'+sf:'')+'"':'')+' dir="'+(RPL==='ar'?'rtl':'ltr')+'"><div class="rc-head">'+(m.bis?'<div class="rc-bis">بسم الله الرحمن الرحيم</div>':'')+'<div class="rc-title">'+T('Lesson Report')+'</div>'+(m.teacher?'<div class="rc-teacher" dir="'+D+'">'+T('Teacher')+': '+e(m.teacher)+'</div>':'')+(m.ac?'<div class="rc-ac" dir="auto">'+e(m.ac)+'</div>':'')+'</div>';
   h+='<div class="rc-info">'+info.map(x=>'<div><small>'+x[0]+'</small><b dir="'+D+'">'+e(x[1])+'</b></div>').join('')+'</div>';
   if(m.notes.length) h+='<div class="rc-sec"><div class="rc-h">'+T('Lesson Notes')+'</div>'+m.notes.map(n=>'<div class="rc-sub"><div class="rc-subh">'+n.icon+' '+e(n.title)+'</div>'+n.rows.map(r=>'<div class="rc-row" dir="'+D+'">'+(r[0]?'<span class="rc-k">'+e(r[0])+'</span>':'')+e(r[1])+'</div>').join('')+'</div>').join('')+'</div>';
   if(m.hw.length) h+='<div class="rc-sec"><div class="rc-h">'+T('Homework')+'</div>'+m.hw.map(x=>'<div class="rc-sub rc-hw"><div class="rc-subh">'+x.icon+' '+e(x.title)+'</div><div class="rc-row" dir="'+D+'">'+e(x.text)+'</div></div>').join('')+'</div>';
@@ -2988,7 +2995,7 @@ function rpQBlock(q,label){
   const list=rpQRef(q); if(!list.length) list.push({s:'',f:'',t:''});
   return '<label class="rp-lbl">'+label+'</label>'+list.map((e,i)=>{ const at=' data-q="'+q+'" data-i="'+i+'"';
     return '<input class="field" type="search" data-qs="1" dir="auto" placeholder="🔍 Search surah (name or number)…" style="margin:0 0 6px"><div class="rp-q"><select class="field"'+at+' data-qf="s" data-v="'+rpEsc(e.s)+'" aria-label="Surah">'+rpOpts('',e.s)+'</select><input class="field" type="number" min="1" inputmode="numeric" placeholder="From verse"'+at+' data-qf="f" value="'+rpEsc(e.f)+'"><input class="field" type="number" min="1" inputmode="numeric" placeholder="To verse"'+at+' data-qf="t" value="'+rpEsc(e.t)+'"><button type="button" class="btn small" data-act="delq"'+at+' aria-label="Remove">✕</button></div>'; }).join('')
-    +'<div class="row-actions" style="margin:0 0 8px"><button type="button" class="btn small" data-act="addq" data-q="'+q+'">＋ Add surah</button>'+(q==='hw'?'<button type="button" class="btn small" data-act="sameq">↳ Same as today’s new</button>':'')+'</div>';
+    +'<div class="row-actions" style="margin:0 0 8px"><button type="button" class="btn small" data-act="addq" data-q="'+q+'">＋ Add surah</button>'+(q==='hw'?'<button type="button" class="btn small" data-act="sameq">↳ Same as today’s new</button>':'')+(q==='rev'?'<button type="button" class="btn small" data-act="lastq">↳ Last lesson’s homework</button>':'')+'</div>';
 }
 function rpBuildSections(){
   const box=$('rpSections'); box.innerHTML='';
@@ -3030,7 +3037,7 @@ function rpChips(){
   $('rpGrades').innerHTML=RP_GRADES.map(g=>'<button type="button" class="rp-chip" data-grade="'+rpEsc(g)+'" aria-pressed="'+(REPF.grade===g)+'">'+rpEsc(RPL==='ar'?RP_GRADES_AR[RP_GRADES.indexOf(g)]:g)+'</button>').join('')+rpCG().map(g=>'<button type="button" class="rp-chip" dir="auto" data-grade="'+rpEsc(g)+'" aria-pressed="'+(REPF.grade===g)+'">'+rpEsc(g)+' <span data-delgrade="'+rpEsc(g)+'" title="Remove" style="opacity:.6;margin-inline-start:4px">✕</span></button>').join('');
   $('rpDurQ').innerHTML=[[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr'],[90,'1 hr 30'],[120,'2 hr']].map(x=>'<button type="button" class="rp-sc" data-dm="'+x[0]+'">⏱ '+(RPL==='ar'?rpDurL(x[0]):x[1])+'</button>').join('');
 }
-function rpPreview(){ $('rpPreview').innerHTML=rpHTML(rpModel(rpCur())); try{ const _t=$('rpTextPrev'); if(_t) _t.textContent=rpText(rpModel(rpCur())); }catch(e){} }
+function rpPreview(){ $('rpPreview').innerHTML=rpHTML(rpModel(rpCur())); try{ const _t=$('rpTextPrev'); if(_t){ _t.textContent=rpText(rpModel(rpCur())); _t.dir=(RPL==='ar'?'rtl':'ltr'); } }catch(e){} }
 function rpTxtR(r){ return rpText(rpModel(r)); }
 function rpList(){
   const all=rpAll().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.saved||0)-(a.saved||0));
@@ -3053,7 +3060,7 @@ function rpLoad(r){
 }
 function rpReset(){
   REPF.id=null; REPF.data={}; REPF.hw={}; REPF.grade=RP_GRADES[0];
-  $('rpName').value=''; $('rpDate').value=rpToday(); $('rpTime').value='';
+  $('rpName').value=''; $('rpDate').value=rpToday(); $('rpTime').value=''; rpSetDur(0);
   rpChips(); rpBuildSections(); rpPreview(); window.scrollTo({top:0});
 }
 function rpCopyText(t){ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Copied ✅'),()=>{ const a=document.createElement('textarea'); a.value=t; document.body.appendChild(a); a.select(); try{ document.execCommand('copy'); toast('Copied ✅'); }catch(e){} a.remove(); }); }
@@ -3452,10 +3459,15 @@ function rpInit(){
       else if(act==='addst'){ const k=b.dataset.for, inp=[...view.querySelectorAll('[data-addst]')].find(x=>x.dataset.addst===k), t=inp?inp.value.replace(/["'<>&]/g,'').trim():''; if(!t) return; const o=rpCst(); o[k]=o[k]||[]; if(!o[k].includes(t)) o[k].push(t); lsSet('lp.rep.cst',JSON.stringify(o)); rpBuildSections(); }
       else if(act==='addq'){ rpQRef(b.dataset.q).push({s:'',f:'',t:''}); rpBuildSections(); }
       else if(act==='delq'){ rpQRef(b.dataset.q).splice(+b.dataset.i,1); rpBuildSections(); rpPreview(); }
+      else if(act==='lastq'){ const nm=$('rpName').value.trim().toLowerCase(); if(!nm){ toast('Enter the student’s name first'); $('rpName').focus(); return; }
+        const last=rpAll().filter(r=>(r.name||'').toLowerCase()===nm&&r.id!==REPF.id).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.saved||0)-(a.saved||0))[0], hw=last&&last.hw&&last.hw.quran;
+        if(!Array.isArray(hw)||!hw.some(x=>x&&x.s)){ toast('No Qur’an homework found in this student’s last report'); return; }
+        const cur=rpQRef('rev').filter(x=>x.s), add=hw.filter(x=>x&&x.s&&!cur.some(c=>c.s==x.s&&c.f==x.f&&c.t==x.t));
+        REPF.data['quran.rev']=cur.concat(JSON.parse(JSON.stringify(add))); rpBuildSections(); rpPreview(); toast('Last homework added to Revision ✓'); }
       else if(act==='sameq'){ REPF.hw.quran=JSON.parse(JSON.stringify(rpQRef('new'))); rpBuildSections(); rpPreview(); }
       else if(b.id==='rpSave'){ const r=rpCur(); if(!r.name){ toast('Enter the student’s name'); $('rpName').focus(); return; }
         const a=rpAll(); r.id=r.id||'r'+Date.now().toString(36); r.saved=Date.now(); REPF.id=r.id;
-        const i=a.findIndex(x=>x.id===r.id); if(i>=0) a[i]=r; else a.push(r); rpStore(a); rpPrefs(); toast('Report saved ✅'); rpList(); clSyncNow(true); }
+        const i=a.findIndex(x=>x.id===r.id); if(i>=0) a[i]=r; else a.push(r); rpStore(a); rpPrefs(); toast('Report saved ✅'); rpList(); clSyncNow(true); rpReset(); }
       else if(b.id==='rpCopy') rpCopyText(rpText(rpModel(rpCur())));
       else if(b.id==='rpWa') window.open('https://wa.me/?text='+encodeURIComponent(rpText(rpModel(rpCur()))),'_blank');
       else if(b.id==='rpWaImg'){ const m=rpModel(rpCur()); rpToPng(rpHTML(m),600,'Lesson_Report_'+($('rpName').value.trim()||'student')+'_'+$('rpDate').value,rpText(m)); }
@@ -4921,6 +4933,7 @@ const PV_INL = /^(SPAN|B|I|U|STRONG|EM|SMALL|SUP|SUB|BR)$/;
 const pvPath = (root, el) => { const p = []; while(el && el !== root){ p.unshift([].indexOf.call(el.parentNode.children, el)); el = el.parentNode; } return p.join('.'); };
 const pvAt = (root, p) => { let el = root; for(const i of String(p).split('.')){ el = el && el.children[+i]; } return el || null; };
 const pvOK = el => !!el && el.nodeType === 1 && !el.closest('svg,img,button,input,select,textarea,label,.pv-layer,.pv-bar,[data-noedit]') && ![].some.call(el.children, c => !PV_INL.test(c.tagName)) && (el.textContent||'').trim().length > 0;
+const pvCls = el => String(el.className||'').split(/\s+/).filter(c => c && !/^pv-/.test(c)).join(' ');
 const pvEntries = S => Object.keys(S).filter(k => k !== '_x');
 const pvCount = S => pvEntries(S).length + (S._x ? S._x.length : 0);
 function pvLayer(box, items, live){
@@ -4939,7 +4952,8 @@ function pvLayer(box, items, live){
 function pvPos(el, v, W){ if(v.dx || v.dy){ el.style.translate = (v.dx * W) + 'px ' + (v.dy * W) + 'px'; if(PV_INL.test(el.tagName)) el.style.display = 'inline-block'; } else el.style.translate = ''; }
 function pvGuide(box, on){ let g = box.querySelector(':scope > .pv-guide'); if(!on){ if(g) g.remove(); return; } if(g) return; if(!box.classList.contains('ct') && !box.style.position) box.style.position = 'relative'; g = document.createElement('div'); g.className = 'pv-guide'; g.style.cssText = 'position:absolute;left:50%;top:0;bottom:0;width:0;border-left:1px dashed #3b82f6;z-index:60;pointer-events:none'; box.appendChild(g); }
 function pvApply(root, S, mark, bw){ let n = 0; const W = bw || (root.firstElementChild && root.firstElementChild.offsetWidth) || 1123;
-  pvEntries(S).forEach(p => { const v = S[p]; let el = pvAt(root, p); if(!(el && pvOK(el) && (el.textContent === v.o || v.t === v.o) && (!v.o || el.textContent === v.o || el.textContent === v.t)) && v.o){ el = [].find.call(root.querySelectorAll('*'), x => pvOK(x) && x.textContent === v.o && !x.closest('.pv-layer')) || null; } if(el && pvOK(el) && (el.textContent === v.o || v.t === v.o)){ if(v.t !== v.o){ el.textContent = v.t; if(String(v.t).indexOf('\n') >= 0) el.style.whiteSpace = 'pre-line'; } if(v.w){ el.style.maxWidth = (v.w * W) + 'px'; el.style.overflowWrap = 'anywhere'; if(PV_INL.test(el.tagName)) el.style.display = 'inline-block'; } if(v.f && v.b) el.style.setProperty('font-size', (v.b * v.f) + 'px', 'important'); pvPos(el, v, W); if(mark && (v.t !== v.o || v.f || v.dx || v.dy || v.w)) el.classList.add('pv-ed'); n++; } });
+  pvEntries(S).forEach(p => { const v = S[p]; let el = pvAt(root, p);
+    if(el && v.t === v.o && pvOK(el) && el.textContent !== v.o && (!v.k || pvCls(el) === v.k)){ v.o = v.t = el.textContent; } if(!(el && pvOK(el) && (el.textContent === v.o || v.t === v.o) && (!v.o || el.textContent === v.o || el.textContent === v.t)) && v.o){ el = [].find.call(root.querySelectorAll('*'), x => pvOK(x) && x.textContent === v.o && !x.closest('.pv-layer')) || null; } if(el && pvOK(el) && (el.textContent === v.o || v.t === v.o)){ if(v.t !== v.o){ el.textContent = v.t; if(String(v.t).indexOf('\n') >= 0) el.style.whiteSpace = 'pre-line'; } if(v.w){ el.style.maxWidth = (v.w * W) + 'px'; el.style.overflowWrap = 'anywhere'; if(PV_INL.test(el.tagName)) el.style.display = 'inline-block'; } if(v.f && v.b) el.style.setProperty('font-size', (v.b * v.f) + 'px', 'important'); pvPos(el, v, W); if(mark && (v.t !== v.o || v.f || v.dx || v.dy || v.w)) el.classList.add('pv-ed'); n++; } });
   pvLayer(root.firstElementChild, S._x, mark); return n; }
 function ctFitMid(ct){ const m = ct && ct.querySelector('.ct-mid'); if(!m) return; m.style.transform = ''; const kids = [].slice.call(m.children); if(!kids.length) return;
   const top = Math.min.apply(null, kids.map(c => c.offsetTop)), bot = Math.max.apply(null, kids.map(c => c.offsetTop + c.offsetHeight)), need = bot - top + 10, k = m.clientHeight / need;
@@ -4977,11 +4991,11 @@ function pvEdit(el, done){ const prevWS = el.style.whiteSpace; el.contentEditabl
 function pvStart(root, key, el){
   const S = PVE.S[key], p = pvPath(root, el), cur = S[p] || {}, o = cur.o !== undefined ? cur.o : el.textContent, before = el.textContent;
   PVE.sel = {key:key, p:p}; pvMark(root, key); pvBar(root, key);
-  pvEdit(el, t => { const nt = (t === null) ? before : t; el.textContent = nt; el.style.whiteSpace = nt.indexOf('\n') >= 0 ? 'pre-line' : ''; if(nt === '' && o) toast('Text hidden — ↺ Reset brings it back'); const v = {o:o, t:nt, f:cur.f || 0, b:cur.b || 0, dx:cur.dx || 0, dy:cur.dy || 0, w:cur.w || 0};
+  pvEdit(el, t => { const nt = (t === null) ? before : t; el.textContent = nt; el.style.whiteSpace = nt.indexOf('\n') >= 0 ? 'pre-line' : ''; if(nt === '' && o) toast('Text hidden — ↺ Reset brings it back'); const v = {k:cur.k || pvCls(el), o:o, t:nt, f:cur.f || 0, b:cur.b || 0, dx:cur.dx || 0, dy:cur.dy || 0, w:cur.w || 0};
     if(nt === o && !v.f && !v.dx && !v.dy && !v.w){ delete S[p]; el.classList.remove('pv-ed'); } else { S[p] = v; el.classList.add('pv-ed'); }
     pvSave(); pvBar(root, key); }); }
 function pvMoveEl(root, key, el, e){
-  const S = PVE.S[key], p = pvPath(root, el), box = root.firstElementChild, W = box.offsetWidth || 1, br = box.getBoundingClientRect(), sc = (br.width / W) || 1, v0 = S[p] || {o:el.textContent, t:el.textContent, f:0, b:0, dx:0, dy:0};
+  const S = PVE.S[key], p = pvPath(root, el), box = root.firstElementChild, W = box.offsetWidth || 1, br = box.getBoundingClientRect(), sc = (br.width / W) || 1, v0 = S[p] || {k:pvCls(el), o:el.textContent, t:el.textContent, f:0, b:0, dx:0, dy:0};
   const er = el.getBoundingClientRect(), c0 = (er.left + er.width / 2 - br.left) / sc, lines = PVE.snap === 'lines', sx = e.clientX, sy = e.clientY;
   let dx = v0.dx || 0, dy = v0.dy || 0, moved = false, axis = ''; e.preventDefault(); PVE.sel = {key:key, p:p}; pvMark(root, key); pvBar(root, key);
   const mv = ev => { let ax = (ev.clientX - sx) / sc, ay = (ev.clientY - sy) / sc; if(!moved && Math.hypot(ax, ay) < 3) return; moved = true;
@@ -5035,11 +5049,11 @@ document.addEventListener('click', e => { const r = e.target.closest('[data-pvre
   if(act === 'wm' || act === 'wp'){ const k = act === 'wp' ? 1.12 : 1 / 1.12;
     if(s.id){ const it = pvItem(key, s.id); if(!it || it.k !== 't'){ toast('Width works on text'); return; } it.bw = Math.max(10, Math.min(100, +((it.bw || 90) * k).toFixed(1))); pvSave(); PV_RR[key](); return; }
     const el = pvAt(root, s.p); if(!el) return; const box = root.firstElementChild, W = box.offsetWidth || 1, sc = (box.getBoundingClientRect().width / W) || 1;
-    const v = S[s.p] || {o:el.textContent, t:el.textContent, f:0, b:0, dx:0, dy:0, w:0}; if(v.t === v.o && v.o !== el.textContent){ v.o = v.t = el.textContent; } const cw = v.w || (el.getBoundingClientRect().width / sc / W);
+    const v = S[s.p] || {k:pvCls(el), o:el.textContent, t:el.textContent, f:0, b:0, dx:0, dy:0, w:0}; if(v.t === v.o && v.o !== el.textContent){ v.o = v.t = el.textContent; } const cw = v.w || (el.getBoundingClientRect().width / sc / W);
     v.w = Math.max(.1, Math.min(1, +(cw * k).toFixed(3))); S[s.p] = v; pvSave(); PV_RR[key](); return; }
   const m = act === 'lg' ? 1.12 : 1 / 1.12;
   if(s.id){ const it = pvItem(key, s.id); if(!it) return; if(it.k === 'i') it.w = Math.max(4, Math.min(90, +(it.w * m).toFixed(1))); else it.fs = Math.max(1.2, Math.min(16, +(it.fs * m).toFixed(2))); }
-  else { const el = pvAt(root, s.p); if(!el) return; const v = S[s.p] || {o:el.textContent, t:el.textContent, f:0, b:0, dx:0, dy:0}; if(v.t === v.o && v.o !== el.textContent){ v.o = v.t = el.textContent; } if(!v.b){ el.style.removeProperty('font-size'); v.b = parseFloat(getComputedStyle(el).fontSize) || 16; }
+  else { const el = pvAt(root, s.p); if(!el) return; const v = S[s.p] || {k:pvCls(el), o:el.textContent, t:el.textContent, f:0, b:0, dx:0, dy:0}; if(v.t === v.o && v.o !== el.textContent){ v.o = v.t = el.textContent; } if(!v.b){ el.style.removeProperty('font-size'); v.b = parseFloat(getComputedStyle(el).fontSize) || 16; }
     v.f = Math.max(.4, Math.min(3, +((v.f || 1) * m).toFixed(2))); if(Math.abs(v.f - 1) < .03) v.f = 0; if(v.t === v.o && !v.f && !v.dx && !v.dy && !v.w) delete S[s.p]; else S[s.p] = v; if(v.f) el.style.setProperty('font-size', (v.b * v.f) + 'px', 'important'); else el.style.removeProperty('font-size'); }
   pvSave(); if(s.id) PV_RR[key](); else pvBar(root, key); });
 (function(){ const f = rpPreview; rpPreview = function(){ const r = f.apply(this, arguments); pvAfter('rpPreview','report'); return r; }; })();
