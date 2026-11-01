@@ -3091,7 +3091,7 @@ function rpMix(a,b,p){ const h=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16)), A
 function rpVars(t){ const W='#ffffff'; return '--g:'+t.g+';--g2:'+t.g2+';--gold:'+t.gold+';--bg:'+t.bg+';--ln:'+rpMix(t.gold,W,.35)+';--tg:'+rpMix(t.gold,W,.16)+';--t1:'+rpMix(t.g,W,.14)+';--t2:'+rpMix(t.gold,W,.22)+';--t3:'+rpMix(t.g2,W,.14); }
 function rpThemeCSS(){
   const F=rpStack(), fa=rpFonts().find(f=>f.g==='Arabic'||f.g==='Urdu / Persian');
-  return RP_LAY+'.rc{'+rpVars(rpTh('s'))+(F?';font-family:'+F:'')+'}.mw{'+rpVars(rpTh('m'))+(F?';font-family:'+F:'')+'}'+(fa?'.rc-bis{font-family:\''+fa.n+'\',serif}':'');
+  return RP_LAY+'.rc .rc-title{font-size:1.4rem!important;line-height:1.2;letter-spacing:.03em}'+'.rc{'+rpVars(rpTh('s'))+(F?';font-family:'+F:'')+'}.mw{'+rpVars(rpTh('m'))+(F?';font-family:'+F:'')+'}'+(fa?'.rc-bis{font-family:\''+fa.n+'\',serif}':'');
 }
 function rpApplyDesign(){
   let st=$('rpThemeStyle'); if(!st){ st=document.createElement('style'); st.id='rpThemeStyle'; document.head.appendChild(st); }
