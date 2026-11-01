@@ -2902,38 +2902,30 @@ function rpText(m){
   const sty=lsGet('lp.rep.style')||'exec';
   if(sty==='classic') return rpTextClassic(m);
   if(sty==='exec'){
-    const ln='──────────────────', L=[];
-    L.push('*'+T('Lesson Report')+'*',ln,
-      T('Student')+'  '+(m.name||'—'),
-      T('Subject')+'  '+m.subj,
-      T('Date')+'  '+m.date+'   ·   '+T('Duration')+'  '+m.dur,
+    const ln='──────────────────', B=t=>'*'+String(t).trim()+'*', L=[];
+    L.push(B(T('Lesson Report')),ln,
+      B(T('Student'))+'  '+(m.name||'—'),
+      B(T('Subject'))+'  '+m.subj,
+      B(T('Date'))+'  '+m.date+'   ·   '+B(T('Duration'))+'  '+m.dur,
       ln,'');
     if(m.notes.length){
-      L.push(T('Lesson Notes').toUpperCase(),'');
+      L.push(B(T('Lesson Notes').toUpperCase()),'');
       m.notes.forEach(n=>{
-        L.push(n.title);
-        n.rows.forEach(r=>L.push(r[0]?'•  '+r[0]+' — '+r[1]:r[1]));
+        L.push(B(n.title));
+        n.rows.forEach(r=>L.push('- '+(r[0]?r[0]+' — '+r[1]:r[1])));
         L.push('');
       });
     }
     if(m.hw.length){
-      L.push(ln,T('Homework').toUpperCase());
-      m.hw.forEach(x=>L.push('•  '+x.title+' — '+x.text));
+      L.push(ln,B(T('Homework').toUpperCase()));
+      m.hw.forEach(x=>L.push('- '+x.title+' — '+x.text));
     }
-    if(m.grade) L.push(ln,T('Grade').toUpperCase()+'  '+m.grade);
+    if(m.grade) L.push(ln,B(T('Grade').toUpperCase())+'  '+m.grade);
     L.push(ln,'','_Jazakum Allahu khayran_');
     if(m.teacher) L.push(m.teacher);
     if(m.ac) L.push(m.ac);
     return L.join('\n').replace(/\n{3,}/g,'\n\n').trim();
   }
-  const B=t=>'*'+t+'*', bar='━━━━━━━━━━━━━━━━', L=[].concat(['📋 '+B(T('Lesson Report').toUpperCase()),bar,'👤 '+B(T('Student')+':')+' '+(m.name||'—'),'📚 '+B(T('Subject')+':')+' '+m.subj,...(m.teacher?['👨‍🏫 '+B(T('Teacher')+':')+' '+m.teacher]:[]),...(m.ac?['🏫 '+B(T('Academy')+':')+' '+m.ac]:[]),'⏱️ '+B(T('Duration')+':')+' '+m.dur,'📅 '+B(T('Date')+':')+' '+m.date,bar,'']);
-  if(m.notes.length){ L.push('📝 '+B(T('Lesson Notes').toUpperCase()),'');
-    m.notes.forEach(n=>{ L.push(n.icon+' '+B(n.title)); n.rows.forEach(r=>L.push(r[0]?'▪️ '+r[0]+': '+r[1]:r[1])); L.push(''); }); }
-  if(m.hw.length){ L.push('📌 '+B(T('Homework').toUpperCase())); m.hw.forEach(x=>L.push(x.icon+' '+x.title+': '+x.text)); L.push(''); }
-  if(m.grade){ L.push('🌟 '+B(T('Grade').toUpperCase()),m.grade,''); }
-  L.push(bar,'_Jazakum Allahu khayran_ 🤲');
-  return L.join('\n').replace(/\n{3,}/g,'\n\n').trim();
-}
 function rpTextClassic(m){
   const L=['📋 '+T('Lesson Report'),T('Student’s Name')+': '+(m.name||'—'),T('Subject')+': '+m.subj,T('Duration')+': '+m.dur,T('Date')+': '+m.date];
   if(m.teacher) L.push(T('Teacher')+': '+m.teacher);
