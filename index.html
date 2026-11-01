@@ -2936,28 +2936,20 @@ function rpText0(m){
   const sty=lsGet('lp.rep.style')||'exec';
   if(sty==='classic') return rpTextClassic(m);
   if(sty==='exec'){
-    const ln='──────────────────', B=t=>'*'+String(t).trim()+'*', L=[];
-    L.push(B(T('Lesson Report')),ln,
-      B(T('Student'))+'  '+(m.name||'—'),
-      B(T('Subject'))+'  '+m.subj,
-      B(T('Date'))+'  '+m.date+'   ·   '+B(T('Duration'))+'  '+m.dur,
-      ln,'');
-    if(m.notes.length){
-      L.push(B(T('Lesson Notes').toUpperCase()),'');
-      m.notes.forEach(n=>{
-        L.push(B(n.title));
-        n.rows.forEach(r=>L.push('- '+(r[0]?r[0]+' — '+r[1]:r[1])));
-        L.push('');
-      });
-    }
+    const ln='──────────────────', B=t=>'*'+String(t).trim()+'*', cap=x=>String(x).replace(/(^|\s)([a-z])/g,(q,w,c)=>w+c.toUpperCase()), L=[];
+    L.push('✦ '+B(T('Lesson Report'))+' ✦',ln,B([m.name||'—',m.date,m.dur].join('  ·  ')),ln,'');
+    m.notes.forEach(n=>{
+      L.push(B(n.title));
+      n.rows.forEach(r=>L.push('- '+(r[0]?B(r[0].replace(/^New Memori[sz]ation$/,'New'))+' — '+r[1]:r[1])));
+      L.push('');
+    });
     if(m.hw.length){
-      L.push(ln,B(T('Homework').toUpperCase()));
+      L.push(ln,B(T('Homework')));
       m.hw.forEach(x=>L.push('- '+x.title+' — '+x.text));
     }
-    if(m.grade) L.push(ln,B(T('Grade').toUpperCase())+'  '+m.grade);
+    if(m.grade) L.push(ln,B(T('Grade'))+'  '+m.grade);
     L.push(ln,'','_'+T('Jazakum Allahu khayran')+'_');
-    if(m.teacher) L.push(m.teacher);
-        if(m.ac) L.push(m.ac);
+    { const sg=[m.teacher,m.ac?cap(m.ac):''].filter(Boolean).join(' · '); if(sg) L.push(sg); }
     return L.join('\n').replace(/\n{3,}/g,'\n\n').trim();
   }
   const B=t=>'*'+t+'*', bar='━━━━━━━━━━━━━━━━', L=[].concat(['📋 '+B(T('Lesson Report').toUpperCase()),bar,'👤 '+B(T('Student')+':')+' '+(m.name||'—'),'📚 '+B(T('Subject')+':')+' '+m.subj,...(m.teacher?['👨‍🏫 '+B(T('Teacher')+':')+' '+m.teacher]:[]),...(m.ac?['🏫 '+B(T('Academy')+':')+' '+m.ac]:[]),'⏱️ '+B(T('Duration')+':')+' '+m.dur,'📅 '+B(T('Date')+':')+' '+m.date,bar,'']);
@@ -4782,7 +4774,7 @@ function rpParseText(raw){
   const noor=[]; let sec='head',cur=null,lastHw=null;
   const putQ=(o,key,rest)=>{ const q=qParse(rest); if(q.length){ o[key]=(o[key]||[]).concat(q); return true; } return false; };
   const norm=txt=>{ /* accepts the Copy-button layout (*bold*, ─── lines, "- " bullets, no colons) as well as "Label: value" */
-    const ls=txt.replace(/[*_]/g,'').split('\n').map(x=>x.trim()), head=[], body=[]; let sig=false,tl='',zone='head';
+    const ls=txt.replace(/[*_✦]/g,'').split('\n').map(x=>x.trim()), head=[], body=[]; let sig=false,tl='',zone='head';
     const isSep=x=>/^[\s─━═\-–—=~]{3,}$/.test(x), isBul=x=>/^[-•▪]\s*/.test(x);
     const HL=/^(student|name|الطالبة?|اسم الطالبة?|subjects?|المادة|المواد|date|التاريخ|duration|المدة|teacher|المعلمة?|المعلم)\s+(?![:：])(.+)$/i;
     const nextBul=i=>{ for(let j=i+1;j<ls.length;j++){ if(!ls[j]||isSep(ls[j])) continue; return isBul(ls[j]); } return false; };
@@ -4793,13 +4785,14 @@ function rpParseText(raw){
       if(/^(lesson notes|ملاحظات الدرس)\s*[:：]?\s*$/i.test(l)){ zone='notes'; body.push(l); return; }
       if(/^(homework|الواجب(?: المنزلي)?|الواجبات)\s*[:：]?\s*$/i.test(l)){ zone='hw'; body.push(l); return; }
       if(/^(grade|التقييم|الدرجة)\b/i.test(l)){ zone='grade'; body.push(l); return; }
-      if(zone==='head'){ l.split(/\s+·\s+/).forEach(p=>{ p=p.trim(); const m=HL.exec(p); head.push(m?m[1]+': '+m[2]:p); }); return; }
+      if(zone==='head'&&!isBul(l)&&nextBul(i)&&!/[:：]/.test(l)){ zone='notes'; body.push('Lesson Notes'); }
+      if(zone==='head'){ { const pp=l.split(/\s+·\s+/).map(x=>x.trim()); if(pp.length===3&&/\d{1,4}[\/\-.]\d{1,2}[\/\-.]\d{1,4}/.test(pp[1])){ head.push('Student: '+pp[0],'Date: '+pp[1],'Duration: '+pp[2]); return; } } l.split(/\s+·\s+/).forEach(p=>{ p=p.trim(); const m=HL.exec(p); head.push(m?m[1]+': '+m[2]:p); }); return; }
       if(isBul(l)){ let b=l.replace(/^[-•▪]\s*/,''); const m=/^(.{1,40}?)\s+[—–]\s+(.+)$/.exec(b);
         if(m&&(/^(new memori[sz]ation|new|revision|review|حفظ جديد|الحفظ الجديد|الحفظ|مراجعة|المراجعة)$/i.test(m[1].trim())||subKey(m[1]))) b=m[1].trim()+': '+m[2];
         body.push(b); return; }
       if(zone==='notes'&&!/[:：]\s*$/.test(l)&&nextBul(i)){ body.push(l+':'); return; }
       body.push(l); });
-    if(tl) head.push('Teacher: '+tl);
+    if(tl) head.push('Teacher: '+tl.split(/\s+·\s+/)[0]);
     return head.concat(body).join('\n'); };
   norm(t).split('\n').forEach(raw=>{ raw=raw.trim(); if(!raw) return; const l=raw.replace(/^[^\p{L}\p{N}]+/u,''); if(!l) return; let m;
     if(/^(lesson report|تقرير الدرس)$/i.test(l)) return;
