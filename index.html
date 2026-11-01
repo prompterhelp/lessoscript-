@@ -4781,7 +4781,27 @@ function rpParseText(raw){
   const addDone=(k,v)=>{ R.data[k+'.done']=((R.data[k+'.done']||'')+' '+v).trim(); };
   const noor=[]; let sec='head',cur=null,lastHw=null;
   const putQ=(o,key,rest)=>{ const q=qParse(rest); if(q.length){ o[key]=(o[key]||[]).concat(q); return true; } return false; };
-  t.split('\n').forEach(raw=>{ raw=raw.trim(); if(!raw) return; const l=raw.replace(/^[^\p{L}\p{N}]+/u,''); if(!l) return; let m;
+  const norm=txt=>{ /* accepts the Copy-button layout (*bold*, ─── lines, "- " bullets, no colons) as well as "Label: value" */
+    const ls=txt.replace(/[*_]/g,'').split('\n').map(x=>x.trim()), head=[], body=[]; let sig=false,tl='',zone='head';
+    const isSep=x=>/^[\s─━═\-–—=~]{3,}$/.test(x), isBul=x=>/^[-•▪]\s*/.test(x);
+    const HL=/^(student|name|الطالبة?|اسم الطالبة?|subjects?|المادة|المواد|date|التاريخ|duration|المدة|teacher|المعلمة?|المعلم)\s+(?![:：])(.+)$/i;
+    const nextBul=i=>{ for(let j=i+1;j<ls.length;j++){ if(!ls[j]||isSep(ls[j])) continue; return isBul(ls[j]); } return false; };
+    ls.forEach((l,i)=>{
+      if(!l){ body.push(''); return; } if(isSep(l)||/^بسم الله/.test(l)) return;
+      if(sig){ if(!tl) tl=l; return; }
+      if(/^(جزاكم الله|jazakum allahu)/i.test(l)){ sig=true; return; }
+      if(/^(lesson notes|ملاحظات الدرس)\s*[:：]?\s*$/i.test(l)){ zone='notes'; body.push(l); return; }
+      if(/^(homework|الواجب(?: المنزلي)?|الواجبات)\s*[:：]?\s*$/i.test(l)){ zone='hw'; body.push(l); return; }
+      if(/^(grade|التقييم|الدرجة)\b/i.test(l)){ zone='grade'; body.push(l); return; }
+      if(zone==='head'){ l.split(/\s+·\s+/).forEach(p=>{ p=p.trim(); const m=HL.exec(p); head.push(m?m[1]+': '+m[2]:p); }); return; }
+      if(isBul(l)){ let b=l.replace(/^[-•▪]\s*/,''); const m=/^(.{1,40}?)\s+[—–]\s+(.+)$/.exec(b);
+        if(m&&(/^(new memori[sz]ation|new|revision|review|حفظ جديد|الحفظ الجديد|الحفظ|مراجعة|المراجعة)$/i.test(m[1].trim())||subKey(m[1]))) b=m[1].trim()+': '+m[2];
+        body.push(b); return; }
+      if(zone==='notes'&&!/[:：]\s*$/.test(l)&&nextBul(i)){ body.push(l+':'); return; }
+      body.push(l); });
+    if(tl) head.push('Teacher: '+tl);
+    return head.concat(body).join('\n'); };
+  norm(t).split('\n').forEach(raw=>{ raw=raw.trim(); if(!raw) return; const l=raw.replace(/^[^\p{L}\p{N}]+/u,''); if(!l) return; let m;
     if(/^(lesson report|تقرير الدرس)$/i.test(l)) return;
     if(/^(lesson notes|ملاحظات الدرس)\s*[:：]?\s*$/i.test(l)){ sec='notes'; cur=null; return; }
     if(/^(homework|الواجب(?: المنزلي)?|الواجبات)\s*[:：]?\s*$/i.test(l)){ sec='hw'; lastHw=null; return; }
