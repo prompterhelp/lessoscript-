@@ -2896,7 +2896,23 @@ function rpToday(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getM
 function rpDMY(iso){ const m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(iso||''); return m?m[3]+'/'+m[2]+'/'+m[1]:(iso||''); }
 function rpDur(m){ m=+m||0; if(!m) return ''; const h=Math.floor(m/60), r=m%60; return (h?h+(h>1?' hours':' hour'):'')+(h&&r?' ':'')+(r?r+(r>1?' minutes':' minute'):''); }
 function rpJoin(a){ const ar=RPL==='ar'; return a.length>1?a.slice(0,-1).join(ar?'، ':', ')+(ar?' و':' and ')+(ar?'':' ')+a[a.length-1]:(a[0]||''); }
-function rpQ(a){ return (Array.isArray(a)?a:[]).map(e=>{ const sr=RP_SURAHS[(+e.s)-1]; if(!sr) return ''; const n=sr[1], f=Math.max(1,Math.min(+e.f||1,n)), t=Math.max(f,Math.min(+e.t||n,n)); return rpSurahTxt(+e.s,f,t,n); }).filter(Boolean); }
+function rpQ(a){
+  const ar=RPL==='ar', nm=i=>ar?RP_SURAHS_AR[i-1]:RP_SURAHS[i-1][0], out=[], it=[];
+  (Array.isArray(a)?a:[]).forEach(e=>{ const sr=RP_SURAHS[(+e.s)-1]; if(!sr) return; const n=sr[1], f=Math.max(1,Math.min(+e.f||1,n)), t=Math.max(f,Math.min(+e.t||n,n)); it.push({s:+e.s,f:f,t:t,n:n,full:f===1&&t===n}); });
+  let pend=[]; const flush=()=>{ if(pend.length>=3) out.push((ar?'سور ':'Surahs ')+pend.map(x=>nm(x.s)).join(ar?'، ':', ')+(ar?' (كاملة)':' (full)')); else pend.forEach(x=>out.push(rpSurahTxt(x.s,x.f,x.t,x.n))); pend=[]; };
+  for(let i=0;i<it.length;){
+    const x=it[i];
+    if(x.full){
+      let j=i, d=(i+1<it.length&&it[i+1].full)?it[i+1].s-x.s:0;
+      if(d===1||d===-1){ while(j+1<it.length&&it[j+1].full&&it[j+1].s-it[j].s===d) j++; }
+      const k=j-i+1;
+      if(k>=3){ flush(); out.push(ar?'من سورة '+nm(x.s)+' إلى سورة '+nm(it[j].s)+' ('+k+(k<=10?' سور':' سورة')+' كاملة)':'Surah '+nm(x.s)+' to Surah '+nm(it[j].s)+' ('+k+' full surahs)'); i=j+1; continue; }
+      pend.push(x); i++; continue;
+    }
+    flush(); out.push(rpSurahTxt(x.s,x.f,x.t,x.n)); i++;
+  }
+  flush(); return out;
+}
 function rpVal(v){ return Array.isArray(v)?rpQ(v).join(RPL==='ar'?'؛ ':'; '):(typeof v==='string'?v.trim():''); }
 function rpNoor(d){
   const p=(d['noor.page']||'').trim(), p2=(d['noor.page2']||'').trim(), part=d['noor.part']||'', tp=d['noor.topics']||[], note=(d['noor.note']||'').trim();
@@ -2945,7 +2961,7 @@ function rpText0(m){
     });
     if(m.hw.length){
       L.push(ln,B(T('Homework')));
-      m.hw.forEach(x=>L.push('- '+x.title+' — '+x.text));
+      m.hw.forEach(x=>L.push('- '+B(x.title)+' — '+x.text));
     }
     if(m.grade) L.push(ln,B(T('Grade'))+'  '+m.grade);
     L.push(ln,'','_'+T('Jazakum Allahu khayran')+'_');
@@ -2955,7 +2971,7 @@ function rpText0(m){
   const B=t=>'*'+t+'*', bar='━━━━━━━━━━━━━━━━', L=[].concat(['📋 '+B(T('Lesson Report').toUpperCase()),bar,'👤 '+B(T('Student')+':')+' '+(m.name||'—'),'📚 '+B(T('Subject')+':')+' '+m.subj,...(m.teacher?['👨‍🏫 '+B(T('Teacher')+':')+' '+m.teacher]:[]),...(m.ac?['🏫 '+B(T('Academy')+':')+' '+m.ac]:[]),'⏱️ '+B(T('Duration')+':')+' '+m.dur,'📅 '+B(T('Date')+':')+' '+m.date,bar,'']);
   if(m.notes.length){ L.push('📝 '+B(T('Lesson Notes').toUpperCase()),'');
     m.notes.forEach(n=>{ L.push(n.icon+' '+B(n.title)); n.rows.forEach(r=>L.push(r[0]?'▪️ '+r[0]+': '+r[1]:r[1])); L.push(''); }); }
-  if(m.hw.length){ L.push('📌 '+B(T('Homework').toUpperCase())); m.hw.forEach(x=>L.push(x.icon+' '+x.title+': '+x.text)); L.push(''); }
+  if(m.hw.length){ L.push('📌 '+B(T('Homework').toUpperCase())); m.hw.forEach(x=>L.push(x.icon+' '+B(x.title)+': '+x.text)); L.push(''); }
   if(m.grade){ L.push('🌟 '+B(T('Grade').toUpperCase()),m.grade,''); }
   L.push(bar,'_'+T('Jazakum Allahu khayran')+'_ 🤲');
   return L.join('\n').replace(/\n{3,}/g,'\n\n').trim();
@@ -2966,7 +2982,7 @@ function rpTextClassic(m){
   if(m.ac) L.push(T('Academy')+': '+m.ac);
   L.push('',T('Lesson Notes'));
   m.notes.forEach(n=>{ L.push(n.title+':'); n.rows.forEach(r=>L.push(r[0]?r[0]+': '+r[1]:r[1])); L.push(''); });
-  if(m.hw.length){ L.push(T('Homework')); m.hw.forEach(x=>L.push(x.title+': '+x.text)); L.push(''); }
+  if(m.hw.length){ L.push(T('Homework')); m.hw.forEach(x=>L.push('*'+x.title+'*: '+x.text)); L.push(''); }
   if(m.grade){ L.push(T('Grade'),m.grade); }
   return L.join('\n').replace(/\n{3,}/g,'\n\n').trim();
 }
@@ -4756,7 +4772,12 @@ function rpParseText(raw){
   const nz=x=>String(x||'').toLowerCase().replace(/[\u064b-\u065f\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[^a-z0-9\u0621-\u064a]/g,'');
   const SN=RP_SURAHS.map((s,i)=>{ const a=nz(s[0]), b=nz(RP_SURAHS_AR[i]||''); return {i:i,n:[a,a.replace(/^(al|an|ar|as|at|ad|az|ash|adh)/,''),b,b.replace(/^ال/,'')].filter(x=>x.length>=3)}; });
   const R={subjects:[],data:{},hw:{},unparsed:0,name:'',date:'',dur:0,timing:'',teacher:'',grade:''};
-  function qParse(str){ const out=[]; String(str).split(/\s*(?:;|؛|\band\b|\s\+\s|\s&\s|،)\s*/i).forEach(seg=>{ seg=seg.trim(); if(!seg) return;
+  function qParse(str){ const out=[];
+    { const rg=/(?:\bsurah\s+)?([^;؛,،]+?)\s+(?:to|الى|إلى)\s+(?:surah\s+|سورة\s+)?([^;؛,،(]+?)\s*\(\s*\d+\s*(?:full surahs?|سور(?:ة)? كاملة)\s*\)/ig, rest=String(str); let mm, any=false, last=0, txt='';
+      const find=x=>{ const k=nz(x.replace(/\b(surah|sura|soorah|from|the)\b/ig,' ').replace(/سورة|من/g,' ')); let b=null,bl=0; SN.forEach(sn=>sn.n.forEach(n=>{ if(k.includes(n)&&n.length>bl){ b=sn; bl=n.length; } })); return b; };
+      while((mm=rg.exec(rest))){ const a=find(mm[1]), z=find(mm[2]); if(a&&z){ any=true; const d=z.i>=a.i?1:-1; for(let q=a.i;;q+=d){ out.push({s:String(q+1),f:'',t:''}); if(q===z.i) break; } txt+=rest.slice(last,mm.index)+' ; '; last=mm.index+mm[0].length; } }
+      if(any){ str=txt+rest.slice(last); } }
+    String(str).split(/\s*(?:;|؛|\band\b|\s\+\s|\s&\s|،)\s*/i).forEach(seg=>{ seg=seg.trim(); if(!seg) return;
       const w=seg.replace(/\b(surah|sura|soorah|verses?|ayah|ayat|from|to|full|complete|entire|the)\b/gi,' ').replace(/سورة|كاملة|الآيات|آيات|آية/g,' ');
       const k=nz(w); let best=null,bl=0; SN.forEach(s=>s.n.forEach(n=>{ if(k.includes(n)&&n.length>bl){ best=s; bl=n.length; } }));
       if(!best){ const m=/(?:surah|sura|سورة)\s*(\d{1,3})/i.exec(seg); if(m&&+m[1]>=1&&+m[1]<=114) best=SN[+m[1]-1]; }
