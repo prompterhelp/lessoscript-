@@ -3523,6 +3523,13 @@ async function clReq(path, opts){
   const r = await fetch(c.url+'/rest/v1/'+path, Object.assign({}, opts, {headers:Object.assign({apikey:c.key, Authorization:'Bearer '+c.at, 'Content-Type':'application/json'}, (opts||{}).headers)}));
   if(!r.ok) throw new Error((await r.text()).slice(0,160)); const t = await r.text(); return t ? JSON.parse(t) : null;
 }
+async function clStorage(path, opts){
+  let c = clCfg(); if(!c.at) throw new Error('Not signed in');
+  if(Date.now() > c.exp-60000){ await clAuth({refresh_token:c.rt}, 'refresh_token'); c = clCfg(); }
+  const r = await fetch(c.url+'/storage/v1/'+path, Object.assign({}, opts, {headers:Object.assign({apikey:c.key, Authorization:'Bearer '+c.at}, (opts||{}).headers)}));
+  if(!r.ok){ let m=''; try{ const j=await r.json(); m=j.message||j.error||''; }catch(e){} throw new Error(m||('Storage '+r.status)); } return r;
+}
+function clUid(){ try{ return JSON.parse(atob(clCfg().at.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).sub; }catch(e){ throw new Error('Not signed in'); } }
 function rpTomb(id){ let t = []; try{ t = JSON.parse(lsGet('lp.rep.del')||'[]'); }catch(e){} t.push(id); lsSet('lp.rep.del', JSON.stringify(t)); }
 
 /* ===== Saved scripts (local + cloud sync with reports) ===== */
@@ -5188,19 +5195,23 @@ let split=lsGet('lp.split')==='1',sec=lsGet('lp.split.sec')||'script',act='B',sw
 if(sec===S.view||!VIEWS.includes(sec))sec='script';
 const sb=document.createElement('button');sb.className='tab';sb.id='tab-split';sb.type='button';sb.title='Split screen: show two tabs side by side';sb.textContent='◫ Split';nav.appendChild(sb);
 const dv=document.createElement('div');dv.id='splitDv';main.appendChild(dv);
-function renderSec(){try{if(sec==='follow')renderFollow(false);else if(sec==='script')renderScript();else if(sec==='notes')renderNotes();else if(sec==='history')renderHistory();else if(sec==='reports')rpInit();else if(sec==='stage'){const f=$('stageFrame');if(f&&!f.getAttribute('src'))f.src='stage.html'}else if(sec==='setup')$('scriptInput').value=S.script}catch(e){}}
+function rend(k){try{if(k==='follow')renderFollow(false);else if(k==='script')renderScript();else if(k==='notes')renderNotes();else if(k==='history')renderHistory();else if(k==='reports')rpInit();else if(k==='stage'){const f=$('stageFrame');if(f&&!f.getAttribute('src'))f.src='stage.html'}else if(k==='setup')$('scriptInput').value=S.script}catch(e){}}
+function renderSec(){rend(sec)}
+const sp={};
 function apply(){document.body.classList.toggle('split',split);sb.setAttribute('aria-selected',String(split));
- VIEWS.forEach(k=>{const e=$('view-'+k),t=$('tab-'+k);if(!e)return;e.classList.remove('pA','pB','act');if(t)t.removeAttribute('data-sec');
-  if(split){if(k===S.view)e.classList.add('pA');if(k===sec&&k!==S.view){e.classList.add('pB');e.hidden=false;if(t)t.setAttribute('data-sec','1')}}});
+ VIEWS.forEach(k=>{const e=$('view-'+k),t=$('tab-'+k);if(!e)return;if(!e.hidden)sp[k]=e.scrollTop;e.classList.remove('pA','pB','act');if(t)t.removeAttribute('data-sec');
+  if(split){const was=e.hidden,on=k===S.view||k===sec;e.hidden=!on;if(k===S.view)e.classList.add('pA');else if(k===sec){e.classList.add('pB');if(t)t.setAttribute('data-sec','1')}if(on&&was){const y=sp[k]||0;requestAnimationFrame(()=>{e.scrollTop=y})}}});
  if(split){const a=$('view-'+(act==='B'?sec:S.view));a&&a.classList.add('act');main.style.setProperty('--sw',sw+'%');$('controls').hidden=!(S.view==='follow'||sec==='follow')}
  else main.style.removeProperty('--sw')}
 const _sv=setView;
 setView=function(v){
- if(split){
-  if(act==='B'&&v!==S.view){sec=v;lsSet('lp.split.sec',sec);renderSec();apply();return}
-  if(v===sec){const t=S.view;_sv(v);sec=t;lsSet('lp.split.sec',sec)}else _sv(v);
-  renderSec();apply();return}
- _sv(v)};
+ if(!split)return _sv(v);
+ if(act==='B'&&v!==S.view){if(v!==sec){sec=v;lsSet('lp.split.sec',sec);rend(v)}apply();return}
+ if(v===S.view){apply();return}
+ if(v===sec){const t=S.view;S.view=v;sec=t;lsSet('lp.split.sec',sec)}else{S.view=v;rend(v)}
+ VIEWS.forEach(k=>{const t=$('tab-'+k);if(t){t.setAttribute('aria-selected',String(k===S.view));t.tabIndex=k===S.view?0:-1}});
+ if(S.view==='follow')try{scrollToCurrent(false)}catch(e){}
+ apply()};
 sb.onclick=()=>{split=!split;lsSet('lp.split',split?'1':'0');if(split){if(sec===S.view)sec=VIEWS.find(k=>k!==S.view);act='B';renderSec();toast&&toast(RPL==='ar'?'اضغط تبويباً لاختيار الجانب الأيمن':'Split on: tap a tab to fill the highlighted side. Tap a pane to switch sides.')}else{const keep=S.view;VIEWS.forEach(k=>{const e=$('view-'+k);if(e)e.hidden=k!==keep})}apply()};
 main.addEventListener('pointerdown',e=>{if(!split)return;const v=e.target.closest('.view');if(v&&v.classList.contains('pA'))act='A';else if(v&&v.classList.contains('pB'))act='B';else return;apply()},true);
 let drag=0;dv.addEventListener('pointerdown',e=>{drag=1;dv.setPointerCapture(e.pointerId);document.querySelectorAll('iframe').forEach(f=>f.style.pointerEvents='none')});
