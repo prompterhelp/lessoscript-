@@ -97,7 +97,7 @@ textarea{min-height:150px;resize:vertical;font-size:16px}
   <button class="btn" onclick="libDlg()">📚 Library</button><button class="btn" onclick="F.click()">📂 Open</button><button class="btn" onclick="addBoard()">＋ Board</button>
   <button class="btn" onclick="zen()" title="Hide panels (Tab)">⛶ Focus</button>
   <button class="btn" onclick="tp()" title="Notes · Words · Study · Class">☰</button>
-  <button class="btn" onclick="mDlg()">🎬 Media</button><button class="btn pri" onclick="openStu()">🖥 Student screen</button>
+  <button class="btn" onclick="mDlg()">🎬 Media</button><button class="btn" id="stopShare" onclick="closeMedia()" title="Stop showing this on the student screen" style="display:none;background:#e11d48;border:0;color:#fff">⏹ Stop share</button><button class="btn pri" onclick="openStu()">🖥 Student screen</button>
   <input id="F" type="file" multiple accept=".pdf,.pptx,image/*" hidden></div>
  <div id="dtabs"></div><aside id="rail"></aside>
  <main id="col"><div id="stage"><canvas id="cv"></canvas>
@@ -284,7 +284,7 @@ function mOpen(m){S.media=m;const e=$('media');e.innerHTML='';e.style.display='f
  else if(m.type=='web'){n=document.createElement('div');let H=m.src;try{H=new URL(m.src).hostname}catch(x){}
   n.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:100%;height:100%;background:#0b1220;color:#fff;text-align:center;padding:24px;font-family:sans-serif';
   n.innerHTML='<div style="font-size:clamp(28px,5vw,56px);font-weight:800">🌐 '+H+'</div><div style="opacity:.7;word-break:break-all;max-width:90%">'+m.src+'</div><a href="'+m.src+'" target="_blank" rel="noopener" style="background:#2ee59d;color:#062;padding:18px 36px;border-radius:14px;font-weight:800;font-size:clamp(20px,3vw,32px);text-decoration:none">↗ Open website</a><button class="btn" id="wtry">Try showing it here</button>';
-  setTimeout(()=>{const t=n.querySelector('#wtry');if(t)t.onclick=()=>{const f=document.createElement('iframe');f.src=m.src;f.allow='fullscreen;autoplay';f.allowFullscreen=true;f.id='mn';f.style.cssText='width:100%;height:100%;border:0;background:#fff';n.replaceWith(f)}},0)}
+  setTimeout(()=>{const t=n.querySelector('#wtry');if(t)t.onclick=()=>{const f=document.createElement('iframe');f.name=STU?'lsstu':'lstea';f.src=m.src;f.allow='fullscreen;autoplay';f.allowFullscreen=true;f.id='mn';f.style.cssText='width:100%;height:100%;border:0;background:#fff';n.replaceWith(f)}},0)}
  else{n=document.createElement(m.type=='video'?'video':'img');n.src=m.src;if(m.type=='video')n.playsInline=true}
  n.id='mn';e.appendChild(n);
  if(!STU){const b=document.createElement('div');b.id='mbar';b.innerHTML=(m.type=='web'?'<button onclick="window.open(S.media.src,\'_blank\')">↗ Open in tab</button>':m.type=='img'?'':'<button onclick="mc(\'play\')">▶</button><button onclick="mc(\'pause\')">⏸</button>'+(m.type=='video'?'<button onclick="mc(\'back\')">−10s</button><button onclick="mc(\'fwd\')">+10s</button><input type="range" id="msk" min="0" max="1000" value="0" oninput="mc(\'seek\',this.value/1000)">':'')+'<button onclick="mc(\'restart\')">↺</button><button onclick="mute()">🔊</button>')+'<button onclick="closeMedia()">✕ Close</button>';e.appendChild(b);if(m.type=='video')n.ontimeupdate=()=>{const k=$('msk');if(k&&n.duration)k.value=n.currentTime/n.duration*1000}}}
@@ -809,5 +809,24 @@ tb.appendChild(t)})();
 (function(){if(!STU)return;const stg=document.getElementById('stage');
 ['pointerdown','dblclick','wheel','touchstart'].forEach(t=>stg.addEventListener(t,e=>{if(e.target.closest&&e.target.closest('#media'))return;e.stopPropagation();if(t==='wheel')e.preventDefault()},{capture:true,passive:false}));
 setInterval(()=>{if(!S.follow){S.follow=1;const b=document.getElementById('fol');if(b)b.style.display='none'}},300)})();
+</script>
+<script>
+/* zoom stays centred; view can never leave the page (no half-blank sides) */
+clampV=function(){const v=S.v;v.z=Math.max(1,Math.min(10,v.z));const g=geo();if(!g||v.z<=1){v.cx=v.cy=.5;return}
+ const vw=W/(g.bw*v.z),vh=H/(g.bh*v.z);
+ v.cx=vw>=1?.5:Math.max(vw/2,Math.min(1-vw/2,v.cx));v.cy=vh>=1?.5:Math.max(vh/2,Math.min(1-vh/2,v.cy))};
+(function(){const _z=zoomBy;zoomBy=function(k){return _z(k)};
+ const _c=ch.onmessage;ch.onmessage=async ev=>{const r=await _c(ev);const m=ev&&ev.data;if(STU&&m&&m.t==='st'){clampV();need=1}return r};})();
+</script>
+<script>
+setInterval(()=>{const b=document.getElementById('stopShare');if(b)b.style.display=(!STU&&(S.media||LV))?'':'none'},300);
+</script>
+<script>
+/* Stop sharing button: visible on the teacher screen while anything is shown to students */
+(function(){if(STU)return;const b=document.createElement('button');b.id='stopshare';b.textContent='⏹ Stop sharing';
+b.style.cssText='position:absolute;top:14px;right:14px;z-index:9;display:none;padding:9px 16px;border-radius:12px;border:0;background:#ff4d6d;color:#fff;font:700 14px Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer';
+b.onclick=()=>{try{closeMedia()}catch(e){try{mClose(1)}catch(_){}}b.style.display='none';toast('Stopped sharing with students')};
+document.getElementById('stage').appendChild(b);
+setInterval(()=>{b.style.display=(S.media||LV)?'block':'none'},300)})();
 </script>
 </body></html>
