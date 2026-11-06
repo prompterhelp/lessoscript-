@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>LessonStage Pro · LessoScript</title><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png">
-<link rel="preconnect" href="https://cdnjs.cloudflare.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Naskh+Arabic:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script><script>window.lz=()=>window.JSZip?Promise.resolve(window.JSZip):new Promise((r,j)=>{const e=document.createElement("script");e.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";e.onload=()=>r(window.JSZip);e.onerror=j;document.head.appendChild(e)})</script>
 <style>
 :root{--bg:#0b0d14;--s1:#121623;--s2:#1a2032;--bd:#272e45;--tx:#eaeefb;--mu:#8b95b5;--a:#5eead4;--b:#a78bfa;--g:linear-gradient(135deg,#5eead4,#a78bfa);color-scheme:dark}
@@ -652,10 +652,10 @@ buildCards=async function(manual){if(building)return;if(!S.pages.length){toast('
  try{const txt=S.pages.map(p=>p.text||'').join('\n'),w=S.pages.map(p=>p.words||'').join('\n');addCards(heur(txt+'\n'+w));
   const a=aiCfg();
   if(a&&a.key){const scan=txt.trim().length<80;
-   if(scan&&a.provider==='groq'){if(manual)toast('Scanned pages need Claude or Gemini in Setup (Groq cannot read images)')}
+   if(scan&&a.provider==='groq'){aiStatus('⚠ These pages are pictures only (no text). Groq cannot read pictures: choose Claude or Gemini in LessoScript > Setup.')}
    else{if(manual)toast('✨ AI is reading your slides…');
-    try{const imgs=scan?await Promise.all(S.pages.slice(0,6).map(p=>b64(p.blob))):[];const n=addCards(await aiCards(txt.slice(0,12000),imgs));if(manual)toast('AI added '+n+' cards ✓')}catch(e){toast('AI: '+e.message)}}}
-  else if(manual)toast('Tip: add an AI key in LessoScript > Setup for smarter cards');
+    try{const imgs=scan?await Promise.all(S.pages.slice(0,6).map(p=>b64(p.blob))):[];const n=addCards(await aiCards(txt.slice(0,12000),imgs));aiStatus(n?'✓ AI added '+n+' new cards':'AI answered but added 0 new cards (all already exist)')}catch(e){aiStatus('⚠ AI error: '+e.message+'  [provider: '+a.provider+', model: '+(a.model||'default')+']')}}}
+  else aiStatus('No AI key found. Add it in LessoScript > Setup (same browser).');
   const n=cards().length;if(n&&!(a&&a.key&&manual))toast(n+' study cards ready ✓')}finally{building=0}};
 })();
 
@@ -1095,6 +1095,53 @@ setInterval(()=>{b.style.display=(S.media||LV)?'block':'none'},300)})();
   const _g=go;go=function(i){tz=null;px=py=0;return _g(i)};
   const _c=clampV;clampV=function(){S.mvT=performance.now();S.hq=0;return _c()};
   setInterval(()=>{if(S.mvT&&!S.hq&&performance.now()-S.mvT>230){S.hq=1;need=1}},120);
+})();
+</script>
+<style id="pro-v7">
+/* ===== Words: clean, professional cards ===== */
+#ovw{background:radial-gradient(1100px 620px at 50% -8%,#1b2750 0%,#0a0e1c 62%,#05070e 100%)!important}
+#ovw .wvin,#wprev .wvin{gap:calc(var(--u)*.85)!important;max-width:min(94%,calc(var(--u)*var(--cols,2)*19))!important}
+#ovw .wvin[data-n="1"],#wprev .wvin[data-n="1"]{max-width:min(92%,calc(var(--u)*22))!important}
+#ovw .wc,#wprev .wc{position:relative;overflow:hidden;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:0!important;
+ padding:calc(var(--u)*1.4) calc(var(--u)*1.1)!important;border-radius:calc(var(--u)*1.1)!important;
+ background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.03))!important;
+ border:1px solid rgba(255,255,255,.13)!important;
+ box-shadow:0 calc(var(--u)*1.1) calc(var(--u)*3) rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)!important}
+#ovw .wc::after,#wprev .wc::after{left:0!important;right:0!important;top:0!important;height:calc(var(--u)*.14)!important;border-radius:0!important;background:linear-gradient(90deg,transparent,#5eead4 30%,#a78bfa 70%,transparent)!important;opacity:.85}
+#ovw .wc::before,#wprev .wc::before{top:calc(var(--u)*.6)!important;inset-inline-start:calc(var(--u)*.8)!important;font:600 max(9px,calc(var(--u)*.5)) Inter,sans-serif!important;color:rgba(255,255,255,.3)!important}
+#ovw .wt,#wprev .wt{font-family:Inter,Amiri,'Noto Naskh Arabic','Traditional Arabic','Segoe UI',serif!important;font-weight:700!important;font-size:calc(var(--u)*2.6)!important;line-height:1.65!important;
+ color:#fff!important;background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;
+ text-shadow:0 0 calc(var(--u)*1.6) rgba(94,234,212,.28);text-align:center;padding:0!important;max-width:100%;overflow-wrap:anywhere}
+#ovw .wd,#wprev .wd{display:block;width:38%;height:1px;margin:calc(var(--u)*.7) 0 calc(var(--u)*.65);background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent)}
+#ovw .wm,#wprev .wm{font-family:Inter,Amiri,'Noto Naskh Arabic','Segoe UI',sans-serif!important;font-weight:500!important;font-size:calc(var(--u)*1.15)!important;line-height:1.5!important;
+ color:#cfe0ff!important;width:auto!important;max-width:100%;padding:0!important;border:0!important;text-align:center!important}
+#ovw .wm small,#wprev .wm small{display:inline-block;margin-top:calc(var(--u)*.55);padding:.18em .85em;border-radius:99px;font-size:.68em!important;font-weight:600;color:#9fe9dd!important;background:rgba(94,234,212,.1)!important;border:1px solid rgba(94,234,212,.22)!important}
+</style>
+<script>
+/* words markup: term, divider, meaning (+ note chip) */
+(function(){
+  wordsHTML=function(t){
+    const L=String(t||'').split('\n').filter(x=>x.trim()),n=L.length;
+    const s=n<=1?2.4:n==2?2:n<=4?1.7:n<=6?1.4:n<=9?1.15:n<=12?1:.85;
+    let c=n<=1?1:n==2?2:n==3?3:n==4?2:n<=9?3:n<=12?4:5;
+    if(innerWidth<innerHeight)c=Math.min(c,2);
+    return '<div class="wvin" data-n="'+n+'" style="--cols:'+c+';--s:'+s+'">'+L.map(x=>{const a=x.split('|').map(q=>q.trim()),m=a[1]||'',nt=a[2]||'';
+      return '<div class="wc"><span class="wt" dir="auto">'+esc(a[0]||'')+'</span>'+((m||nt)?'<i class="wd"></i><span class="wm" dir="auto">'+esc(m)+(nt?'<small>'+esc(nt)+'</small>':'')+'</span>':'')+'</div>'}).join('')+'</div>'};
+  try{if(!STU)rw()}catch(e){}
+})();
+</script>
+<script>
+/* Study cards: wait for all pages, show clear AI messages */
+(function(){
+  window.aiStatus=function(t){let e=document.getElementById('qerr');if(!e){e=document.createElement('div');e.id='qerr';e.className='mu';e.style.cssText='padding:8px 10px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);line-height:1.4;word-break:break-word';const q=document.getElementById('qc');q.parentNode.insertBefore(e,q.nextSibling)}e.textContent=t;try{toast(t.slice(0,90))}catch(_){}};
+  const _b=buildCards;
+  buildCards=async function(m){
+    if(S.pages.some(p=>p.lazy&&!p.blob)){aiStatus('Reading all pages first…');const t0=Date.now();while(S.pages.some(p=>p.lazy&&!p.blob)&&Date.now()-t0<120000)await new Promise(r=>setTimeout(r,300))}
+    const chars=S.pages.reduce((a,p)=>a+((p.text||'').length),0);
+    aiStatus('Working… (read '+chars+' characters from '+S.pages.length+' pages)');
+    const r=await _b(m);
+    if(!document.getElementById('qerr').textContent.startsWith('⚠')&&!/^✓|^AI answered|^No AI/.test(document.getElementById('qerr').textContent))aiStatus(cards().length+' cards ready (text read: '+chars+' characters)');
+    return r};
 })();
 </script>
 <script>
