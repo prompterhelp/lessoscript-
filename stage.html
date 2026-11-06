@@ -292,8 +292,8 @@ function mcApply(a,v){const n=$('mn');if(!n||!S.media)return;if(S.media.type=='y
  else if(S.media.type=='video'){if(a=='play')n.play().catch(()=>toast('Click this window once to allow sound'));else if(a=='pause')n.pause();else if(a=='back')n.currentTime-=10;else if(a=='fwd')n.currentTime+=10;else if(a=='restart'){n.currentTime=0;n.play()}else if(a=='seek')n.currentTime=v*n.duration}}
 function mc(a,v){mcApply(a,v);send({t:'mc',a,v})}
 function mute(){const n=$('mn');if(!n)return;if(S.media.type=='yt'){S.mu=!S.mu;yt(S.mu?'mute':'unMute')}else n.muted=!n.muted}
-function closeMedia(){const d=S.decks[S.d];if(d&&d.mediaTab)closeDeck(S.d);else mClose(1)}
-function mClose(own){S.mkey=null;$('media').style.display='none';$('media').innerHTML='';S.media=null;if(own)send({t:'mx'})}
+function closeMedia(){document.body.classList.remove('hasweb');const d=S.decks[S.d];if(d&&d.mediaTab)closeDeck(S.d);else mClose(1)}
+function mClose(own){document.body.classList.remove('hasweb');S.mkey=null;$('media').style.display='none';$('media').innerHTML='';S.media=null;if(own)send({t:'mx'})}
 // sync wrapper + student window
 const old=ch.onmessage;
 ch.onmessage=async ev=>{const m=ev.data;if(m.n){if(seen.has(m.n))return;seen.add(m.n)}
@@ -386,9 +386,9 @@ const _om=ch.onmessage;ch.onmessage=ev=>{const m=ev.data;if(m&&m.t=='pick'){if(S
 function openStu(){const real=/^https?:$/.test(location.protocol),u=real?location.href.split('#')[0]+'#student':URL.createObjectURL(new Blob([SRC],{type:'text/html'}))+'#student',w=screen.availWidth||1280,h=screen.availHeight||720;
  SW=window.open(u,'lsstudent','popup=yes,width='+w+',height='+h+',left='+(screen.availLeft||0)+',top='+(screen.availTop||0));if(!SW)return toast('Popup blocked: allow popups for this page, then try again');
  toast('Student window opened. In Zoom/Meet choose Share > Window > "Student screen". Your script stays private.')}
-if(STU){document.title='Student screen';const h=document.createElement('div');h.id='fsh';h.textContent='⛶ Click anywhere or press any key for full screen';document.body.appendChild(h);h.style.display='block';
- const tf=e=>{if(e&&e.type=='keydown'&&e.key.toLowerCase()=='f')return;if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{})};
- document.addEventListener('pointerdown',tf,true);document.addEventListener('keydown',tf,true);document.addEventListener('fullscreenchange',()=>{h.style.display=document.fullscreenElement?'none':'block'});tf()}
+if(STU){document.title='Student screen';const h=document.createElement('div');h.id='fsh';h.textContent='⛶ Click anywhere or press any key for full screen';document.body.appendChild(h);h.style.display='none';
+ let once=0;const tf=e=>{if(once||(e&&e.type=='keydown'&&e.key.toLowerCase()=='f'))return;once=1;document.removeEventListener('pointerdown',tf,true);document.removeEventListener('keydown',tf,true);if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{})};
+ document.addEventListener('pointerdown',tf,true);document.addEventListener('keydown',tf,true)}
 else{dtabs();tpv();rw()}
 
 /* ===== v2 upgrades ===== */
@@ -501,7 +501,7 @@ const prev=ch.onmessage;ch.onmessage=async ev=>{const m=ev&&ev.data;if(m&&m.t=='
 })();
 
 ui();
-</script><style id="pro-web">#media.web{inset:0;border-radius:0;box-shadow:none}</style><style id="pro-v3">
+</script><style id="pro-web">.stu .sctl,.stu #fsh{display:none!important}.stu,.stu body{overscroll-behavior:none;touch-action:manipulation}#media{overscroll-behavior:contain}#media.web{inset:0;border-radius:0;box-shadow:none}.hasweb #rbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(18,22,35,.95)!important}.hasweb .tb{backdrop-filter:none!important}</style><style id="pro-v3">
 /* ---- reactions: modern glass bar, hidden on student screen ---- */
 .stu #rbar,.stu #rtog{display:none!important}
 #rbar{right:16px;top:50%;gap:4px;padding:6px;border-radius:999px;background:rgba(20,24,40,.62);backdrop-filter:blur(18px) saturate(1.6);-webkit-backdrop-filter:blur(18px) saturate(1.6);box-shadow:0 0 0 1px rgba(255,255,255,.12),0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.12);transition:opacity .25s,transform .25s cubic-bezier(.2,.8,.2,1)}
@@ -577,7 +577,7 @@ function bar(){const e=$('media'),old=$('mbar');if(!e||!old||STU||!S.media||S.me
  k.oninput=()=>{const t=k.value/1000*dur();mst.t=t;if(Date.now()-lastSend>140){lastSend=Date.now();mc('seekt',t)}};k.onchange=()=>{mc('seekt',k.value/1000*dur());drag=0}}
 const _mo=mOpen;mOpen=function(m){mst.t=0;mst.d=0;mst.p=0;_mo(m);if(!STU)bar()};
 setInterval(()=>{if(STU||!S.media||S.media.type==='img'||!$('bPP'))return;const d=dur();$('bT').textContent=fmt(cur())+' / '+fmt(d);$('bPP').textContent=playing()?'⏸':'▶';if(!drag&&d)$('msk').value=cur()/d*1000},300);
-setInterval(()=>{if(STU||!S.media||S.media.type==='img')return;try{send({t:'mc',a:'sync',v:{t:cur(),p:playing()?1:0}})}catch(_){}},1500);
+setInterval(()=>{if(STU||!S.media||S.media.type==='img'||S.media.type==='web')return;try{send({t:'mc',a:'sync',v:{t:cur(),p:playing()?1:0}})}catch(_){}},1500);
 /* ===== AI study cards (Groq + Claude + Gemini, scanned pages too) ===== */
 const _ai=aiCall;
 aiCall=async function(prompt,imgs){const a=aiCfg();if(!a||!a.key)throw new Error('Add your AI key in LessoScript > Setup');imgs=imgs||[];
@@ -638,10 +638,20 @@ mUrl=function(){const u=$('mu').value.trim();if(!u)return;const y=yid(u);
 
 // proxy mode: quran.com opens inside the tool through your Cloudflare Worker (set once in Media)
 (function(){const K='ls.proxy',px=()=>(localStorage.getItem(K)||'https://falling-bird-c92c.mohrmo1234.workers.dev').replace(/\/+$/,'');
- const _b=mOpen;mOpen=function(m){_b(m);const me=$('media');me.classList.toggle('web',m.type==='web');if(m.type==='web'){const bb=$('mbar');bb&&bb.remove()}if(m.prox){const go=()=>{const t=document.querySelector('#media #wtry');t&&t.click()};setTimeout(go,30);setTimeout(go,300)}};
+ const _b=mOpen;mOpen=function(m){_b(m);const me=$('media');me.classList.toggle('web',m.type==='web');document.body.classList.toggle('hasweb',m.type==='web');if(m.type==='web'){const bb=$('mbar');bb&&bb.remove();if(!STU)S.wz=m.wz||1.25}if(m.prox){const go=()=>{const t=document.querySelector('#media #wtry');t&&t.click();setTimeout(applyWz,40)};setTimeout(go,30);setTimeout(go,300)}};
  const _m=mUrl;mUrl=function(){const u=$('mu').value.trim();let h='';try{h=new URL(/^https?:/i.test(u)?u:'https://'+u)}catch(e){return _m()}
   if(px()&&/(^|\.)quran\.com$/.test(h.hostname)){$('md').style.display='none';return addMediaTab({type:'web',prox:1,orig:h.href,src:px()+h.pathname+h.search},h.hostname)}return _m()};
  if(!STU){const d=document.querySelector('#md .mdc');if(d){const r=document.createElement('div');r.className='row';r.innerHTML='<input type="text" id="pxu" placeholder="Proxy address (optional) https://xxx.workers.dev" style="flex:1"><button class="btn" id="pxs">Save</button>';d.insertBefore(r,d.lastElementChild);$('pxu').value=px();$('pxs').onclick=()=>{const v=$('pxu').value.trim();try{if(v)localStorage.setItem(K,v);else localStorage.removeItem(K)}catch(e){}toast(v?'Proxy saved':'Proxy removed')}}}
 })();
+
+/* ===== website zoom: + / - / 0, toolbar 🔍 and ⤢, synced to the student screen ===== */
+const BW=1280;
+function placeWz(){const n=document.querySelector('#media iframe#mn'),box=$('media');if(!n||!box)return;const r=box.getBoundingClientRect();if(!r.width)return;const z=S.wz||1.25,vw=Math.round(BW/z),sc=r.width/vw,vh=Math.ceil(r.height/sc/20)*20,k=vw+'x'+vh+'@'+sc.toFixed(3);if(n.dataset.k===k)return;n.dataset.k=k;
+ n.style.cssText='position:absolute;left:0;top:0;border:0;background:#fff;width:'+vw+'px;height:'+vh+'px;transform:scale('+sc+');transform-origin:0 0'}
+function applyWz(){if(S.wz==null)S.wz=1.25;if(S.media&&S.media.type==='web')S.media.wz=S.wz;const n=document.querySelector('#media iframe#mn');if(n)delete n.dataset.k;placeWz();if(!STU)send({t:'wz',z:S.wz})}
+try{new ResizeObserver(()=>requestAnimationFrame(placeWz)).observe($('media'))}catch(e){}
+const _zb=zoomBy;zoomBy=function(k,sx,sy){if(S.media&&S.media.type==='web'){S.wz=Math.max(.4,Math.min(3,(S.wz||1.25)*k));applyWz();if(!STU)toast('Zoom '+Math.round(S.wz*100)+'%');return}return _zb(k,sx,sy)};
+const _rz=rst;rst=function(){if(S.media&&S.media.type==='web'){S.wz=1.25;applyWz();return}return _rz()};
+const _w0=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='wz'){if(m.n){if(seen.has(m.n))return;seen.add(m.n)}if(STU){S.wz=m.z;applyWz()}return}return _w0(ev)};
 </script>
 </body></html>
