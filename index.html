@@ -661,11 +661,11 @@ div.ct:not(.both) .ct-msg{margin-top:10px}
 
   <nav class="tabs" role="tablist" aria-label="Views">
     <button class="tab" role="tab" data-view="follow" id="tab-follow" type="button">Follow</button>
+    <button class="tab" role="tab" data-view="stage" id="tab-stage" type="button">Stage</button>
     <button class="tab" role="tab" data-view="reports" id="tab-reports" type="button">Reports</button>
     <button class="tab" role="tab" data-view="script" id="tab-script" type="button">Script</button>
     <button class="tab" role="tab" data-view="notes" id="tab-notes" type="button">Notes</button>
     <button class="tab" role="tab" data-view="history" id="tab-history" type="button">History</button>
-    <button class="tab" role="tab" data-view="stage" id="tab-stage" type="button">Stage</button>
     <button class="tab" role="tab" data-view="setup" id="tab-setup" type="button">Setup</button>
   </nav>
 
@@ -861,7 +861,7 @@ div.ct:not(.both) .ct-msg{margin-top:10px}
     </section>
 
     <section class="view" id="view-stage" hidden style="padding:0">
-      <iframe id="stageFrame" title="LessonStage" allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;height:calc(100dvh - 130px);min-height:480px;border:0;border-radius:12px;background:#0b0d14"></iframe>
+      <iframe id="stageFrame" title="LessonStage" allow="display-capture; fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;height:calc(100dvh - 130px);min-height:480px;border:0;border-radius:12px;background:#0b0d14"></iframe>
     </section>
 
     <section class="view panel" id="view-setup" hidden>
@@ -5160,6 +5160,54 @@ pvAfter('rpPreview','report'); pvAfter('rpDesignPv','design'); pvAfter('ctPv','c
   obs = new MutationObserver(m => { if(busy) return; if(mode === 'ar' || m.some(x => x.type === 'childList')) schedule(); });
   obs.observe(document.body, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATTRS});
   setMode(mode);
+})();
+</script>
+<style id="split-css">
+#splitDv{display:none}
+.tab[data-sec="1"]{border-bottom-color:#a78bfa;color:var(--fg)}
+#tab-split{flex:0 0 auto;padding-inline:12px}
+body.split main{display:grid;grid-template-columns:var(--sw,50%) 10px minmax(0,1fr);grid-template-rows:minmax(0,1fr);overflow:hidden;padding-bottom:0}
+body.split main>.view.pA,body.split main>.view.pB{overflow:auto;min-height:0;min-width:0;display:block;border-radius:12px;position:relative}
+body.split main>.view.pA{grid-column:1;grid-row:1}
+body.split main>.view.pB{grid-column:3;grid-row:1}
+body.split main>.view.act{box-shadow:inset 0 0 0 2px var(--accent)}
+body.split #splitDv{display:block;grid-column:2;grid-row:1;cursor:col-resize;touch-action:none;position:relative}
+body.split #splitDv::after{content:"";position:absolute;left:3px;top:50%;width:4px;height:56px;margin-top:-28px;border-radius:4px;background:var(--muted);opacity:.6}
+body.split #splitDv:hover::after{background:var(--accent);opacity:1}
+body.split #view-stage{height:100%}
+body.split #view-stage iframe{height:100%!important;min-height:0!important}
+@media(max-width:700px){body.split main{grid-template-columns:minmax(0,1fr);grid-template-rows:var(--sw,50%) 10px minmax(0,1fr)}
+ body.split main>.view.pA{grid-column:1;grid-row:1}body.split main>.view.pB{grid-column:1;grid-row:3}
+ body.split #splitDv{grid-column:1;grid-row:2;cursor:row-resize}body.split #splitDv::after{left:50%;top:3px;width:56px;height:4px;margin:0 0 0 -28px}}
+</style>
+<script>
+/* Split view: show two tabs at once, each side controlled by the tab you tap, resizable divider */
+(function(){
+const VIEWS=['follow','reports','script','notes','history','stage','setup'],main=$('main'),nav=document.querySelector('.tabs');
+let split=lsGet('lp.split')==='1',sec=lsGet('lp.split.sec')||'script',act='B',sw=parseFloat(lsGet('lp.split.w'))||50;
+if(sec===S.view||!VIEWS.includes(sec))sec='script';
+const sb=document.createElement('button');sb.className='tab';sb.id='tab-split';sb.type='button';sb.title='Split screen: show two tabs side by side';sb.textContent='◫ Split';nav.appendChild(sb);
+const dv=document.createElement('div');dv.id='splitDv';main.appendChild(dv);
+function renderSec(){try{if(sec==='follow')renderFollow(false);else if(sec==='script')renderScript();else if(sec==='notes')renderNotes();else if(sec==='history')renderHistory();else if(sec==='reports')rpInit();else if(sec==='stage'){const f=$('stageFrame');if(f&&!f.getAttribute('src'))f.src='stage.html'}else if(sec==='setup')$('scriptInput').value=S.script}catch(e){}}
+function apply(){document.body.classList.toggle('split',split);sb.setAttribute('aria-selected',String(split));
+ VIEWS.forEach(k=>{const e=$('view-'+k),t=$('tab-'+k);if(!e)return;e.classList.remove('pA','pB','act');if(t)t.removeAttribute('data-sec');
+  if(split){if(k===S.view)e.classList.add('pA');if(k===sec&&k!==S.view){e.classList.add('pB');e.hidden=false;if(t)t.setAttribute('data-sec','1')}}});
+ if(split){const a=$('view-'+(act==='B'?sec:S.view));a&&a.classList.add('act');main.style.setProperty('--sw',sw+'%');$('controls').hidden=!(S.view==='follow'||sec==='follow')}
+ else main.style.removeProperty('--sw')}
+const _sv=setView;
+setView=function(v){
+ if(split){
+  if(act==='B'&&v!==S.view){sec=v;lsSet('lp.split.sec',sec);renderSec();apply();return}
+  if(v===sec){const t=S.view;_sv(v);sec=t;lsSet('lp.split.sec',sec)}else _sv(v);
+  renderSec();apply();return}
+ _sv(v)};
+sb.onclick=()=>{split=!split;lsSet('lp.split',split?'1':'0');if(split){if(sec===S.view)sec=VIEWS.find(k=>k!==S.view);act='B';renderSec();toast&&toast(RPL==='ar'?'اضغط تبويباً لاختيار الجانب الأيمن':'Split on: tap a tab to fill the highlighted side. Tap a pane to switch sides.')}else{const keep=S.view;VIEWS.forEach(k=>{const e=$('view-'+k);if(e)e.hidden=k!==keep})}apply()};
+main.addEventListener('pointerdown',e=>{if(!split)return;const v=e.target.closest('.view');if(v&&v.classList.contains('pA'))act='A';else if(v&&v.classList.contains('pB'))act='B';else return;apply()},true);
+let drag=0;dv.addEventListener('pointerdown',e=>{drag=1;dv.setPointerCapture(e.pointerId);document.querySelectorAll('iframe').forEach(f=>f.style.pointerEvents='none')});
+dv.addEventListener('pointermove',e=>{if(!drag)return;const r=main.getBoundingClientRect(),vert=innerWidth<=700;sw=Math.min(80,Math.max(20,((vert?e.clientY-r.top:e.clientX-r.left)/(vert?r.height:r.width))*100));main.style.setProperty('--sw',sw+'%')});
+const end=()=>{if(!drag)return;drag=0;lsSet('lp.split.w',String(Math.round(sw)));document.querySelectorAll('iframe').forEach(f=>f.style.pointerEvents='')};
+dv.addEventListener('pointerup',end);dv.addEventListener('pointercancel',end);dv.addEventListener('dblclick',()=>{sw=50;lsSet('lp.split.w','50');apply()});
+if(split){renderSec();apply()}
 })();
 </script>
 </body>
