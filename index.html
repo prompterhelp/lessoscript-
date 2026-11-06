@@ -665,6 +665,7 @@ div.ct:not(.both) .ct-msg{margin-top:10px}
     <button class="tab" role="tab" data-view="script" id="tab-script" type="button">Script</button>
     <button class="tab" role="tab" data-view="notes" id="tab-notes" type="button">Notes</button>
     <button class="tab" role="tab" data-view="history" id="tab-history" type="button">History</button>
+    <button class="tab" role="tab" data-view="stage" id="tab-stage" type="button">Stage</button>
     <button class="tab" role="tab" data-view="setup" id="tab-setup" type="button">Setup</button>
   </nav>
 
@@ -857,6 +858,10 @@ div.ct:not(.both) .ct-msg{margin-top:10px}
       <h2>Lesson history & cumulative progress</h2>
       <p class="help">Review past lessons, pacing records, and masteries over time.</p>
       <div id="historyList"></div>
+    </section>
+
+    <section class="view" id="view-stage" hidden style="padding:0">
+      <iframe id="stageFrame" title="LessonStage" allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;height:calc(100dvh - 130px);min-height:480px;border:0;border-radius:12px;background:#0b0d14"></iframe>
     </section>
 
     <section class="view panel" id="view-setup" hidden>
@@ -2202,7 +2207,7 @@ function finish(){
 
 function setView(v){
   S.view = v;
-  for(const k of ['follow', 'script', 'notes', 'reports', 'history', 'setup']){
+  for(const k of ['follow', 'script', 'notes', 'reports', 'history', 'stage', 'setup']){
     const el = $('view-' + k);
     if(el) el.hidden = k !== v;
     const t = $('tab-' + k);
@@ -2214,6 +2219,7 @@ function setView(v){
   if(v === 'notes') renderNotes();
   if(v === 'history') renderHistory();
   if(v === 'reports') rpInit();
+  if(v === 'stage'){ const f = $('stageFrame'); if(f && !f.getAttribute('src')) f.src = 'stage.html'; }
   if(v === 'setup') $('scriptInput').value = S.script;
   $('main').scrollTop = 0;
   if(v === 'follow') scrollToCurrent(false);
@@ -3564,7 +3570,7 @@ async function clSyncNow(quiet){
   try{
     let tomb = []; try{ tomb = JSON.parse(lsGet('lp.rep.del')||'[]'); }catch(e){}
     if(tomb.length){ await Promise.all(tomb.map(id => clReq('reports?id=eq.'+encodeURIComponent(id), {method:'DELETE'}))); lsSet('lp.rep.del', '[]'); }
-    const meta = await clReq('reports?select=id,updated'), rm = {}; meta.forEach(x => rm[x.id] = +x.updated || 0);
+    const meta = (await clReq('reports?select=id,updated')).filter(x => !String(x.id).startsWith('stage:')), rm = {}; meta.forEach(x => rm[x.id] = +x.updated || 0);
     const R = {}, X = {}; rpAll().forEach(r => R[r.id] = r); scAll().forEach(r => X[r.id] = r);
     const need = meta.filter(x => { const l = R[x.id] || X[x.id]; return !l || (+x.updated||0) > (l.saved||0); }).map(x => x.id);
     for(let i = 0; i < need.length; i += 40){
