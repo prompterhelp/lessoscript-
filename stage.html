@@ -93,7 +93,7 @@ textarea{min-height:150px;resize:vertical;font-size:16px}
 #ybox .th:after{content:'▶';position:absolute;inset:0;display:grid;place-items:center;font-size:54px;color:#fff;text-shadow:0 2px 12px #000}
 </style></head><body>
 <div id="app">
- <div class="top"><div class="brand"><i></i>LessonStage Pro</div><span class="mu" id="pg"></span><div class="sp"></div>
+ <div class="top"><div class="brand"><i></i>LessonStage Pro</div><span class="mu" id="pg"></span><input type="number" id="gp" min="1" placeholder="Go to" title="Type page number, press Enter" style="width:74px;padding:6px 8px;border-radius:10px"><div class="sp"></div>
   <button class="btn" onclick="libDlg()">📚 Library</button><button class="btn" onclick="F.click()">📂 Open</button><button class="btn" onclick="addBoard()">＋ Board</button>
   <button class="btn" onclick="zen()" title="Hide panels (Tab)">⛶ Focus</button>
   <button class="btn" onclick="tp()" title="Notes · Words · Study · Class">☰</button>
@@ -400,7 +400,7 @@ cv.addEventListener('pointerleave',()=>$('ering').style.display='none');
 cv.addEventListener('pointerup',e=>{if(e.pointerType=='touch')$('ering').style.display='none'});
 // student screen = new tab in the same browser window
 function openStu(){const real=/^https?:$/.test(location.protocol),u=real?location.href.split('#')[0].split('?')[0]+'#student':'about:blank';
- SW=window.open(u,'lsstudent','popup=yes,width='+(screen.availWidth||1280)+',height='+(screen.availHeight||720)+',left='+(screen.availLeft||0)+',top='+(screen.availTop||0));if(SW)try{SW.moveTo(screen.availLeft||0,screen.availTop||0);SW.resizeTo(screen.availWidth,screen.availHeight)}catch(e){}if(SW&&!real){try{SW.document.open();SW.document.write(SRC);SW.document.close()}catch(e){}}if(!SW)return toast('Popup blocked: allow popups for this site, then try again');toast('Student screen opened in a new tab. Drag the tab to the student display and press Full screen.')}
+ SW=window.open(u,'lsstudent');if(SW)if(SW&&!real){try{SW.document.open();SW.document.write(SRC);SW.document.close()}catch(e){}}if(!SW)return toast('Popup blocked: allow popups for this site, then try again');toast('Student screen opened in a new tab. Drag the tab to the student display and press Full screen.')}
 // YouTube error 153 / embed errors: retry, then fall back to a button
 function ytSrc(id,nc){return 'https://www.youtube'+(nc?'-nocookie':'')+'.com/embed/'+id+'?rel=0&playsinline=1&modestbranding=1&enablejsapi=1'}
 function ytFail(code){const e=$('media');if(!S.media||S.media.type!='yt')return;const n=$('mn');
@@ -511,6 +511,49 @@ setInterval(()=>{const n=S.pages.length;if(!n)return;
  if(STU)for(let k=S.i;k<Math.min(n,S.i+4);k++){const p=S.pages[k];if(!p||!p.blob){needPg(k);break}}
  const c=S.pages[S.i];if(c&&c.blob){ensurePg(S.i);if(!c.bmp)need=1}
  if(n>=12)S.pages.forEach((p,k)=>{if(p&&p.bmp&&Math.abs(k-S.i)>6){try{p.bmp.close()}catch(e){}p.bmp=null}})},700);
+</script>
+<script>
+/* ===== lazy PDF: open instantly, render pages on demand + 3 in parallel ===== */
+(function(){
+const orig=addFiles,PH='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+let q=[],act=0;const MAXC=3;
+const _sp=sendPage;sendPage=function(i){const p=S.pages[i];if(p&&p.blob)_sp(i)};
+const _ui=ui;ui=function(){_ui();fixRail()};
+function fixRail(){if(STU)return;const r=$('rail');[...r.children].forEach((d,i)=>{const p=S.pages[i],im=d.firstChild;if(p&&im&&im.style&&!p.blob){im.style.aspectRatio=p.w+'/'+p.h;im.style.background='#111'}})}
+function pump(){while(act<MAXC&&q.length){const p=q.shift();if(p.blob||p.rend||!p.lazy)continue;doR(p)}}
+async function doR(p){p.rend=1;act++;try{
+ const L=p.lazy,pg=await L.doc.getPage(L.n),w0=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(3,2400/w0)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+ await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+ p.text=await pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'');
+ const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92)),i=S.pages.indexOf(p);
+ p.w=c.width;p.h=c.height;if(i>=0&&Math.abs(i-S.i)<=3)p.bmp=await createImageBitmap(c);
+ p.blob=blob;p.url=URL.createObjectURL(blob);p.lazy=null;
+ if(i>=0){const d=$('rail').children[i];if(d&&d.firstChild){d.firstChild.src=p.url;d.firstChild.style.aspectRatio=''}sendPage(i)}
+ need=1}catch(e){p.rend=0}finally{act--;p.rend=0;pump()}}
+function want(){const l=[3,2,-1,1,0];for(const k of l){const p=S.pages[S.i+k];if(p&&p.lazy&&!p.blob&&!p.rend){q=q.filter(x=>x!==p);q.unshift(p)}}pump()}
+const _go=go;go=function(i){_go(i);want()};
+setInterval(want,300);
+const _bc=buildCards;buildCards=async function(m){if(S.pages.some(p=>p.lazy&&!p.blob)){toast('Reading all pages first…');while(S.pages.some(p=>p.lazy&&!p.blob))await new Promise(r=>setTimeout(r,300))}return _bc(m)};
+addFiles=async function(fs,fromLib){
+ for(const f of fs){const n=f.name||'File';
+  if(!/\.pdf$/i.test(n)){await orig([f],fromLib);continue}
+  try{toast('Opening…');const doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
+   newDeck(n.replace(/\.[^.]+$/,''));
+   const pgs=await Promise.all(Array.from({length:doc.numPages},(_,k)=>doc.getPage(k+1).then(pg=>{const v=pg.getViewport({scale:1});return{blob:null,bmp:null,w:v.width,h:v.height,strokes:[],notes:'',words:'',text:'',lazy:{doc,n:k+1},url:PH}})));
+   S.pages=pgs;const d=S.decks[S.d];d.pages=pgs;d.key=n+'|'+f.size;try{metaLoad(d)}catch(e){}
+   q=pgs.slice();go(0);ui();sendPages();if(!fromLib){try{libSave(f)}catch(e){}}
+   toast('Ready ✓ ('+doc.numPages+' pages loading in background)')
+  }catch(e){toast('Could not read '+n);if(S.decks[S.d]&&!S.pages.length)closeDeck(S.d)}}};
+F.onchange=()=>{addFiles([...F.files]);F.value=''};
+$('stage').ondrop=e=>{e.preventDefault();addFiles([...e.dataTransfer.files])};
+})();
+</script>
+<script>
+(function(){const g=document.getElementById('gp');if(!g)return;
+const jump=()=>{const n=parseInt(g.value,10);if(!n||!S.pages.length)return;go(Math.min(S.pages.length,Math.max(1,n))-1);g.value='';g.blur()};
+g.addEventListener('keydown',e=>{if(e.key==='Enter')jump();e.stopPropagation()});
+const _u=ui;ui=function(){_u();g.max=S.pages.length||1;g.style.display=STU?'none':''};
+})();
 </script>
 <style id="pro-web">.stu .sctl,.stu #fsh{display:none!important}.stu,.stu body{overscroll-behavior:none;touch-action:manipulation}#media{overscroll-behavior:contain}#media.web{inset:0;border-radius:0;box-shadow:none}.hasweb #rbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(18,22,35,.95)!important}.hasweb .tb{backdrop-filter:none!important}</style><style id="pro-v3">
 /* ---- reactions: modern glass bar, hidden on student screen ---- */
@@ -664,5 +707,82 @@ try{new ResizeObserver(()=>requestAnimationFrame(placeWz)).observe($('media'))}c
 const _zb=zoomBy;zoomBy=function(k,sx,sy){if(S.media&&S.media.type==='web'){S.wz=Math.max(.4,Math.min(3,(S.wz||1.25)*k));applyWz();if(!STU)toast('Zoom '+Math.round(S.wz*100)+'%');return}return _zb(k,sx,sy)};
 const _rz=rst;rst=function(){if(S.media&&S.media.type==='web'){S.wz=1.25;applyWz();return}return _rz()};
 const _w0=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='wz'){if(m.n){if(seen.has(m.n))return;seen.add(m.n)}if(STU){S.wz=m.z;applyWz()}return}return _w0(ev)};
+</script>
+<script>
+/* ===== stable website view: lock iframe layout size, fixed-size live-share canvas ===== */
+placeWz=function(){const n=document.querySelector('#media iframe#mn'),box=$('media');if(!n||!box)return;const r=box.getBoundingClientRect();if(!r.width||!r.height)return;
+ const z=S.wz||1.25;let L=n._L;
+ if(!L||L.z!==z||L.src!==n.src){const vw=Math.round(BW/z),sc0=r.width/vw;L=n._L={z,src:n.src,vw,vh:Math.ceil(r.height/sc0/20)*20};n.style.cssText='position:absolute;left:0;top:0;border:0;background:#fff;width:'+vw+'px;height:'+L.vh+'px;transform-origin:0 0'}
+ const sc=Math.min(r.width/L.vw,r.height/L.vh);n.style.left=Math.max(0,(r.width-L.vw*sc)/2)+'px';n.style.transform='scale('+sc.toFixed(4)+')'};
+if(STU){const _p=ch.onmessage;ch.onmessage=async ev=>{const m=ev&&ev.data;
+ if(m&&m.t==='frame'){if(m.n){if(seen.has(m.n))return;seen.add(m.n);if(seen.size>400)seen.clear()}
+  if(!S.media||!m.b)return;const bm=await createImageBitmap(m.b);let c=$('mn');
+  if(!c||c.tagName!=='CANVAS'){const n=document.createElement('canvas');n.id='mn';n.width=1920;n.height=1080;n.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';if(c)c.replaceWith(n);else $('media').appendChild(n);c=n}
+  const x=c.getContext('2d'),k=Math.min(c.width/bm.width,c.height/bm.height),w=bm.width*k,h=bm.height*k;x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);x.drawImage(bm,(c.width-w)/2,(c.height-h)/2,w,h);bm.close();return}
+ return _p(ev)}}
+try{requestAnimationFrame(()=>placeWz())}catch(e){}
+</script>
+<script>
+/* ===== smoother live share: skip unchanged frames, adaptive rate, lighter frames ===== */
+liveStart=async function(){
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia)return toast('Screen share not supported in this browser');
+ let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
+ $('md').style.display='none';mSet({type:'img',src:'data:,'});
+ const v=document.createElement('video');v.srcObject=st;v.muted=true;v.playsInline=true;v.autoplay=true;v.id='mn';v.style.cssText='width:100%;height:100%;border:0;object-fit:contain;background:#000';
+ const old=$('mn');if(old)old.replaceWith(v);v.play().catch(()=>{});
+ const c=document.createElement('canvas'),x=c.getContext('2d'),sm=document.createElement('canvas');sm.width=48;sm.height=27;const sx=sm.getContext('2d',{willReadFrequently:true});
+ let busy=0,last=0,prev=null,gap=150;
+ const tm=setInterval(()=>{if(busy||!v.videoWidth)return;const now=performance.now();if(now-last<gap)return;
+  sx.drawImage(v,0,0,48,27);const d=sx.getImageData(0,0,48,27).data;let diff=0;if(prev){for(let i=0;i<d.length;i+=4)diff+=Math.abs(d[i]-prev[i])+Math.abs(d[i+1]-prev[i+1])+Math.abs(d[i+2]-prev[i+2])}else diff=1e9;
+  if(prev&&diff<40&&now-last<2000)return;prev=d;
+  const w=Math.min(1600,v.videoWidth),h=Math.round(w*v.videoHeight/v.videoWidth);c.width=w;c.height=h;x.drawImage(v,0,0,w,h);busy=1;last=now;
+  c.toBlob(b=>{busy=0;gap=Math.max(120,Math.min(500,(performance.now()-now)*2.5));if(b)send({t:'frame',b})},'image/jpeg',.85)},60);
+ LV={st,tm};st.getVideoTracks()[0].onended=()=>{if(LV){mClose(1)}};
+};
+</script>
+<script>
+/* ===== modern reactions: GPU-light canvas particle engine ===== */
+(function(){
+const D=Math.min(devicePixelRatio||1,2),cvs=document.createElement('canvas');cvs.id='fxc';cvs.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:99997';document.body.appendChild(cvs);
+const x=cvs.getContext('2d');let W=0,H=0;const rs=()=>{W=innerWidth;H=innerHeight;cvs.width=W*D;cvs.height=H*D};rs();addEventListener('resize',rs);
+const R=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.random()*a.length|0],later=(f,ms)=>setTimeout(f,ms),ob=t=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2)};
+const EM='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+let P=[],raf=0,last=0;
+function add(p){P.push(Object.assign({k:'e',x:0,y:0,vx:0,vy:0,g:0,dr:0,age:0,life:2,size:30,rot:0,vr:0,a:1,sw:0,sf:3,sp:0},p));if(!raf){last=performance.now();raf=requestAnimationFrame(tick)}}
+function draw(p){const u=p.age/p.life,al=p.a*(p.nofade?1:(u<.08?u/.08:u>.65?(1-u)/.35:1));if(al<=0)return;x.globalAlpha=al;
+ if(p.k==='e'){x.globalCompositeOperation='source-over';const s=ob(Math.min(1,p.age/(p.pop?.4:.25)));x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.scale(s,s);x.font=p.size+'px '+EM;x.textAlign='center';x.textBaseline='middle';if(p.glow){x.shadowColor=p.glow;x.shadowBlur=28}x.fillText(p.t,0,0);x.restore()}
+ else if(p.k==='r'){x.globalCompositeOperation='source-over';x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.fillStyle=p.color;x.fillRect(-p.size/2,-p.size*.3*Math.abs(Math.cos(p.age*p.fl)),p.size,p.size*.6*Math.abs(Math.cos(p.age*p.fl))+1);x.restore()}
+ else if(p.k==='c'){x.globalCompositeOperation='lighter';x.fillStyle=p.color;x.shadowColor=p.color;x.shadowBlur=10;x.beginPath();x.arc(p.x,p.y,p.size*(1-u*.5),0,7);x.fill();x.shadowBlur=0}
+ else if(p.k==='sp'){x.globalCompositeOperation='lighter';x.strokeStyle=p.color;x.lineCap='round';const h=p.h||[];for(let i=1;i<h.length;i++){x.globalAlpha=al*i/h.length;x.lineWidth=p.size*i/h.length;x.beginPath();x.moveTo(h[i-1][0],h[i-1][1]);x.lineTo(h[i][0],h[i][1]);x.stroke()}x.globalAlpha=al;x.fillStyle='#fff';x.beginPath();x.arc(p.x,p.y,p.size*.6,0,7);x.fill()}
+ else if(p.k==='ring'){x.globalCompositeOperation='lighter';const e=1-Math.pow(1-u,3);x.strokeStyle=p.color;x.lineWidth=p.lw*(1-u);x.beginPath();x.arc(p.x,p.y,p.size+(p.max-p.size)*e,0,7);x.stroke()}
+ else if(p.k==='st'){x.globalCompositeOperation='lighter';const s=Math.sin(u*Math.PI)*p.size;x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.fillStyle=p.color;x.shadowColor=p.color;x.shadowBlur=14;x.beginPath();for(let i=0;i<8;i++){const r=i%2?s*.22:s;x.lineTo(Math.cos(i*Math.PI/4)*r,Math.sin(i*Math.PI/4)*r)}x.closePath();x.fill();x.restore()}}
+function tick(t){const dt=Math.min(.05,(t-last)/1000);last=t;x.setTransform(D,0,0,D,0,0);x.clearRect(0,0,W,H);
+ for(let i=P.length-1;i>=0;i--){const p=P[i];p.age+=dt;if(p.age>=p.life){if(p.die)p.die(p);P.splice(i,1);continue}
+  p.vy+=p.g*dt;const d=Math.max(0,1-p.dr*dt);p.vx*=d;p.vy*=d;p.x+=(p.vx+(p.sw?Math.sin(p.age*p.sf+p.sp)*p.sw:0))*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;
+  if(p.bounce&&p.y>H-p.size/2){p.y=H-p.size/2;p.vy*=-.62;if(Math.abs(p.vy)<90)p.vy=0}
+  if(p.trail){(p.h=p.h||[]).push([p.x,p.y]);if(p.h.length>p.trail)p.h.shift()}
+  draw(p)}
+ x.globalAlpha=1;x.globalCompositeOperation='source-over';
+ if(P.length)raf=requestAnimationFrame(tick);else{raf=0;x.clearRect(0,0,W,H)}}
+const ring=(px,py,max,col)=>add({k:'ring',x:px,y:py,size:18,max,life:.9,color:col||'rgba(255,255,255,.85)',lw:7});
+function pop(em,sz,glow){add({t:em,x:W/2,y:H/2,size:sz||190,life:1.5,vy:-26,pop:1,glow:glow||'rgba(255,255,255,.55)'});ring(W/2,H/2,Math.min(W,H)*.42)}
+function burst(list,o,n,sp,sz,g){for(let i=0;i<n;i++){const a=R(0,6.283),v=R(sp*.5,sp);add({t:pick(list),x:o.x,y:o.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-sp*.25,g:g||650,dr:1.1,size:R(sz*.7,sz*1.2),vr:R(-4,4),life:R(1.4,2.2)})}}
+const FX={
+ heart(o){pop('❤️',200,'rgba(255,60,110,.7)');for(let i=0;i<28;i++)later(()=>add({t:pick(['❤️','💖','💗','💕','💓']),x:R(W*.08,W*.92),y:H+50,vy:-R(170,380),sw:R(30,80),sf:R(2,4),sp:R(0,6),size:R(30,78),life:R(3.2,5),vr:R(-.4,.4)}),i*65)},
+ like(o){pop('👍',200,'rgba(80,170,255,.6)');burst(['👍','✨'],{x:W/2,y:H/2},18,520,46)},
+ clap(o){pop('👏',200,'rgba(255,200,80,.6)');burst(['👏','✨','🌟'],{x:W/2,y:H/2},30,620,46)},
+ fire(o){for(let i=0;i<46;i++)later(()=>{add({t:'🔥',x:R(0,W),y:H+40,vy:-R(320,760),sw:R(10,40),sf:R(3,7),sp:R(0,6),size:R(46,104),life:R(1.3,2.4),glow:'rgba(255,120,0,.7)'});for(let k=0;k<3;k++)add({k:'c',x:R(0,W),y:H,vy:-R(250,700),vx:R(-60,60),color:pick(['#ff9f1c','#ff4d00','#ffd166']),size:R(2,5),life:R(1,2)})},i*20)},
+ laugh(o){pop('😂',200,'rgba(255,220,60,.6)');for(let i=0;i<20;i++)later(()=>add({t:pick(['😂','🤣','😆']),x:R(40,W-40),y:-50,vx:R(-80,80),vy:R(0,120),g:1100,size:R(44,90),bounce:1,vr:R(-1.5,1.5),life:R(3.2,4.4)}),i*90)},
+ confetti(o){const C=['#ff4d6d','#ffd166','#5eead4','#8ecae6','#c77dff','#80ed99','#ff9f1c'];[-1,1].forEach(sd=>{for(let i=0;i<90;i++)later(()=>add({k:'r',x:sd<0?-10:W+10,y:H+10,vx:-sd*R(250,1000),vy:-R(750,1500),g:950,dr:.75,color:pick(C),size:R(9,16),fl:R(8,18),rot:R(0,6),vr:R(-8,8),life:R(3,4.8),nofade:0}),i*6)})},
+ fireworks(o){const hu=[350,45,170,270,200,20];for(let i=0;i<6;i++)later(()=>{const tx=R(W*.15,W*.85),ty=R(H*.12,H*.5),T=.75,hue=pick(hu);
+  add({k:'sp',x:tx+R(-60,60),y:H,vx:0,vy:-(H-ty)/T,size:4,trail:9,life:T,color:'#ffe9a8',nofade:1,die:p=>{ring(p.x,p.y,150,'hsla('+hue+',100%,70%,.9)');for(let j=0;j<72;j++){const a=j/72*6.283+R(-.05,.05),v=R(160,440);add({k:'sp',x:p.x,y:p.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,g:230,dr:1.2,size:3.2,trail:8,life:R(1,1.7),color:'hsl('+(hue+R(-18,18))+',100%,'+R(55,72)+'%)'})}for(let j=0;j<24;j++)add({k:'c',x:p.x,y:p.y,vx:R(-160,160),vy:R(-160,160),g:140,dr:1,size:R(1.5,3),life:R(1.2,2),color:'#fff'})}})},i*420)},
+ stars(o){pop('⭐',190,'rgba(255,220,90,.8)');const C=['#fff3b0','#ffd166','#5eead4','#c4b5fd','#ffffff'];for(let i=0;i<34;i++)later(()=>add({k:'st',x:R(20,W-20),y:R(20,H-20),size:R(14,36),rot:R(0,3),vr:R(-1,1),life:R(1,1.9),color:pick(C)}),R(0,1000))}
+};
+function fancy(k,o){const f=FX[k]||FX.heart;try{f(o||{x:W-60,y:H/2})}catch(e){}}
+const RB=document.getElementById('rbar');
+if(!STU&&RB){RB.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopImmediatePropagation();const r=b.getBoundingClientRect();fancy(b.dataset.k,{x:r.left+r.width/2,y:r.top+r.height/2});send({t:'fx',k:b.dataset.k})},true)}
+document.addEventListener('keydown',e=>{if(STU||/TEXTAREA|INPUT/.test(e.target.tagName)||e.ctrlKey||e.metaKey||e.altKey)return;const k={'1':'heart','2':'like','3':'clap','4':'fire','5':'confetti','6':'fireworks','7':'stars','8':'laugh'}[e.key];if(k){e.stopImmediatePropagation();fancy(k);send({t:'fx',k})}},true);
+const _f=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='fx'){if(m.n){if(seen.has(m.n))return;seen.add(m.n)}fancy(m.k);return}return _f(ev)};
+})();
 </script>
 </body></html>
