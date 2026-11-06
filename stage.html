@@ -128,7 +128,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/p
 const cv=$('cv'),cx=cv.getContext('2d');let W=0,H=0,D=1,need=1,space=0;
 const P=()=>S.pages[S.i],BCOK=/^https?:$/.test(location.protocol),send=m=>{if(!STU||m.t==='hello'){m.n=Math.random();if(BCOK)ch.postMessage(m);else try{if(STU)opener&&opener.postMessage(m,'*');else SW&&!SW.closed&&SW.postMessage(m,'*')}catch(e){}}};
 function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.opacity=0,1800)}
-function size(){const r=$('stage').getBoundingClientRect();D=Math.min(devicePixelRatio||1,3);W=r.width;H=r.height;cv.width=W*D;cv.height=H*D;need=1}
+function size(){const r=$('stage').getBoundingClientRect();D=Math.min(Math.max(devicePixelRatio||1,STU?2:1),3);W=r.width;H=r.height;cv.width=W*D;cv.height=H*D;need=1}
 new ResizeObserver(size).observe($('stage'));
 const geo=()=>{const p=P();if(!p)return null;const f=Math.min(W/p.w,H/p.h);return{p,bw:p.w*f,bh:p.h*f}};
 const toS=(g,x,y)=>[W/2+(x-S.v.cx)*g.bw*S.v.z,H/2+(y-S.v.cy)*g.bh*S.v.z],toN=(g,x,y)=>[(x-W/2)/(g.bw*S.v.z)+S.v.cx,(y-H/2)/(g.bh*S.v.z)+S.v.cy];
@@ -179,7 +179,7 @@ function undo(){const p=P();if(!p)return;p.strokes.pop();send({t:'set',i:S.i,l:p
 function clr(){const p=P();if(!p||!p.strokes.length)return;p.strokes=[];send({t:'set',i:S.i,l:[]});need=1;toast('Cleared')}
 function blank(){S.blank=S.blank?0:1;$('bl').classList.toggle('on',!!S.blank);toast(S.blank?'Student screen blanked':'Student screen live');st()}
 // files
-async function push(c){const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.88)),bmp=await createImageBitmap(blob);S.pages.push({blob,bmp,w:c.width,h:c.height,strokes:[],notes:'',words:''})}
+async function push(c){const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95)),bmp=await createImageBitmap(blob);S.pages.push({blob,bmp,w:c.width,h:c.height,strokes:[],notes:'',words:''})}
 async function addFiles(fs){const was=S.pages.length;try{for(const f of fs){if(/\.pdf$/i.test(f.name)){const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;for(let n=1;n<=d.numPages;n++){toast('Loading page '+n+' / '+d.numPages);const pg=await d.getPage(n),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(2.5,2200/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;await push(c)}}
  else if(f.type.startsWith('image/')){const b=await createImageBitmap(f),c=document.createElement('canvas');c.width=b.width;c.height=b.height;c.getContext('2d').drawImage(b,0,0);await push(c)}}}catch(err){toast('Could not read file')}
  if(S.pages.length>was){sendPages();go(was);toast('Ready ✓')}}
@@ -242,14 +242,14 @@ function er(x,y,g){const p=P(),R=Math.max(14,S.size*2)/(g.bw*S.v.z),ar=g.bh/g.bw
  const k=p.strokes.filter(s=>!hit(s));if(k.length!=p.strokes.length){if(!S.es){snap();S.es=1}p.strokes=k;send({t:'set',i:S.i,l:k});need=1}}
 cv.addEventListener('pointerup',()=>S.es=0);
 function sendPage(i){const p=S.pages[i];if(p)send({t:'page',i,p:{blob:p.blob,w:p.w,h:p.h,strokes:p.strokes}})}
-async function push(c,tx){const bmp=await createImageBitmap(c),blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));S.pages.push({blob,bmp,w:c.width,h:c.height,strokes:[],notes:'',words:'',text:tx||''});sendPage(S.pages.length-1)}
+async function push(c,tx){const bmp=await createImageBitmap(c),blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95));S.pages.push({blob,bmp,w:c.width,h:c.height,strokes:[],notes:'',words:'',text:tx||''});sendPage(S.pages.length-1)}
 const AR=/[\u0600-\u06FF]/;
 function wrap(x,t,w){const o=[];let l='';for(const wd of t.split(/\s+/)){const m=l?l+' '+wd:wd;if(x.measureText(m).width>w&&l){o.push(l);l=wd}else l=m}o.push(l);return o}
 function pptSlide(L){const c=document.createElement('canvas');c.width=1600;c.height=900;const x=c.getContext('2d');x.fillStyle='#fdfcf7';x.fillRect(0,0,1600,900);x.fillStyle='#14182a';let y=110;for(let k=0;k<L.length&&y<840;k++){const t=L[k],rtl=AR.test(t);x.direction=rtl?'rtl':'ltr';x.textAlign=rtl?'right':'left';x.font=(k?'500 38px':'700 56px')+' Inter,"Noto Naskh Arabic",sans-serif';for(const ln of wrap(x,t,1400)){if(y>850)break;x.fillText(ln,rtl?1500:100,y);y+=k?54:80}y+=12}return c}
 async function addFiles(fs){const was=S.pages.length,first=()=>S.pages.length==was+1?go(was):ui();toast('Loading…');
  for(const f of fs){try{
   if(/\.pdf$/i.test(f.name)){const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-   for(let n=1;n<=d.numPages;n++){const pg=await d.getPage(n),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(3,2400/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+   for(let n=1;n<=d.numPages;n++){const pg=await d.getPage(n),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(6,3600/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
     const r=await Promise.all([pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise,pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'')]);
     await push(c,r[1]);first();toast('Loaded '+n+' / '+d.numPages)}}
   else if(/\.pptx$/i.test(f.name)){const z=await JSZip.loadAsync(f),ks=Object.keys(z.files).filter(k=>/^ppt\/slides\/slide\d+\.xml$/.test(k)).sort((a,b)=>a.match(/\d+/)-b.match(/\d+/));
@@ -283,7 +283,7 @@ function mOpen(m){S.media=m;const e=$('media');e.innerHTML='';e.style.display='f
  if(m.type=='yt'){n=document.createElement('iframe');n.referrerPolicy='strict-origin-when-cross-origin';n.src=ytSrc(m.id);n.allow='autoplay;fullscreen;encrypted-media';n.allowFullscreen=true}
  else if(m.type=='web'){n=document.createElement('div');let H=m.src;try{H=new URL(m.src).hostname}catch(x){}
   n.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:100%;height:100%;background:#0b1220;color:#fff;text-align:center;padding:24px;font-family:sans-serif';
-  n.innerHTML='<div style="font-size:clamp(28px,5vw,56px);font-weight:800">🌐 '+H+'</div><div style="opacity:.7;word-break:break-all;max-width:90%">'+m.src+'</div><a href="'+m.src+'" target="_blank" rel="noopener" style="background:#2ee59d;color:#062;padding:18px 36px;border-radius:14px;font-weight:800;font-size:clamp(20px,3vw,32px);text-decoration:none">↗ Open website</a><button class="btn" id="wtry">Try showing it here</button>';
+  n.innerHTML='<div style="font-size:clamp(28px,5vw,56px);font-weight:800">🌐 '+H+'</div><div style="opacity:.7;word-break:break-all;max-width:90%">'+m.src+'</div><a href="'+m.src+'" target="_blank" rel="noopener" style="background:#2ee59d;color:#062;padding:18px 36px;border-radius:14px;font-weight:800;font-size:clamp(20px,3vw,32px);text-decoration:none">↗ Open website</a><button class="btn" id="wtry">Try showing it here</button>'+(STU?'':'<button class="btn pri" onclick="liveStart()">🖥 Share this site live (works for every site)</button>');
   setTimeout(()=>{const t=n.querySelector('#wtry');if(t)t.onclick=()=>{const f=document.createElement('iframe');f.name=STU?'lsstu':'lstea';f.src=m.src;f.allow='fullscreen;autoplay';f.allowFullscreen=true;f.id='mn';f.style.cssText='width:100%;height:100%;border:0;background:#fff';n.replaceWith(f)}},0)}
  else{n=document.createElement(m.type=='video'?'video':'img');n.src=m.src;if(m.type=='video')n.playsInline=true}
  n.id='mn';e.appendChild(n);
@@ -323,7 +323,7 @@ async function addBoard(){newDeck('Board '+(S.decks.length+1));const c=document.
 async function addFiles(fs,fromLib){toast('Loading…');
  for(const f of fs){const n=f.name||'File';try{newDeck(n.replace(/\.[^.]+$/,''));
   if(/\.pdf$/i.test(n)){const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-   for(let k=1;k<=d.numPages;k++){const pg=await d.getPage(k),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(3,2400/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+   for(let k=1;k<=d.numPages;k++){const pg=await d.getPage(k),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(6,3600/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
     const r=await Promise.all([pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise,pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'')]);
     await push(c,r[1]);if(k==1)go(0);toast(n+': '+k+' / '+d.numPages)}}
   else if(/\.pptx$/i.test(n)){const z=await JSZip.loadAsync(f),ks=Object.keys(z.files).filter(k=>/^ppt\/slides\/slide\d+\.xml$/.test(k)).sort((a,b)=>a.match(/\d+/)-b.match(/\d+/));
@@ -402,7 +402,7 @@ cv.addEventListener('pointerup',e=>{if(e.pointerType=='touch')$('ering').style.d
 function openStu(){const real=/^https?:$/.test(location.protocol),u=real?location.href.split('#')[0].split('?')[0]+'#student':'about:blank';
  SW=window.open(u,'lsstudent');if(SW)if(SW&&!real){try{SW.document.open();SW.document.write(SRC);SW.document.close()}catch(e){}}if(!SW)return toast('Popup blocked: allow popups for this site, then try again');toast('Student screen opened in a new tab. Drag the tab to the student display and press Full screen.')}
 // YouTube error 153 / embed errors: retry, then fall back to a button
-function ytSrc(id,nc){return 'https://www.youtube'+(nc?'-nocookie':'')+'.com/embed/'+id+'?rel=0&playsinline=1&modestbranding=1&enablejsapi=1'}
+function ytSrc(id,nc){return 'https://www.youtube'+(nc?'-nocookie':'')+'.com/embed/'+id+'?rel=0&playsinline=1&modestbranding=1&enablejsapi=1&vq=hd1080'}
 function ytFail(code){const e=$('media');if(!S.media||S.media.type!='yt')return;const n=$('mn');
  if(!S.media.retry&&n&&!/nocookie/.test(n.src)){S.media.retry=1;n.src=ytSrc(S.media.id,1);return}
  let b=$('yterr');if(!b){b=document.createElement('div');b.id='yterr';e.appendChild(b)}
@@ -469,7 +469,7 @@ ytFail=function(code){if(!hostOK&&S.media&&S.media.type=='yt'&&!S.media.retry){}
  if(n)n.style.display='none';
  ytCard(S.media.id,'This video owner blocks playing inside other pages (error '+code+'). It plays normally on YouTube.')};
 // error listener for the iframe (YouTube posts events once "listening")
-const _mo3=mOpen;mOpen=function(m){_mo3(m);if(m.type=='yt'){const n=$('mn');if(n)n.onload=()=>{try{n.contentWindow.postMessage(JSON.stringify({event:'listening',id:1}),'*');n.contentWindow.postMessage(JSON.stringify({event:'command',func:'addEventListener',args:['onError']}),'*')}catch(_){}}}};
+const _mo3=mOpen;mOpen=function(m){_mo3(m);if(m.type=='yt'){const n=$('mn');if(n)n.onload=()=>{try{setTimeout(()=>{yt('setPlaybackQuality',['hd1080'])},1500);n.contentWindow.postMessage(JSON.stringify({event:'listening',id:1}),'*');n.contentWindow.postMessage(JSON.stringify({event:'command',func:'addEventListener',args:['onError']}),'*')}catch(_){}}}};
 
 /* ---------- reactions & effects ---------- */
 const L=document.createElement('div');L.id='fxl';document.body.appendChild(L);
@@ -522,10 +522,10 @@ const _ui=ui;ui=function(){_ui();fixRail()};
 function fixRail(){if(STU)return;const r=$('rail');[...r.children].forEach((d,i)=>{const p=S.pages[i],im=d.firstChild;if(p&&im&&im.style&&!p.blob){im.style.aspectRatio=p.w+'/'+p.h;im.style.background='#111'}})}
 function pump(){while(act<MAXC&&q.length){const p=q.shift();if(p.blob||p.rend||!p.lazy)continue;doR(p)}}
 async function doR(p){p.rend=1;act++;try{
- const L=p.lazy,pg=await L.doc.getPage(L.n),w0=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(3,2400/w0)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+ const L=p.lazy,pg=await L.doc.getPage(L.n),w0=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(6,3600/w0)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
  await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
  p.text=await pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'');
- const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92)),i=S.pages.indexOf(p);
+ const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95)),i=S.pages.indexOf(p);
  p.w=c.width;p.h=c.height;if(i>=0&&Math.abs(i-S.i)<=3)p.bmp=await createImageBitmap(c);
  p.blob=blob;p.url=URL.createObjectURL(blob);p.lazy=null;
  if(i>=0){const d=$('rail').children[i];if(d&&d.firstChild){d.firstChild.src=p.url;d.firstChild.style.aspectRatio=''}sendPage(i)}
@@ -663,7 +663,7 @@ buildCards=async function(manual){if(building)return;if(!S.pages.length){toast('
 let LV=null;
 async function liveStart(){
  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia)return toast('Screen share not supported in this browser');
- let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
+ let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:{width:{ideal:2560},height:{ideal:1440},frameRate:{ideal:15}},audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
  $('md').style.display='none';
  mSet({type:'img',src:'data:,'});
  const v=document.createElement('video');v.srcObject=st;v.muted=true;v.playsInline=true;v.autoplay=true;v.id='mn';v.style.cssText='width:100%;height:100%;border:0;object-fit:contain;background:#000';
@@ -679,7 +679,7 @@ const _mu0=mUrl;
 mUrl=function(){const u=$('mu').value.trim();if(!u)return;const y=yid(u);
  const isWeb=!(y&&/youtu/.test(u))&&!/\.(mp4|webm|ogg|mov|m4v|png|jpe?g|gif|webp|svg|avif)(\?|#|$)/i.test(u)&&(/^https?:\/\//i.test(u)||/^[\w-]+(\.[\w-]+)+(\/|$)/.test(u));
  if(!isWeb)return _mu0();
- $('md').style.display='none';return addMediaTab({type:'web',src:/^https?:/i.test(u)?u:'https://'+u,prox:1})};
+ $('md').style.display='none';return addMediaTab({type:'web',src:/^https?:/i.test(u)?u:'https://'+u})};
 
 // student: draw live frames on a canvas (no flicker, sharper)
 (function(){if(!STU)return;const _pf=ch.onmessage;
@@ -712,12 +712,12 @@ const _w0=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='wz'){i
 /* ===== stable website view: lock iframe layout size, fixed-size live-share canvas ===== */
 placeWz=function(){const n=document.querySelector('#media iframe#mn'),box=$('media');if(!n||!box)return;const r=box.getBoundingClientRect();if(!r.width||!r.height)return;
  const z=S.wz||1.25;let L=n._L;
- if(!L||L.z!==z||L.src!==n.src){const vw=Math.round(BW/z),sc0=r.width/vw;L=n._L={z,src:n.src,vw,vh:Math.ceil(r.height/sc0/20)*20};n.style.cssText='position:absolute;left:0;top:0;border:0;background:#fff;width:'+vw+'px;height:'+L.vh+'px;transform-origin:0 0'}
+ const rk=Math.round(r.width/24)+'x'+Math.round(r.height/24);if(!L||L.z!==z||L.src!==n.src||L.rk!==rk){const vw=Math.round(BW/z),sc0=r.width/vw;L=n._L={z,src:n.src,rk,vw,vh:Math.ceil(r.height/sc0/20)*20};n.style.cssText='position:absolute;left:0;top:0;border:0;background:#fff;width:'+vw+'px;height:'+L.vh+'px;transform-origin:0 0'}
  const sc=Math.min(r.width/L.vw,r.height/L.vh);n.style.left=Math.max(0,(r.width-L.vw*sc)/2)+'px';n.style.transform='scale('+sc.toFixed(4)+')'};
 if(STU){const _p=ch.onmessage;ch.onmessage=async ev=>{const m=ev&&ev.data;
  if(m&&m.t==='frame'){if(m.n){if(seen.has(m.n))return;seen.add(m.n);if(seen.size>400)seen.clear()}
   if(!S.media||!m.b)return;const bm=await createImageBitmap(m.b);let c=$('mn');
-  if(!c||c.tagName!=='CANVAS'){const n=document.createElement('canvas');n.id='mn';n.width=1920;n.height=1080;n.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';if(c)c.replaceWith(n);else $('media').appendChild(n);c=n}
+  if(!c||c.tagName!=='CANVAS'){const n=document.createElement('canvas');n.id='mn';n.width=2560;n.height=1440;n.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';if(c)c.replaceWith(n);else $('media').appendChild(n);c=n}
   const x=c.getContext('2d'),k=Math.min(c.width/bm.width,c.height/bm.height),w=bm.width*k,h=bm.height*k;x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);x.drawImage(bm,(c.width-w)/2,(c.height-h)/2,w,h);bm.close();return}
  return _p(ev)}}
 try{requestAnimationFrame(()=>placeWz())}catch(e){}
@@ -726,7 +726,7 @@ try{requestAnimationFrame(()=>placeWz())}catch(e){}
 /* ===== smoother live share: skip unchanged frames, adaptive rate, lighter frames ===== */
 liveStart=async function(){
  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia)return toast('Screen share not supported in this browser');
- let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
+ let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:{width:{ideal:2560},height:{ideal:1440},frameRate:{ideal:15}},audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
  $('md').style.display='none';mSet({type:'img',src:'data:,'});
  const v=document.createElement('video');v.srcObject=st;v.muted=true;v.playsInline=true;v.autoplay=true;v.id='mn';v.style.cssText='width:100%;height:100%;border:0;object-fit:contain;background:#000';
  const old=$('mn');if(old)old.replaceWith(v);v.play().catch(()=>{});
@@ -735,8 +735,8 @@ liveStart=async function(){
  const tm=setInterval(()=>{if(busy||!v.videoWidth)return;const now=performance.now();if(now-last<gap)return;
   sx.drawImage(v,0,0,48,27);const d=sx.getImageData(0,0,48,27).data;let diff=0;if(prev){for(let i=0;i<d.length;i+=4)diff+=Math.abs(d[i]-prev[i])+Math.abs(d[i+1]-prev[i+1])+Math.abs(d[i+2]-prev[i+2])}else diff=1e9;
   if(prev&&diff<40&&now-last<2000)return;prev=d;
-  const w=Math.min(1600,v.videoWidth),h=Math.round(w*v.videoHeight/v.videoWidth);c.width=w;c.height=h;x.drawImage(v,0,0,w,h);busy=1;last=now;
-  c.toBlob(b=>{busy=0;gap=Math.max(120,Math.min(500,(performance.now()-now)*2.5));if(b)send({t:'frame',b})},'image/jpeg',.85)},60);
+  const w=Math.min(2560,v.videoWidth),h=Math.round(w*v.videoHeight/v.videoWidth);c.width=w;c.height=h;x.drawImage(v,0,0,w,h);busy=1;last=now;
+  c.toBlob(b=>{busy=0;gap=Math.max(120,Math.min(500,(performance.now()-now)*2.5));if(b)send({t:'frame',b})},'image/jpeg',.92)},60);
  LV={st,tm};st.getVideoTracks()[0].onended=()=>{if(LV){mClose(1)}};
 };
 </script>
@@ -795,7 +795,7 @@ $('stage').addEventListener('wheel',e=>{if(e.ctrlKey||S.media)return;e.preventDe
  else{const n=Date.now();if(n-wl<350||Math.abs(e.deltaY)<4)return;wl=n;go(S.i+(e.deltaY>0?1:-1))}},{capture:true,passive:false});
 if(STU){let lv='';const _s=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='st'){const k=JSON.stringify([m.i,m.v]);if(k!==lv){lv=k;if(!S.follow){S.follow=1;const b=$('fol');if(b)b.style.display='none'}}}return _s(ev)}}
 setInterval(()=>{const n=document.querySelector('#media iframe#mn');if(!n||n._ld)return;n._ld=1;const o=document.createElement('div');o.style.cssText='position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:#0b0d14;color:#8b95b5;font:600 18px Inter,sans-serif';o.textContent='Loading page…';$('media').appendChild(o);const done=()=>o.remove();n.addEventListener('load',done);setTimeout(done,12000)},250);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)return;const n=document.querySelector('#media iframe#mn');if(!n)return;n.style.willChange='transform';n.style.opacity='.99';requestAnimationFrame(()=>requestAnimationFrame(()=>n.style.opacity=''))});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)return;const n=document.querySelector('#media iframe#mn');if(!n)return;n.style.opacity='.99';requestAnimationFrame(()=>requestAnimationFrame(()=>n.style.opacity=''))});
 })();
 </script>
 <script>
