@@ -93,7 +93,7 @@ textarea{min-height:150px;resize:vertical;font-size:16px}
 #ybox .th:after{content:'▶';position:absolute;inset:0;display:grid;place-items:center;font-size:54px;color:#fff;text-shadow:0 2px 12px #000}
 </style></head><body>
 <div id="app">
- <div class="top"><div class="brand"><i></i>LessonStage Pro</div><span class="mu" id="pg"></span><input type="number" id="gp" min="1" placeholder="Go to" title="Type page number, press Enter" style="width:74px;padding:6px 8px;border-radius:10px"><div class="sp"></div>
+ <div class="top"><div class="brand"><i></i>Stage</div><span class="mu" id="pg"></span><input type="number" id="gp" min="1" placeholder="Go to" title="Type page number, press Enter" style="width:74px;padding:6px 8px;border-radius:10px"><div class="sp"></div>
   <button class="btn" onclick="libDlg()">📚 Library</button><button class="btn" onclick="F.click()">📂 Open</button><button class="btn" onclick="addBoard()">＋ Board</button>
   <button class="btn" onclick="zen()" title="Hide panels (Tab)">⛶ Focus</button>
   <button class="btn" onclick="tp()" title="Notes · Words · Study · Class">☰</button>
@@ -830,29 +830,260 @@ document.getElementById('stage').appendChild(b);
 setInterval(()=>{b.style.display=(S.media||LV)?'block':'none'},300)})();
 </script>
 <script>
-/* proportional zoom: student shows the same part of the page the teacher sees */
+/* proportional zoom v2: student mirrors the teacher's visible area; student can never zoom by itself */
 (function(){
   st=function(){
     const p=P(),g=geo(),z=S.v.z;
     send({t:'st',i:S.i,v:S.v,blank:S.blank,words:S.words&&p?p.words:null,
-      vw:g?Math.min(1,W/(g.bw*z)):1, vh:g?Math.min(1,H/(g.bh*z)):1});
+      vw:g?W/(g.bw*z):1, vh:g?H/(g.bh*z):1});   /* not clamped: exact visible area */
   };
   if(!STU){
     try{new ResizeObserver(()=>st()).observe($('stage'))}catch(e){}
-  }else{
-    const apply=m=>{
-      const g=geo();if(!g||!m||!m.vw)return;
-      S.v.z=(m.v.z<=1.001)?1:Math.max(1,Math.min(W/(g.bw*m.vw),H/(g.bh*m.vh)));
-      clampV();need=1;
-    };
-    const prev=ch.onmessage;
-    ch.onmessage=async ev=>{
-      const r=await prev(ev),m=ev&&ev.data;
-      if(m&&m.t==='st'){S.last=m;apply(m)}
-      return r;
-    };
-    addEventListener('resize',()=>setTimeout(()=>{if(S.last)apply(S.last)},80));
+    return;
   }
+  const apply=m=>{
+    const g=geo();if(!g||!m||!m.vw||!m.v)return;
+    const z=m.v.z<=1.001?1:Math.min(W/(g.bw*m.vw),H/(g.bh*m.vh));
+    S.v={z:Math.max(1,Math.min(10,z)),cx:m.v.cx,cy:m.v.cy};
+    clampV();need=1;
+  };
+  const prev=ch.onmessage;
+  ch.onmessage=async ev=>{
+    const r=await prev(ev),m=ev&&ev.data;
+    if(m&&m.t==='st'){S.last=m;apply(m)}
+    return r;
+  };
+  addEventListener('resize',()=>setTimeout(()=>{if(S.last)apply(S.last)},80));
+  setInterval(()=>{if(S.last)apply(S.last)},400);          /* re-lock to teacher view */
+  /* block every way a student could zoom */
+  addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false,capture:true});
+  addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=','_','0'].includes(e.key))e.preventDefault()},true);
+  ['gesturestart','gesturechange','gestureend'].forEach(t=>addEventListener(t,e=>e.preventDefault()));
+})();
+</script>
+<style id="pro-v4">
+#stopShare{display:none!important}
+#ovw .wvin,#wprev .wvin{display:grid!important;grid-template-columns:repeat(var(--cols,2),minmax(0,1fr))!important;gap:calc(var(--u)*.8)!important;width:100%;max-width:min(94%,calc(var(--u)*var(--cols,2)*11))!important;margin:auto;align-items:stretch;counter-reset:w}
+#ovw .wvin{--u:max(18px,calc(3.4vmin*var(--s,1)))}
+#wprev .wvin{--u:calc(11px*var(--s,1))}
+#ovw .wc,#wprev .wc{padding:calc(var(--u)*1.2) calc(var(--u)*.9)!important;border-radius:calc(var(--u)*1.3)!important;overflow:hidden;background:linear-gradient(165deg,#242e5a,#121832 72%)!important;border:1px solid rgba(167,139,250,.3)!important;box-shadow:0 calc(var(--u)*.8) calc(var(--u)*2.4) rgba(0,0,0,.55),0 0 calc(var(--u)*2.2) rgba(94,234,212,.09),inset 0 1px rgba(255,255,255,.1)!important;gap:calc(var(--u)*.5)!important}
+#ovw .wc::after,#wprev .wc::after{content:'';position:absolute;left:20%;right:20%;top:0;height:calc(var(--u)*.14);background:var(--g);border-radius:0 0 99px 99px}
+#ovw .wt,#wprev .wt{font-size:calc(var(--u)*2.2)!important;line-height:1.75!important;padding:.1em .1em .22em;max-width:100%;overflow-wrap:anywhere}
+#ovw .wm,#wprev .wm{font-size:calc(var(--u)*1.15)!important;line-height:1.45;color:#eef1ff;width:86%;padding-top:calc(var(--u)*.5);border-top:1px solid rgba(255,255,255,.12)}
+#ovw .wm:empty,#wprev .wm:empty{display:none}
+#ovw .wm small,#wprev .wm small{font-size:.72em!important;color:#c9d2f5;background:rgba(94,234,212,.12)!important;border:1px solid rgba(94,234,212,.25)}
+.wvin[data-n="1"] .wc::before{display:none}
+#ovw .wc::before{font-size:calc(var(--u)*.65)!important}
+</style>
+<script>
+/* words: auto-size + auto-columns to fill the student screen */
+(function(){
+  wordsHTML=function(t){
+    const L=String(t||'').split('\n').filter(x=>x.trim()),n=L.length;
+    const s=n<=1?2.4:n==2?2:n<=4?1.7:n<=6?1.4:n<=9?1.15:n<=12?1:.85;
+    let c=n<=1?1:n==2?2:n==3?3:n==4?2:n<=9?3:n<=12?4:5;
+    if(innerWidth<innerHeight)c=Math.min(c,2);
+    return '<div class="wvin" data-n="'+n+'" style="--cols:'+c+';--s:'+s+'">'+L.map(x=>{const a=x.split('|').map(q=>q.trim());
+      return '<div class="wc"><span class="wt" dir="auto">'+esc(a[0]||'')+'</span><span class="wm" dir="auto">'+esc(a[1]||'')+(a[2]?'<small>'+esc(a[2])+'</small>':'')+'</span></div>'}).join('')+'</div>'};
+  if(!STU)rw();
+  addEventListener('resize',()=>{if(STU){const o=$('ovw');if(o&&o.style.display==='flex'&&S.pages[S.i]&&S.lastWords){o.innerHTML=wordsHTML(S.lastWords)}}});
+  const _sw=showWords;showWords=function(t){S.lastWords=t;return _sw(t)};
+})();
+</script>
+<script>
+/* Stop sharing: works for files/slides too (blanks the student screen; click again to resume) */
+(function(){
+  if(STU)return;
+  const old=document.getElementById('stopshare');if(old)old.remove();
+  const b=document.createElement('button');b.id='stopshare2';
+  b.style.cssText='position:absolute;top:14px;right:14px;z-index:9;display:none;padding:9px 16px;border-radius:12px;border:0;font:700 14px Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;color:#fff';
+  document.getElementById('stage').appendChild(b);
+  b.onclick=()=>{
+    if(S.blank){blank();return}
+    let did=0;
+    if(S.media||(typeof LV!=='undefined'&&LV)){try{closeMedia()}catch(e){try{mClose(1)}catch(_){}}did=1}
+    if(S.ov){ovSet(null);did=1}
+    if(S.words){S.words=0;try{wb()}catch(e){}st();did=1}
+    if(!did&&S.pages.length){blank()}
+    toast(did?'Stopped sharing':'Student screen blanked');
+  };
+  setInterval(()=>{const on=S.pages.length||S.media||(typeof LV!=='undefined'&&LV);b.style.display=on?'block':'none';
+    b.textContent=S.blank?'▶ Resume sharing':'⏹ Stop sharing';b.style.background=S.blank?'#12b886':'#ff4d6d'},300);
+})();
+</script>
+<style id="pro-v5">
+#ovw{padding:3.5vmin!important}
+#ovw .wvin,#wprev .wvin{max-height:none!important;overflow:visible!important;width:100%!important;max-width:min(96%,calc(var(--u)*var(--cols,2)*17))!important;gap:calc(var(--u)*.55)!important}
+#ovw .wc,#wprev .wc{padding:calc(var(--u)*.8) calc(var(--u)*.7)!important;border-radius:min(calc(var(--u)*.7),30px)!important;gap:calc(var(--u)*.3)!important}
+#ovw .wt,#wprev .wt{font-size:calc(var(--u)*2)!important;line-height:1.45!important;padding:.06em 0 .12em!important}
+#ovw .wm,#wprev .wm{font-size:calc(var(--u)*.95)!important;line-height:1.4!important;padding-top:calc(var(--u)*.35)!important}
+#ovw .wc::before,#wprev .wc::before{font-size:max(9px,calc(var(--u)*.5))!important}
+</style>
+<script>
+/* words: pick the column count + size that fills the screen best (no overflow, no clipping) */
+(function(){
+  function fitWords(root){
+    if(!root)return;const w=root.querySelector('.wvin');if(!w)return;
+    const cs=getComputedStyle(root),pl=parseFloat(cs.paddingLeft)||0,pr=parseFloat(cs.paddingRight)||0,pt=parseFloat(cs.paddingTop)||0,pb=parseFloat(cs.paddingBottom)||0;
+    const AW=root.clientWidth-pl-pr,AH=root.clientHeight-pt-pb;if(AW<30||AH<30)return;
+    const n=+w.dataset.n||1,maxC=Math.min(n,5);let best={u:0,c:1};
+    const fits=(u,c)=>{w.style.setProperty('--cols',c);w.style.setProperty('--u',u+'px');return w.offsetHeight<=AH+1};
+    for(let c=1;c<=maxC;c++){
+      if(innerWidth<innerHeight&&c>2)break;
+      let lo=7,hi=Math.min(AW,AH)*.17;
+      if(!fits(lo,c))continue;
+      for(let i=0;i<13;i++){const m=(lo+hi)/2;fits(m,c)?lo=m:hi=m}
+      if(lo>best.u*1.03)best={u:lo,c};
+    }
+    if(!best.u)best={u:7,c:Math.min(n,3)};
+    w.style.setProperty('--cols',best.c);w.style.setProperty('--u',best.u+'px');
+  }
+  window.fitWords=fitWords;
+  const _s=showWords;showWords=function(t){_s(t);if(t)fitWords($('ovw'))};
+  const _r=rw;rw=function(){_r();fitWords($('wprev'))};
+  const refit=()=>{fitWords($('ovw'));fitWords($('wprev'))};
+  try{const ro=new ResizeObserver(()=>requestAnimationFrame(refit));ro.observe($('ovw'));ro.observe($('wprev'))}catch(e){}
+  addEventListener('resize',()=>setTimeout(refit,150));
+  try{document.fonts&&document.fonts.ready.then(refit)}catch(e){}
+  if(!STU)try{rw()}catch(e){}
+})();
+</script>
+<script>
+/* zoom: once zoomed, the page always fills the view (no black sides) and every page edge is reachable */
+(function(){
+  if(STU)return;
+  const base=clampV;
+  clampV=function(){
+    const v=S.v;v.z=Math.max(1,Math.min(10,v.z));const g=geo();
+    if(g&&v.z>1.001){const cov=Math.max(W/g.bw,H/g.bh);if(cov>1.001&&v.z<cov)v.z=(S.pz>v.z)?1:cov}
+    S.pz=v.z;return base();
+  };
+  setInterval(()=>{if(S.v.z<=1.001)S.pz=1},150);
+})();
+</script>
+<script>
+/* website zoom with Ctrl + mouse wheel / trackpad pinch / Ctrl +,-,0 (also when the mouse is over the website itself) */
+(function(){
+  if(STU)return;
+  const isWeb=()=>S.media&&S.media.type==='web';
+  let acc=1,raf=0;
+  const push=k=>{acc*=k;if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const a=acc;acc=1;if(isWeb())zoomBy(a)})};
+  // events that reach this page
+  addEventListener('wheel',e=>{if((e.ctrlKey||e.metaKey)&&isWeb()){e.preventDefault();push(Math.exp(-Math.max(-80,Math.min(80,e.deltaY))*.001))}},{passive:false,capture:true});
+  addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||!isWeb())return;
+    if(e.key==='+'||e.key==='='){e.preventDefault();push(1.1)}else if(e.key==='-'||e.key==='_'){e.preventDefault();push(1/1.1)}else if(e.key==='0'){e.preventDefault();rst()}},true);
+  // events inside the proxied website (sent by the Worker script)
+  addEventListener('message',e=>{const d=e.data,n=document.querySelector('#media iframe#mn');
+    if(!d||!n||e.source!==n.contentWindow||!isWeb())return;
+    if(typeof d.lsz==='number')push(Math.exp(Math.max(-80,Math.min(80,d.lsz))*.001));
+    else if(d.lszk){const k=d.lszk;if(k==='+'||k==='=')push(1.1);else if(k==='-'||k==='_')push(1/1.1);else if(k==='0')rst()}});
+})();
+</script>
+<script>
+/* slides: slower Ctrl+wheel zoom, Shift+wheel / trackpad = move sideways, wheel = move up/down (or change slide when not zoomed) */
+(function(){
+  if(STU)return;
+  let wl=0;
+  addEventListener('wheel',e=>{
+    if(S.media||!e.target.closest||!e.target.closest('#stage'))return;
+    const g=geo();if(!g)return;
+    e.preventDefault();e.stopPropagation();
+    if(e.ctrlKey||e.metaKey){
+      const r=cv.getBoundingClientRect(),d=Math.max(-80,Math.min(80,e.deltaY));
+      zoomBy(Math.exp(-d*.0014),e.clientX-r.left,e.clientY-r.top);return}
+    let dx=e.deltaX,dy=e.deltaY;
+    if(e.shiftKey&&!dx){dx=dy;dy=0}
+    if(S.v.z>1.001){S.v.cx+=dx/(g.bw*S.v.z);S.v.cy+=dy/(g.bh*S.v.z);clampV();need=1;st()}
+    else if(dy){const n=Date.now();if(n-wl<350||Math.abs(dy)<4)return;wl=n;go(S.i+(dy>0?1:-1))}
+  },{passive:false,capture:true});
+})();
+</script>
+<style id="pro-v6">
+#stopTop{display:none;padding:5px 10px;font-size:12px;border-radius:8px;color:#fff;border:0}
+#wshield{position:absolute;inset:0;z-index:3;background:transparent;cursor:zoom-in}
+</style>
+<script>
+/* small Stop/Resume button in the top bar (not over the lesson) */
+(function(){
+  if(STU)return;
+  const old=document.getElementById('stopshare2');if(old)old.remove();
+  const top=document.querySelector('.top');if(!top)return;
+  const b=document.createElement('button');b.id='stopTop';b.className='btn';b.title='Stop showing this to students (click again to resume)';
+  const stu=[...top.querySelectorAll('button')].find(x=>/Student screen/.test(x.textContent));
+  top.insertBefore(b,stu||null);
+  b.onclick=()=>{
+    if(S.blank){blank();return}
+    let did=0;
+    if(S.media||(typeof LV!=='undefined'&&LV)){try{closeMedia()}catch(e){try{mClose(1)}catch(_){}}did=1}
+    if(S.ov){ovSet(null);did=1}
+    if(S.words){S.words=0;try{wb()}catch(e){}st();did=1}
+    if(!did&&S.pages.length)blank();
+    toast(did?'Stopped sharing':'Student screen blanked');
+  };
+  setInterval(()=>{const on=S.pages.length||S.media||(typeof LV!=='undefined'&&LV);
+    b.style.display=on?'inline-flex':'none';
+    b.textContent=S.blank?'▶ Resume':'⏹ Stop';b.style.background=S.blank?'#12b886':'#e11d48'},300);
+})();
+</script>
+<script>
+/* website zoom, no Worker needed: holding Ctrl puts an invisible layer over the website so the wheel can zoom it */
+(function(){
+  if(STU)return;
+  const isWeb=()=>S.media&&S.media.type==='web';
+  const shield=on=>{const m=document.getElementById('media');if(!m)return;let s=document.getElementById('wshield');
+    if(on&&isWeb()){if(!s){s=document.createElement('div');s.id='wshield';
+      s.addEventListener('mousemove',e=>{if(!e.ctrlKey&&!e.metaKey)shield(false)});
+      s.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)shield(false)},{passive:true});
+      m.appendChild(s)}}
+    else if(s)s.remove()};
+  addEventListener('keydown',e=>{if((e.key==='Control'||e.key==='Meta')&&isWeb())shield(true)},true);
+  addEventListener('keyup',e=>{if(e.key==='Control'||e.key==='Meta')shield(false)},true);
+  addEventListener('blur',()=>shield(false));
+  // tell the teacher when the Worker helper inside the website is live
+  addEventListener('message',e=>{const n=document.querySelector('#media iframe#mn');
+    if(e.data&&e.data.lsready&&n&&e.source===n.contentWindow)toast('Website zoom ready: hold Ctrl + scroll')});
+})();
+</script>
+<script>
+/* files: zoom toward the mouse (to the sides / corners), smooth steps, view never leaves the page, Right-drag or Alt-drag moves the page */
+(function(){
+  const _zw=zoomBy;   // handles websites; keep it for them
+  zoomBy=function(k,sx,sy){
+    if(S.media&&S.media.type==='web')return _zw(k,sx,sy);
+    if(STU)return;
+    const g=geo();if(!g)return;
+    if(sx==null){sx=W/2;sy=H/2}
+    const p=toN(g,sx,sy);
+    S.v.z*=k;clampV();
+    if(S.v.z>1){S.v.cx=p[0]-(sx-W/2)/(g.bw*S.v.z);S.v.cy=p[1]-(sy-H/2)/(g.bh*S.v.z);clampV()}
+    need=1;st();
+  };
+  // no jumping: smooth zoom, never shows outside the page when it is bigger than the view
+  clampV=function(){
+    const v=S.v;v.z=Math.max(1,Math.min(10,v.z));const g=geo();
+    if(!g||v.z<=1.001){v.z=Math.max(1,v.z);if(v.z<=1.001){v.cx=v.cy=.5}return}
+    const vw=W/(g.bw*v.z),vh=H/(g.bh*v.z);
+    v.cx=vw>=1?.5:Math.max(vw/2,Math.min(1-vw/2,v.cx));
+    v.cy=vh>=1?.5:Math.max(vh/2,Math.min(1-vh/2,v.cy));
+  };
+  if(STU)return;
+  // move the zoomed page with the mouse: Right button or Alt + drag (no tool switching needed)
+  const stg=document.getElementById('stage');let on=0;
+  stg.addEventListener('pointerdown',e=>{if(e.button===2||e.altKey){space=1;on=1}},true);
+  addEventListener('pointerup',()=>{if(on){space=0;on=0}},true);
+  addEventListener('pointercancel',()=>{if(on){space=0;on=0}},true);
+  stg.addEventListener('contextmenu',e=>e.preventDefault());
+})();
+</script>
+<script>
+/* student window must get the WHOLE page (all fixes), not a half-loaded copy */
+(function(){
+  if(STU)return;
+  try{
+    const c=document.documentElement.cloneNode(true);
+    ['fxl','rbar','rtog','fxc','stopshare','stopshare2','stopTop','wshield'].forEach(i=>c.querySelectorAll('#'+i).forEach(e=>e.remove()));
+    SRC='<!doctype html>'+c.outerHTML;
+  }catch(e){}
 })();
 </script>
 </body></html>
