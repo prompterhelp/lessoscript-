@@ -829,4 +829,30 @@ b.onclick=()=>{try{closeMedia()}catch(e){try{mClose(1)}catch(_){}}b.style.displa
 document.getElementById('stage').appendChild(b);
 setInterval(()=>{b.style.display=(S.media||LV)?'block':'none'},300)})();
 </script>
+<script>
+/* proportional zoom: student shows the same part of the page the teacher sees */
+(function(){
+  st=function(){
+    const p=P(),g=geo(),z=S.v.z;
+    send({t:'st',i:S.i,v:S.v,blank:S.blank,words:S.words&&p?p.words:null,
+      vw:g?Math.min(1,W/(g.bw*z)):1, vh:g?Math.min(1,H/(g.bh*z)):1});
+  };
+  if(!STU){
+    try{new ResizeObserver(()=>st()).observe($('stage'))}catch(e){}
+  }else{
+    const apply=m=>{
+      const g=geo();if(!g||!m||!m.vw)return;
+      S.v.z=(m.v.z<=1.001)?1:Math.max(1,Math.min(W/(g.bw*m.vw),H/(g.bh*m.vh)));
+      clampV();need=1;
+    };
+    const prev=ch.onmessage;
+    ch.onmessage=async ev=>{
+      const r=await prev(ev),m=ev&&ev.data;
+      if(m&&m.t==='st'){S.last=m;apply(m)}
+      return r;
+    };
+    addEventListener('resize',()=>setTimeout(()=>{if(S.last)apply(S.last)},80));
+  }
+})();
+</script>
 </body></html>
