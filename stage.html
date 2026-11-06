@@ -126,7 +126,7 @@ if(STU)document.body.classList.add('stu');
 const ch=new BroadcastChannel('lessonstage-pro'),S={pages:[],i:0,v:{z:1,cx:.5,cy:.5},tool:'pen',color:'#ff4d6d',size:4,blank:0,ptr:null,live:null,words:0,follow:1,end:0};
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 const cv=$('cv'),cx=cv.getContext('2d');let W=0,H=0,D=1,need=1,space=0;
-const P=()=>S.pages[S.i],send=m=>{if(!STU||m.t==='hello'){m.n=Math.random();ch.postMessage(m);try{if(STU)opener&&opener.postMessage(m,'*');else SW&&!SW.closed&&SW.postMessage(m,'*')}catch(e){}}};
+const P=()=>S.pages[S.i],BCOK=/^https?:$/.test(location.protocol),send=m=>{if(!STU||m.t==='hello'){m.n=Math.random();if(BCOK)ch.postMessage(m);else try{if(STU)opener&&opener.postMessage(m,'*');else SW&&!SW.closed&&SW.postMessage(m,'*')}catch(e){}}};
 function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.opacity=0,1800)}
 function size(){const r=$('stage').getBoundingClientRect();D=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;cv.width=W*D;cv.height=H*D;need=1}
 new ResizeObserver(size).observe($('stage'));
@@ -138,8 +138,9 @@ function stroke(s,g){const z=S.v.z;cx.save();cx.lineCap=cx.lineJoin='round';cx.s
  if(s.k=='rect')cx.rect(a[0],a[1],b[0]-a[0],b[1]-a[1]);else if(s.k=='line'){cx.moveTo(a[0],a[1]);cx.lineTo(b[0],b[1])}
  else{cx.moveTo(a[0],a[1]);if(Q.length==1)cx.lineTo(a[0]+.1,a[1]);for(let i=1;i<Q.length-1;i++)cx.quadraticCurveTo(Q[i][0],Q[i][1],(Q[i][0]+Q[i+1][0])/2,(Q[i][1]+Q[i+1][1])/2);if(Q.length>1)cx.lineTo(b[0],b[1])}
  cx.stroke();cx.restore()}
+function ensurePg(i){for(const k of[i,i+1,i-1]){const p=S.pages[k];if(p&&!p.bmp&&!p.dec&&p.blob){p.dec=1;createImageBitmap(p.blob).then(b=>{p.bmp=b;need=1}).catch(()=>{p.dec=0})}}}
 function draw(){need=0;cx.setTransform(D,0,0,D,0,0);cx.clearRect(0,0,W,H);const g=geo();if(!g||S.blank){if(S.blank&&STU){cx.fillStyle='#000';cx.fillRect(0,0,W,H)}return}
- const[x,y]=toS(g,0,0);cx.drawImage(g.p.bmp,x,y,g.bw*S.v.z,g.bh*S.v.z);g.p.strokes.forEach(s=>stroke(s,g));if(S.live)stroke(S.live,g);
+ const[x,y]=toS(g,0,0);if(!g.p.bmp){ensurePg(S.i);return}cx.drawImage(g.p.bmp,x,y,g.bw*S.v.z,g.bh*S.v.z);g.p.strokes.forEach(s=>stroke(s,g));if(S.live)stroke(S.live,g);
  const q=S.ptr;if(q){const[px,py]=toS(g,q.x,q.y);if(q.m=='spot'){const r=Math.min(W,H)*.16;cx.fillStyle='rgba(0,0,0,.78)';cx.beginPath();cx.rect(0,0,W,H);cx.arc(px,py,r,0,7);cx.fill('evenodd')}
  else{const gr=cx.createRadialGradient(px,py,0,px,py,18);gr.addColorStop(0,'#fff');gr.addColorStop(.25,'#ff2d55');gr.addColorStop(1,'rgba(255,45,85,0)');cx.fillStyle=gr;cx.beginPath();cx.arc(px,py,18,0,7);cx.fill()}}}
 (function loop(){if(need)draw();requestAnimationFrame(loop)})();
@@ -222,7 +223,7 @@ document.addEventListener('keyup',e=>{if(e.key==' ')space=0});
 ch.onmessage=async ev=>{const m=ev.data;
  if(m.t=='hello'&&!STU){sendPages();st();send({t:'tm',end:S.end});return}
  if(!STU)return;
- if(m.t=='pages'){S.pages=await Promise.all(m.l.map(async p=>({...p,bmp:await createImageBitmap(p.blob)})));S.i=Math.min(S.i,S.pages.length-1);ui()}
+ if(m.t=='pages'){S.pages=await Promise.all(m.l.map(async p=>({...p,bmp:null})));S.i=Math.min(S.i,S.pages.length-1);ui()}
  else if(m.t=='st'){const ch2=m.i!=S.i;S.i=m.i;S.blank=m.blank;if(S.follow||ch2){if(ch2&&!S.follow){S.follow=1;$('fol').style.display='none'}S.v=m.v}showWords(m.words);if(ch2){S.live=null;ui()}need=1}
  else if(m.t=='add'){S.pages[m.i]&&S.pages[m.i].strokes.push(m.s);S.live=null;need=1}
  else if(m.t=='set'){S.pages[m.i]&&(S.pages[m.i].strokes=m.l);need=1}
@@ -299,7 +300,7 @@ const old=ch.onmessage;
 ch.onmessage=async ev=>{const m=ev.data;if(m.n){if(seen.has(m.n))return;seen.add(m.n)}
  if(m.t=='hello'&&!STU){await old(ev);send({t:'ov',o:S.ov});sendMedia();return}
  if(!STU)return;
- if(m.t=='page'){const p=m.p;S.pages[m.i]={...p,bmp:await createImageBitmap(p.blob)};ui()}
+ if(m.t=='page'){const p=m.p;S.pages[m.i]={...p,bmp:null};ui()}
  else if(m.t=='ov'){S.ov=m.o;renderOv()}
  else if(m.t=='media'){const s=m.m,k=s.type+'|'+(s.id||s.src||(s.blob?s.blob.size+s.blob.type:''));if(S.media&&S.mkey===k&&$('media').style.display!=='none')return;S.mkey=k;if(s.blob)s.src=URL.createObjectURL(s.blob);mOpen(s)}
  else if(m.t=='mc')mcApply(m.a,m.v);else if(m.t=='mx')mClose();else if(m.t=='frame'){const n=$('mn');if(n&&n.tagName=='IMG'){const u=URL.createObjectURL(m.b);const o=n.src;n.onload=()=>{if(o.startsWith('blob:'))URL.revokeObjectURL(o)};n.src=u}}else old(ev)};
