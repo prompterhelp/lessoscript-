@@ -727,22 +727,22 @@ try{requestAnimationFrame(()=>placeWz())}catch(e){}
 /* ===== live share: fast frames while the picture changes, one sharp 4K frame when it stops ===== */
 liveStart=async function(){
  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia)return toast('Screen share not supported in this browser');
- let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:{width:{ideal:3840},height:{ideal:2160},frameRate:{ideal:20}},audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
+ let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:{cursor:'always',width:{ideal:3840},height:{ideal:2160},frameRate:{ideal:24}},audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
  try{st.getVideoTracks()[0].contentHint='detail'}catch(e){}
  $('md').style.display='none';mSet({type:'img',src:'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='});
  const v=document.createElement('video');v.srcObject=st;v.muted=true;v.playsInline=true;v.autoplay=true;v.id='mn';v.style.cssText='width:100%;height:100%;border:0;object-fit:contain;background:#000';
  const old=$('mn');if(old)old.replaceWith(v);v.play().catch(()=>{});
  const c=document.createElement('canvas'),x=c.getContext('2d'),sm=document.createElement('canvas');sm.width=64;sm.height=36;const sx=sm.getContext('2d',{willReadFrequently:true});
- let busy=0,prev=null,lastChange=0,sharpPending=false,fw=1600,lastSend=0,lastB=null;
+ let busy=0,prev=null,lastChange=0,sharpPending=false,fw=2200,lastSend=0,lastB=null;
  const send1=(w,q)=>{w=Math.min(w,v.videoWidth);const h=Math.round(w*v.videoHeight/v.videoWidth);c.width=w;c.height=h;x.imageSmoothingQuality=q>.9?'high':'medium';x.drawImage(v,0,0,w,h);busy=1;const t0=performance.now();
   c.toBlob(b=>{busy=0;lastSend=performance.now();const dt=lastSend-t0;
-   if(q<.9){fw=dt>45?Math.max(1024,fw*.88):dt<20?Math.min(2400,fw*1.1):fw}   /* adapt fast-frame size to this computer */
+   if(q<.9){fw=dt>45?Math.max(1024,fw*.88):dt<20?Math.min(3000,fw*1.1):fw}   /* adapt fast-frame size to this computer */
    if(b){lastB=b;send({t:'frame',b})}},'image/jpeg',q)};
  const tm=setInterval(()=>{if(busy||!v.videoWidth)return;const now=performance.now();
   if(lastB&&!sharpPending&&now-lastSend>1500){lastSend=now;send({t:'frame',b:lastB})}   /* keep the student screen filled even if it opened late */
   sx.drawImage(v,0,0,64,36);const d=sx.getImageData(0,0,64,36).data;let diff=0;if(prev){for(let i=0;i<d.length;i+=4)diff+=Math.abs(d[i]-prev[i])+Math.abs(d[i+1]-prev[i+1])+Math.abs(d[i+2]-prev[i+2])}else diff=1e9;
-  if(diff>60){prev=d;lastChange=now;sharpPending=true;if(now-lastSend>45)send1(fw,.8);return}
-  if(sharpPending&&now-lastChange>350){sharpPending=false;send1(3840,.97)}},30);
+  if(diff>60){prev=d;lastChange=now;sharpPending=true;if(now-lastSend>45)send1(fw,.88);return}
+  if(sharpPending&&now-lastChange>220){sharpPending=false;send1(3840,.97)}},30);
  LV={st,tm};st.getVideoTracks()[0].onended=()=>{if(LV){mClose(1)}};
 };
 </script>
@@ -1539,7 +1539,7 @@ if(STU){
  const cur=document.createElement('div');cur.id='mcur';cur.innerHTML='<svg viewBox="0 0 24 24" width="28" height="28"><path d="M3 2l7 19 3-8 8-3z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>';$('stage').appendChild(cur);
  const tc=document.createElement('canvas');tc.id='mtrail';$('stage').appendChild(tc);const tx=tc.getContext('2d');
  let M=null,T=[],fr=0;
- function frame(){fr=0;const g=geo(),now=performance.now();
+ function frame(){fr=0;if(window.__lc)return;const g=geo(),now=performance.now();
   if(tc.width!==Math.round(W*D)||tc.height!==Math.round(H*D)){tc.width=Math.round(W*D);tc.height=Math.round(H*D)}
   tx.setTransform(D,0,0,D,0,0);tx.clearRect(0,0,W,H);
   const hide=!g||!M||M.off||S.blank||M.i!==S.i||S.ptr||$('media').style.display==='flex';
@@ -1648,5 +1648,18 @@ if(STU){let busy=0;setInterval(async()=>{if(busy||document.hidden)return;const c
   await pg.render({canvasContext:k2.getContext('2d'),viewport:vp}).promise;
   if(!t.blob){t.blob=await new Promise(r=>k2.toBlob(r,'image/jpeg',.95));t.w=k2.width;t.h=k2.height;t.bmp=await createImageBitmap(k2);t.pdf={doc:c.doc,n:idx+1};need=1;ui()}}
  catch(e){}finally{t.srend=0;busy=0}},200)}
+</script>
+<script>
+/* mouse mirror while live sharing a website/tab: teacher pointer over the live preview shows on the student screen */
+if(!STU){const md=$('media');let pend=null,raf=0;const fl=()=>{raf=0;if(pend){send(pend);pend=null}};
+ md.addEventListener('pointermove',e=>{if(!LV)return;const v=$('mn');if(!v||!v.videoWidth)return;const r=v.getBoundingClientRect(),s=Math.min(r.width/v.videoWidth,r.height/v.videoHeight),cw=v.videoWidth*s,ch2=v.videoHeight*s,x0=r.left+(r.width-cw)/2,y0=r.top+(r.height-ch2)/2,fx=(e.clientX-x0)/cw,fy=(e.clientY-y0)/ch2;
+  pend=(fx<0||fx>1||fy<0||fy>1)?{t:'lcur',off:1}:{t:'lcur',x:fx,y:fy};if(!raf)raf=requestAnimationFrame(fl)});
+ md.addEventListener('pointerleave',()=>send({t:'lcur',off:1}))}
+if(STU){const _q=ch.onmessage;ch.onmessage=async ev=>{const m=ev&&ev.data;
+ if(m&&m.t==='lcur'){const cur=$('mcur');if(!cur)return;if(m.off){window.__lc=0;cur.style.display='none';return}const el=$('mn');if(!el||el.tagName!=='CANVAS'||!el.width)return;window.__lc=1;
+  const sr=$('stage').getBoundingClientRect(),r=el.getBoundingClientRect(),s=Math.min(r.width/el.width,r.height/el.height),cw=el.width*s,ch2=el.height*s,px=r.left-sr.left+(r.width-cw)/2+m.x*cw,py=r.top-sr.top+(r.height-ch2)/2+m.y*ch2;
+  cur.style.display='block';cur.style.transform='translate('+(px-4)+'px,'+(py-2)+'px)';return}
+ if(m&&(m.t==='mx'||m.t==='pages'||m.t==='usedeck')){window.__lc=0}
+ return _q(ev)}}
 </script>
 </body></html>
