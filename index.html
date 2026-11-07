@@ -5225,7 +5225,9 @@ pvAfter('rpPreview','report'); pvAfter('rpDesignPv','design'); pvAfter('ctPv','c
   const ot = window.toast; if(typeof ot === 'function'){ window.toast = function(m){ if(mode === 'ar' && typeof m === 'string'){ const r = tr(m); if(r !== null) m = r; } return ot.call(this, m); }; try{ toast = window.toast; }catch(e){} }
   const hb = document.getElementById('moreBtn') || document.getElementById('helpBtn');
   if(hb && !document.getElementById('uiLangBtn')){ const b = document.createElement('button'); b.className = 'btn icon'; b.id = 'uiLangBtn'; b.type = 'button'; b.setAttribute('data-noi18n',''); hb.parentNode.insertBefore(b, hb); b.addEventListener('click', () => setMode(mode === 'ar' ? 'en' : 'ar')); }
-  obs = new MutationObserver(m => { if(busy) return; if(mode === 'ar' || m.some(x => x.type === 'childList')) schedule(); });
+  obs = new MutationObserver(ms => { if(busy || mode !== 'ar') return; busy = true;
+    try{ for(const m of ms){ if(m.type === 'childList') m.addedNodes.forEach(walk); else node(m.target); } }finally{ busy = false; }
+    if(obs) obs.takeRecords(); });
   obs.observe(document.body, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATTRS});
   setMode(mode);
 })();
@@ -5391,7 +5393,8 @@ const SEL='button,summary,.tab,.chip,.rp-chip,label,h2,h3,.rp-lbl,.btn-q,a.btn';
 const SKIP='#scriptList,#stage,.stage,textarea,input,select,script,style,[contenteditable=true],.line,.ct,#ctPv,#rpPreview,#rpDesignPv,.history-banner';
 function icon(k){const s=document.createElement('span');s.className='ic';s.innerHTML=S(IC[k]);return s}
 function clean(root){
- (root||document).querySelectorAll(SEL).forEach(el=>{
+ const r0=root||document;const list=r0.querySelectorAll?[...r0.querySelectorAll(SEL)]:[];if(r0.matches&&r0.matches(SEL))list.unshift(r0);
+ list.forEach(el=>{
   if(el.closest(SKIP))return;
   const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const ns=[];let n;
   while((n=w.nextNode())){if(n.parentNode&&n.parentNode.closest&&n.parentNode.closest(SKIP))continue;EM.lastIndex=0;if(EM.test(n.nodeValue))ns.push(n)}
@@ -5405,9 +5408,17 @@ const TI={follow:'follow',stage:'stage',reports:'reports',script:'script',notes:
 function tabs(){document.querySelectorAll('.tabs .tab').forEach(b=>{if(b.dataset.ic)return;const k=TI[b.dataset.view];if(!k)return;b.dataset.ic=1;const t=b.textContent.trim();b.textContent='';b.appendChild(icon(k));const s=document.createElement('span');s.className='tl';s.textContent=t;b.appendChild(s)});
  /* keep the label in sync if the app translates it */}
 const sbn=document.getElementById('tab-split');if(sbn&&!sbn.dataset.ic){sbn.dataset.ic=1;sbn.textContent='';sbn.appendChild(icon('split'));const sl=document.createElement('span');sl.className='tl';sl.textContent='Split';sbn.appendChild(sl)}
-let q=0;const run=()=>{q=0;try{tabs();clean(document)}catch(e){}};
-const sched=()=>{if(!q)q=requestAnimationFrame(run)};
-run();new MutationObserver(sched).observe(document.body,{childList:true,subtree:true,characterData:true});
+let q=0;const pend=new Set();
+const HAS=/[\u2190-\u2BFF\u{1F000}-\u{1FFFF}]/u;
+const run=()=>{q=0;try{tabs();pend.forEach(n=>{if(n.isConnected)clean(n)})}catch(e){}pend.clear()};
+clean(document);tabs();
+new MutationObserver(ms=>{
+ for(const m of ms){
+  if(m.type==='childList'){m.addedNodes.forEach(n=>{const e=n.nodeType===1?n:n.parentElement;if(e)pend.add(e)})}
+  else if(m.target.parentElement&&HAS.test(m.target.nodeValue||''))pend.add(m.target.parentElement)
+ }
+ if(pend.size&&!q)q=setTimeout(run,80)
+}).observe(document.body,{childList:true,subtree:true,characterData:true});
 })();
 </script>
 <style id="ui-unify-2">
@@ -5474,5 +5485,10 @@ body.split .ptabs button:active{transform:scale(.96)}
 </style>
 <script id="lp-fancy-tabs-js">(function(){setInterval(function(){if(document.hidden)return;document.querySelectorAll('.ptabs button.on').forEach(function(b){if(b._lp)return;b._lp=1;try{b.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}})},1000)})();</script>
 
+<script id="lp-stage-preload">(function(){
+function pre(){var f=document.getElementById('stageFrame');if(f&&!f.getAttribute('src'))f.src='stage.html'}
+addEventListener('load',function(){setTimeout(function(){(window.requestIdleCallback?requestIdleCallback(pre,{timeout:4000}):pre())},1800)});
+var t=document.getElementById('tab-stage');if(t)['pointerenter','touchstart','focus'].forEach(function(ev){t.addEventListener(ev,pre,{passive:true,once:true})});
+})();</script>
 </body>
 </html>

@@ -1955,17 +1955,12 @@ document.addEventListener('pointerdown',function(e){if(!e.target.closest('#tlPop
 #mbar:not(.yb):hover,#mbar:not(.yb):focus-within{opacity:1}
 #mbar:not(.yb) button{padding:5px 10px;font-size:12px;border-radius:8px}
 
-/* ===== 3. teacher tools live in the top bar (lots of free room there) ===== */
-.top #tb{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;max-width:none!important;flex:none;margin:0 0 0 4px;padding:3px 6px!important;gap:2px!important;border-radius:14px!important;background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,255,255,.09)!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-.top #tb button:not(.sw){width:34px!important;min-width:34px!important;height:34px!important}
-.top #tbMin{position:static!important;flex:none;width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);box-shadow:none;transition:background .15s,transform .15s}
-.top #tbMin:hover{background:rgba(94,234,212,.18);transform:translateY(-1px)}
-.top.lp-min #tbMin{background:linear-gradient(135deg,rgba(94,234,212,.3),rgba(139,156,255,.3));border-color:rgba(94,234,212,.5)}
-/* pop-ups drop DOWN from the top bar, always on screen */
-.top #tb .tbpop{position:fixed!important;top:var(--popTop,58px)!important;bottom:auto!important;left:50%!important;transform:translateX(-50%)!important;max-width:94vw;max-height:calc(100dvh - var(--popTop,58px) - 12px);overflow:auto;scrollbar-width:thin;animation:lpPop .16s ease-out}
-@keyframes lpPop{from{opacity:0;transform:translateX(-50%) translateY(-6px)}to{opacity:1;transform:translateX(-50%)}}
+/* ===== 3. tools float at the bottom (never reserve space); neat hide button ===== */
+#tbMin{font-size:0!important;display:grid;place-items:center;color:var(--tx)}
+#tbMin::before{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat}
+#tb.min~#tbMin::before{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z'/%3E%3C/svg%3E")}
+#tb.min~#tbMin{background:linear-gradient(135deg,rgba(94,234,212,.3),rgba(139,156,255,.3))!important;border-color:rgba(94,234,212,.5)!important}
 #gp{width:88px!important;padding:6px 10px!important}
-.top{position:relative;z-index:30}
 
 /* ===== 4. student toolbar: tidy fixed grid, never cut, never under the tab bar ===== */
 html body.stu.tbon .tb{display:grid!important;grid-auto-flow:row!important;grid-template-rows:none!important;grid-auto-columns:none!important;grid-template-columns:repeat(var(--cols,2),34px)!important;grid-auto-rows:34px!important;gap:4px!important;align-items:center;justify-items:center;padding:8px!important;border-radius:18px!important;top:var(--tbTop,58px)!important;bottom:auto!important;right:8px!important;left:auto!important;transform:none!important;z-index:99999!important;max-height:calc(100dvh - var(--tbTop,58px) - 10px)!important;max-width:calc(100vw - 16px)!important;overflow-y:auto!important;overflow-x:hidden!important;background:rgba(16,20,36,.94)!important;border:1px solid rgba(255,255,255,.1)!important;box-shadow:0 14px 40px rgba(0,0,0,.5)!important;scrollbar-width:none}
@@ -1977,30 +1972,9 @@ html body.stu.tbon .tb #sz,html body.stu.tbon .tb input[type=range]{grid-column:
 html body.stu.tbon .tb hr{display:none!important}
 #stabs{z-index:99990!important}
 html body #rbar,html body .tb,html body #mbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-/* top bar wraps to a 2nd row when crowded: no button is ever cut off */
-html body #app{grid-template-rows:auto 38px minmax(0,1fr)!important}
-html body .top{flex-wrap:wrap!important;overflow:visible!important;height:auto!important;min-height:52px;row-gap:6px!important;padding-top:6px!important;padding-bottom:6px!important}
-html body .top .sp{flex:1 1 8px!important;min-width:0}
-html body .top>*{flex-shrink:0}
 </style>
 <script id="lp-fancy-v1-js">(function(){
 var B=document.body,$=function(i){return document.getElementById(i)};
-/* move tools + hide button into the top bar (teacher only) */
-function relocate(){
-  if(B.classList.contains('stu'))return true;
-  var top=document.querySelector('.top'),tb=$('tb'),m=$('tbMin');
-  if(!top||!tb||!m)return false;
-  if(tb.parentNode!==top){var sp=top.querySelector('.sp');
-    if(sp&&sp.nextSibling){top.insertBefore(m,sp.nextSibling);top.insertBefore(tb,m.nextSibling)}
-    else{top.appendChild(m);top.appendChild(tb)}
-    m.title='Hide / show drawing tools';
-    var sync=function(){top.classList.toggle('lp-min',tb.classList.contains('min'))};
-    new MutationObserver(sync).observe(tb,{attributes:true,attributeFilter:['class']});sync();
-  }
-  return true;
-}
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#tbCol,#tbMoreBtn'),t=$('tb');if(b&&t)t.style.setProperty('--popTop',(t.getBoundingClientRect().bottom+8)+'px')},true);
-var n=0,iv=setInterval(function(){if(relocate()||++n>40)clearInterval(iv)},250);relocate();
 /* student toolbar: choose column count so everything fits */
 function fitCols(){
   if(!B.classList.contains('stu'))return;
