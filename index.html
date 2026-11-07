@@ -5446,25 +5446,33 @@ function sync(){
    b.addEventListener('click',e=>{e.stopPropagation();setView(k)});bar.appendChild(b)});
   v.insertBefore(bar,v.firstChild)})
 }
-setInterval(sync,350);sync();
+setInterval(function(){if(!document.hidden)sync()},1200);sync();
+document.addEventListener('click',function(){setTimeout(sync,80)},true);
+new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
 })();
 </script>
-<script id="ptH-fix">(function(){function m(){var b=document.querySelector('body.split .ptabs');if(!b)return;var h=Math.ceil(b.getBoundingClientRect().height)+8;var r=document.documentElement;if(r.style.getPropertyValue('--ptH')!==h+'px')r.style.setProperty('--ptH',h+'px')}addEventListener('resize',m);setInterval(m,500);
+<script id="ptH-fix">(function(){function m(){var b=document.querySelector('body.split .ptabs');if(!b)return;var h=Math.ceil(b.getBoundingClientRect().height)+8;var r=document.documentElement;if(r.style.getPropertyValue('--ptH')!==h+'px')r.style.setProperty('--ptH',h+'px')}addEventListener('resize',m);setInterval(function(){if(!document.hidden)m()},1000);
 var last=new WeakMap();document.addEventListener('scroll',function(e){var v=e.target;if(!v||!v.classList||!v.classList.contains('view')||!document.body.classList.contains('split')||v.id==='view-stage')return;var y=v.scrollTop,p=last.get(v)||0;last.set(v,y);if(y<24||y<p-4)v.classList.remove('ptoff');else if(y>p+4&&y>80)v.classList.add('ptoff')},true);
-setInterval(function(){document.querySelectorAll('.ptabs button').forEach(function(b){if(!b.title){var sp=b.querySelector('span');if(sp)b.title=sp.textContent}})},700);new MutationObserver(m).observe(document.body,{attributes:true,attributeFilter:['class']})})();</script>
+setInterval(function(){document.querySelectorAll('.ptabs button').forEach(function(b){if(!b.title){var sp=b.querySelector('span');if(sp)b.title=sp.textContent}})},1500);new MutationObserver(m).observe(document.body,{attributes:true,attributeFilter:['class']})})();</script>
 <style id="lp-fancy-tabs">
 /* split-pane tab bars: every tab always reachable, nothing cut or hidden */
 body.split .ptabs{display:flex!important;flex-wrap:nowrap;align-items:stretch;gap:3px!important;padding:4px!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x proximity;border-radius:16px!important;background:color-mix(in srgb,var(--surface-2) 92%,transparent)!important;box-shadow:inset 0 0 0 1px var(--line)}
 body.split .ptabs button{flex:1 1 0!important;min-width:40px!important;max-width:none;padding:8px 6px!important;border-radius:12px!important;scroll-snap-align:center;transition:background .18s,color .18s,flex-grow .22s,box-shadow .18s}
 body.split .ptabs button .ic{display:inline-flex!important;flex:none;width:1.2em!important;height:1.2em!important}
 body.split .ptabs button .ic svg{width:100%;height:100%}
-body.split .ptabs button:not(.on) span{display:none!important}
+body.split .ptabs{container-type:inline-size;container-name:ptabs}
+body.split .ptabs button:not(.on) span:not(.ic){display:none}
+@container ptabs (min-width:600px){
+ body.split .ptabs button{flex:1 1 auto!important;gap:6px}
+ body.split .ptabs button:not(.on) span:not(.ic){display:inline!important}
+}
+@media(min-width:761px){body:not(.split) .tabs .tab .tl{display:inline!important}}
 body.split .ptabs button.on{flex:2.6 1 0!important;min-width:fit-content;background:var(--surface)!important;color:var(--fg)!important;box-shadow:var(--sh),inset 0 -2px 0 var(--accent)}
 body.split .ptabs button.on span{display:inline!important}
 body.split .ptabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 body.split .ptabs button:active{transform:scale(.96)}
 </style>
-<script id="lp-fancy-tabs-js">(function(){setInterval(function(){document.querySelectorAll('.ptabs button.on').forEach(function(b){if(b._lp)return;b._lp=1;try{b.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}})},500)})();</script>
+<script id="lp-fancy-tabs-js">(function(){setInterval(function(){if(document.hidden)return;document.querySelectorAll('.ptabs button.on').forEach(function(b){if(b._lp)return;b._lp=1;try{b.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}})},1000)})();</script>
 
 </body>
 </html>
