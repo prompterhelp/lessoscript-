@@ -1533,7 +1533,7 @@ if(!STU){
 
 /* ---- student side ---- */
 if(STU){
- const C={};let curId=null;
+ const C={};let curId=null;window.__SC=()=>C[curId];
  const bar=document.createElement('div');bar.id='stabs';document.body.appendChild(bar);
  document.body.classList.remove('tabhide');
  const cur=document.createElement('div');cur.id='mcur';cur.innerHTML='<svg viewBox="0 0 24 24" width="28" height="28"><path d="M3 2l7 19 3-8 8-3z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>';$('stage').appendChild(cur);
@@ -1638,5 +1638,15 @@ ensurePg=function(i){for(const k of[i,i+1,i-1,i+2]){const p=S.pages[k];if(p&&!p.
 let _nq=0;setInterval(()=>{if(!S.pages.length)return;const p=S.pages[S.i];
  if(p&&p.blob&&!p.bmp)ensurePg(S.i);
  else if(STU&&(!p||!p.blob)&&performance.now()-_nq>1200){_nq=performance.now();send({t:'need',i:S.i})}},400);
+</script>
+<script>
+/* student renders PDF pages itself, so it no longer waits for the teacher window to load them */
+if(STU){let busy=0;setInterval(async()=>{if(busy||document.hidden)return;const c=window.__SC&&window.__SC();if(!c||!c.doc||!S.pages.length)return;
+ let t=null;for(const k of[0,1,-1,2,3,4,-2]){const p=S.pages[S.i+k];if(p&&!p.blob&&!p.r&&!p.srend){t=p;break}}
+ if(!t)return;busy=1;t.srend=1;
+ try{const idx=S.pages.indexOf(t),pg=await c.doc.getPage(idx+1),w0=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(5,PW()/w0)}),k2=document.createElement('canvas');k2.width=vp.width;k2.height=vp.height;
+  await pg.render({canvasContext:k2.getContext('2d'),viewport:vp}).promise;
+  if(!t.blob){t.blob=await new Promise(r=>k2.toBlob(r,'image/jpeg',.95));t.w=k2.width;t.h=k2.height;t.bmp=await createImageBitmap(k2);t.pdf={doc:c.doc,n:idx+1};need=1;ui()}}
+ catch(e){}finally{t.srend=0;busy=0}},200)}
 </script>
 </body></html>
