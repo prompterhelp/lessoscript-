@@ -621,8 +621,11 @@ body.split .top{position:relative!important;top:auto!important;z-index:8}
 body.split .tabs{position:relative;z-index:9;flex:none}
 body.split main{min-height:0;flex:1 1 0}
 body.split main>.view.pA,body.split main>.view.pB{isolation:isolate;contain:layout paint;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-body.split .rp-tabs,body.split .ptabs,body.split .toolbar{top:0!important}
-body.split #view-reports.rp-wide .rp-pane:not([hidden])>.rp-pvcol{top:64px!important}
+body.split .ptabs{top:0!important;z-index:8!important;background:var(--surface-2)!important;margin-bottom:8px!important}
+body.split .toolbar,body.split .rp-tabs{top:var(--ptH,54px)!important;z-index:7}
+body.split .toolbar{background:var(--bg)}
+body.split main>.view.pA,body.split main>.view.pB{padding-inline:8px!important;padding-bottom:14px!important;box-sizing:border-box}
+body.split #view-reports.rp-wide .rp-pane:not([hidden])>.rp-pvcol{top:calc(var(--ptH,54px) + 56px)!important}
 body.split .rp-pvsticky{position:static!important}
 body.split .rp-tabs{z-index:4}
 /* ===== one standard box: same width, padding, radius, gap on every tab ===== */
@@ -5414,5 +5417,6 @@ function sync(){
 setInterval(sync,350);sync();
 })();
 </script>
+<script id="ptH-fix">(function(){function m(){var b=document.querySelector('body.split .ptabs');if(!b)return;var h=Math.ceil(b.getBoundingClientRect().height)+8;var r=document.documentElement;if(r.style.getPropertyValue('--ptH')!==h+'px')r.style.setProperty('--ptH',h+'px')}addEventListener('resize',m);setInterval(m,500);new MutationObserver(m).observe(document.body,{attributes:true,attributeFilter:['class']})})();</script>
 </body>
 </html>
