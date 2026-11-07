@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="LessoScript: a lesson teleprompter, stage and report tool for online teachers.">
+<link rel="icon" href="icon-192.png" type="image/png">
+<script>window.fScroller=window.fScroller||function(){return document.getElementById("main")}</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0F6F66">
 <meta name="mobile-web-app-capable" content="yes">
@@ -13,7 +16,7 @@
 <title>Lesson Prompter Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:wght@600;700;800&family=Noto+Naskh+Arabic:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Merriweather:wght@400;700&family=Literata:wght@400;600&family=Lexend:wght@400;600&family=Nunito:wght@400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap">
+<link media="print" onload="this.media='all'" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:wght@600;700;800&family=Noto+Naskh+Arabic:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Merriweather:wght@400;700&family=Literata:wght@400;600&family=Lexend:wght@400;600&family=Nunito:wght@400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap">
 <style>
 :root[data-theme="paper"]{--bg:#F3EEE3;--surface:#FAF6EC;--surface-2:#E7E0CF;--fg:#2E2C28;--muted:#6F6A5E;--line:#D8CFBA;--accent:#5C7A6B;--on-accent:#FFFFFF;--mark:#E8E0C4;--mark-ink:#2E2C28;--speak:#5C7A6B;--ask:#5B6BA8;--pause:#A5642C;--other:#7B6A9A;--on-kind:#FFFFFF;--good:#2F6B3C;--warn:#8F5400;--bad:#A3281E;color-scheme:light}
 [hidden]{display:none!important}
@@ -639,6 +642,18 @@ body.split #view-reports,body.split #view-script,body.split #view-notes,body.spl
 #view-reports .rp-pane:not(:has(>.rp-pvcol))>.rp-card{max-width:var(--box-w)}
 #view-reports.rp-wide .rp-pane>.rp-card{max-width:none}
 #view-reports .rp-card h3,#view-script .rp-card h3,#view-notes h2,#view-history h2,#view-setup h2,#view-script .rp-card summary{font-size:.98rem;font-weight:700;margin:0 0 12px}
+/* ===== split pane tab bar: all 7 tabs reachable (icons, active shows label), hides while scrolling down ===== */
+body.split .ptabs{overflow:visible!important;transition:transform .22s ease,opacity .22s ease;gap:2px}
+body.split .ptabs button{flex:0 0 auto;padding:7px 11px;min-width:0}
+body.split .ptabs button.on{flex:1 1 auto}
+body.split .ptabs button:not(.on) span{display:none}
+body.split .view.ptoff>.ptabs{transform:translateY(-140%);opacity:0;pointer-events:none}
+body.split .view.ptoff .toolbar,body.split .view.ptoff .rp-tabs{top:6px!important}
+/* stage pane: iframe fits under the pane tab bar so its bottom tools are never cut off */
+body.split #view-stage.pA,body.split #view-stage.pB{padding-bottom:0!important;overflow:hidden!important}
+body.split #view-stage.pA,body.split #view-stage.pB{display:flex!important;flex-direction:column}
+body.split #view-stage.pA>.ptabs,body.split #view-stage.pB>.ptabs{flex:none}
+body.split #view-stage.pA iframe,body.split #view-stage.pB iframe{flex:1 1 0;height:auto!important;min-height:0!important}
 /* ===== tablet: no accidental page scroll / zoom drift ===== */
 html,body{overscroll-behavior:none}
 #view-stage,#view-stage iframe{touch-action:none;overscroll-behavior:contain}
@@ -5232,7 +5247,7 @@ window.fScroller=function(){const v=$('view-follow');return document.body.classL
 const VIEWS=['follow','reports','script','notes','history','stage','setup'],main=$('main'),nav=document.querySelector('.tabs');
 let split=lsGet('lp.split')==='1',sec=lsGet('lp.split.sec')||'script',act='B',sw=parseFloat(lsGet('lp.split.w'))||50;window.__lsSec=()=>split?sec:null;
 if(sec===S.view||!VIEWS.includes(sec))sec='script';
-const sb=document.createElement('button');sb.className='tab';sb.id='tab-split';sb.type='button';sb.title='Split screen: show two tabs side by side';sb.textContent='◫ Split';nav.appendChild(sb);
+const sb=document.createElement('button');sb.className='tab';sb.setAttribute('role','tab');sb.id='tab-split';sb.type='button';sb.title='Split screen: show two tabs side by side';sb.textContent='◫ Split';nav.appendChild(sb);
 const dv=document.createElement('div');dv.id='splitDv';main.appendChild(dv);
 function rend(k){try{if(k==='follow')renderFollow(false);else if(k==='script')renderScript();else if(k==='notes')renderNotes();else if(k==='history')renderHistory();else if(k==='reports')rpInit();else if(k==='stage'){const f=$('stageFrame');if(f&&!f.getAttribute('src'))f.src='stage.html'}else if(k==='setup')$('scriptInput').value=S.script}catch(e){}}
 function renderSec(){rend(sec)}
@@ -5408,7 +5423,7 @@ function sync(){
   const key=v.id.replace('view-','');
   if(has){has.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===key));return}
   const bar=document.createElement('div');bar.className='ptabs';bar.setAttribute('role','tablist');
-  V.forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.dataset.v=k;b.className=k===key?'on':'';
+  V.forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.dataset.v=k;b.className=k===key?'on':'';
    const ic=document.querySelector('#tab-'+k+' .ic');if(ic)b.appendChild(ic.cloneNode(true));
    const tl=document.querySelector('#tab-'+k+' .tl'),t=document.createElement('span');t.textContent=tl?tl.textContent:l;b.appendChild(t);
    b.addEventListener('click',e=>{e.stopPropagation();setView(k)});bar.appendChild(b)});
@@ -5417,6 +5432,8 @@ function sync(){
 setInterval(sync,350);sync();
 })();
 </script>
-<script id="ptH-fix">(function(){function m(){var b=document.querySelector('body.split .ptabs');if(!b)return;var h=Math.ceil(b.getBoundingClientRect().height)+8;var r=document.documentElement;if(r.style.getPropertyValue('--ptH')!==h+'px')r.style.setProperty('--ptH',h+'px')}addEventListener('resize',m);setInterval(m,500);new MutationObserver(m).observe(document.body,{attributes:true,attributeFilter:['class']})})();</script>
+<script id="ptH-fix">(function(){function m(){var b=document.querySelector('body.split .ptabs');if(!b)return;var h=Math.ceil(b.getBoundingClientRect().height)+8;var r=document.documentElement;if(r.style.getPropertyValue('--ptH')!==h+'px')r.style.setProperty('--ptH',h+'px')}addEventListener('resize',m);setInterval(m,500);
+var last=new WeakMap();document.addEventListener('scroll',function(e){var v=e.target;if(!v||!v.classList||!v.classList.contains('view')||!document.body.classList.contains('split')||v.id==='view-stage')return;var y=v.scrollTop,p=last.get(v)||0;last.set(v,y);if(y<24||y<p-4)v.classList.remove('ptoff');else if(y>p+4&&y>80)v.classList.add('ptoff')},true);
+setInterval(function(){document.querySelectorAll('.ptabs button').forEach(function(b){if(!b.title){var sp=b.querySelector('span');if(sp)b.title=sp.textContent}})},700);new MutationObserver(m).observe(document.body,{attributes:true,attributeFilter:['class']})})();</script>
 </body>
 </html>
