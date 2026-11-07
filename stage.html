@@ -94,7 +94,7 @@ textarea{min-height:150px;resize:vertical;font-size:16px}
 </style></head><body>
 <div id="app">
  <div class="top"><div class="brand"><i></i>Stage</div><span class="mu" id="pg"></span><input type="number" id="gp" min="1" placeholder="Go to" title="Type page number, press Enter" style="width:74px;padding:6px 8px;border-radius:10px"><div class="sp"></div>
-  <button class="btn" onclick="libDlg()">📚 Library</button><button class="btn" onclick="F.click()">📂 Open</button><button class="btn" onclick="addBoard()">＋ Board</button>
+  <button class="btn" onclick="libDlg()">📚 Library</button><button class="btn" onclick="F.click()">📂 Open</button><button class="btn" onclick="openLink()" title="Open a Google Drive / Docs / Slides link or a direct PDF link">🔗 Link</button><button class="btn" onclick="addBoard()">＋ Board</button>
   <button class="btn" onclick="zen()" title="Hide panels (Tab)">⛶ Focus</button>
   <button class="btn" onclick="tp()" title="Notes · Words · Study · Class">☰</button>
   <button class="btn" onclick="mDlg()">🎬 Media</button><button class="btn" id="stopShare" onclick="closeMedia()" title="Stop showing this on the student screen" style="display:none;background:#e11d48;border:0;color:#fff">⏹ Stop share</button><button class="btn pri" onclick="openStu()">🖥 Student screen</button>
@@ -121,6 +121,7 @@ textarea{min-height:150px;resize:vertical;font-size:16px}
    <b>Shortcuts</b><div class="mu">← → slides · P pen · H highlight · E erase · L laser · S spotlight · V move · B blank student · F fullscreen · Tab hide panels · Ctrl+Z undo · wheel / pinch zoom · double-click reset</div></div></aside>
 </div><div id="toast"></div><div id="md"><div class="mdc"><b>Show media to students</b><button class="btn" onclick="$('mf').click()">📁 Video or image from device</button><input type="file" id="mf" accept="video/*,image/*" hidden onchange="mFile(this.files[0]);this.value=''"><button class="btn pri" onclick="liveStart()">🖥 Show a website (share its browser tab)</button><div class="mu" style="font-size:12px">Open the site (e.g. quran.com/quraysh) in another tab, click here, pick that tab. It shows live here and on the student screen.</div><div class="row"><input type="text" id="mu" placeholder="Website, YouTube, video or image link (e.g. https://quran.com/quraysh)" style="flex:1"><button class="btn pri" onclick="mUrl()">Add</button></div><button class="btn" onclick="mDlg()">Cancel</button></div></div>
 <script>
+function IT(){return /iPad|Android|Tablet/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform))}function PW(){return IT()?2600:4096}
 let SRC='<!doctype html>'+document.documentElement.outerHTML;let SW=null;const $=id=>document.getElementById(id),STU=location.hash==='#student'||window.name==='lsstudent',F=$('F');
 if(STU)document.body.classList.add('stu');
 const ch=new BroadcastChannel('lessonstage-pro'),S={pages:[],i:0,v:{z:1,cx:.5,cy:.5},tool:'pen',color:'#ff4d6d',size:4,blank:0,ptr:null,live:null,words:0,follow:1,end:0};
@@ -128,7 +129,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/p
 const cv=$('cv'),cx=cv.getContext('2d');let W=0,H=0,D=1,need=1,space=0;
 const P=()=>S.pages[S.i],BCOK=/^https?:$/.test(location.protocol),send=m=>{if(1){m.n=Math.random();if(BCOK)ch.postMessage(m);else try{if(STU)opener&&opener.postMessage(m,'*');else SW&&!SW.closed&&SW.postMessage(m,'*')}catch(e){}}};
 function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.opacity=0,1800)}
-function size(){const r=$('stage').getBoundingClientRect();D=STU?Math.min(devicePixelRatio||1,1.25):Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;cv.width=W*D;cv.height=H*D;need=1}
+function size(){const r=$('stage').getBoundingClientRect();D=Math.min(devicePixelRatio||1,IT()?(STU?1.5:1.75):2);W=r.width;H=r.height;cv.width=W*D;cv.height=H*D;need=1}
 new ResizeObserver(size).observe($('stage'));
 const geo=()=>{const p=P();if(!p)return null;const f=Math.min(W/p.w,H/p.h);return{p,bw:p.w*f,bh:p.h*f}};
 const toS=(g,x,y)=>[W/2+(x-S.v.cx)*g.bw*S.v.z,H/2+(y-S.v.cy)*g.bh*S.v.z],toN=(g,x,y)=>[(x-W/2)/(g.bw*S.v.z)+S.v.cx,(y-H/2)/(g.bh*S.v.z)+S.v.cy];
@@ -179,7 +180,7 @@ function undo(){const p=P();if(!p)return;p.strokes.pop();send({t:'set',i:S.i,l:p
 function clr(){const p=P();if(!p||!p.strokes.length)return;p.strokes=[];send({t:'set',i:S.i,l:[]});need=1;toast('Cleared')}
 function blank(){S.blank=S.blank?0:1;$('bl').classList.toggle('on',!!S.blank);toast(S.blank?'Student screen blanked':'Student screen live');st()}
 // files
-async function push(c){const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92)),bmp=await createImageBitmap(blob);S.pages.push({blob,bmp,w:c.width,h:c.height,strokes:[],notes:'',words:''})}
+async function push(c){const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95)),bmp=await createImageBitmap(blob);S.pages.push({blob,bmp,w:c.width,h:c.height,strokes:[],notes:'',words:''})}
 async function addFiles(fs){const was=S.pages.length;try{for(const f of fs){if(/\.pdf$/i.test(f.name)){const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;for(let n=1;n<=d.numPages;n++){toast('Loading page '+n+' / '+d.numPages);const pg=await d.getPage(n),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(2.5,2200/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;await push(c)}}
  else if(f.type.startsWith('image/')){const b=await createImageBitmap(f),c=document.createElement('canvas');c.width=b.width;c.height=b.height;c.getContext('2d').drawImage(b,0,0);await push(c)}}}catch(err){toast('Could not read file')}
  if(S.pages.length>was){sendPages();go(was);toast('Ready ✓')}}
@@ -242,14 +243,14 @@ function er(x,y,g){const p=P(),R=Math.max(14,S.size*2)/(g.bw*S.v.z),ar=g.bh/g.bw
  const k=p.strokes.filter(s=>!hit(s));if(k.length!=p.strokes.length){if(!S.es){snap();S.es=1}p.strokes=k;send({t:'set',i:S.i,l:k});need=1}}
 cv.addEventListener('pointerup',()=>S.es=0);
 function sendPage(i){const p=S.pages[i];if(p)send({t:'page',i,p:{blob:p.blob,w:p.w,h:p.h,strokes:p.strokes}})}
-async function push(c,tx){const bmp=await createImageBitmap(c),blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));S.pages.push({blob,bmp,w:c.width,h:c.height,strokes:[],notes:'',words:'',text:tx||''});sendPage(S.pages.length-1)}
+async function push(c,tx){const bmp=await createImageBitmap(c),blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95));S.pages.push({blob,bmp,w:c.width,h:c.height,strokes:[],notes:'',words:'',text:tx||''});sendPage(S.pages.length-1)}
 const AR=/[\u0600-\u06FF]/;
 function wrap(x,t,w){const o=[];let l='';for(const wd of t.split(/\s+/)){const m=l?l+' '+wd:wd;if(x.measureText(m).width>w&&l){o.push(l);l=wd}else l=m}o.push(l);return o}
 function pptSlide(L){const c=document.createElement('canvas');c.width=1600;c.height=900;const x=c.getContext('2d');x.fillStyle='#fdfcf7';x.fillRect(0,0,1600,900);x.fillStyle='#14182a';let y=110;for(let k=0;k<L.length&&y<840;k++){const t=L[k],rtl=AR.test(t);x.direction=rtl?'rtl':'ltr';x.textAlign=rtl?'right':'left';x.font=(k?'500 38px':'700 56px')+' Inter,"Noto Naskh Arabic",sans-serif';for(const ln of wrap(x,t,1400)){if(y>850)break;x.fillText(ln,rtl?1500:100,y);y+=k?54:80}y+=12}return c}
 async function addFiles(fs){const was=S.pages.length,first=()=>S.pages.length==was+1?go(was):ui();toast('Loading…');
  for(const f of fs){try{
   if(/\.pdf$/i.test(f.name)){const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-   for(let n=1;n<=d.numPages;n++){const pg=await d.getPage(n),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(4,3000/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+   for(let n=1;n<=d.numPages;n++){const pg=await d.getPage(n),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(5,PW()/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
     const r=await Promise.all([pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise,pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'')]);
     await push(c,r[1]);first();toast('Loaded '+n+' / '+d.numPages)}}
   else if(/\.pptx$/i.test(f.name)){const z=await(await lz()).loadAsync(f),ks=Object.keys(z.files).filter(k=>/^ppt\/slides\/slide\d+\.xml$/.test(k)).sort((a,b)=>a.match(/\d+/)-b.match(/\d+/));
@@ -323,7 +324,7 @@ async function addBoard(){newDeck('Board '+(S.decks.length+1));const c=document.
 async function addFiles(fs,fromLib){toast('Loading…');
  for(const f of fs){const n=f.name||'File';try{newDeck(n.replace(/\.[^.]+$/,''));
   if(/\.pdf$/i.test(n)){const d=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-   for(let k=1;k<=d.numPages;k++){const pg=await d.getPage(k),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(4,3000/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+   for(let k=1;k<=d.numPages;k++){const pg=await d.getPage(k),w=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(5,PW()/w)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
     const r=await Promise.all([pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise,pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'')]);
     await push(c,r[1]);if(k==1)go(0);toast(n+': '+k+' / '+d.numPages)}}
   else if(/\.pptx$/i.test(n)){const z=await(await lz()).loadAsync(f),ks=Object.keys(z.files).filter(k=>/^ppt\/slides\/slide\d+\.xml$/.test(k)).sort((a,b)=>a.match(/\d+/)-b.match(/\d+/));
@@ -522,16 +523,16 @@ const _ui=ui;ui=function(){_ui();fixRail()};
 function fixRail(){if(STU)return;const r=$('rail');[...r.children].forEach((d,i)=>{const p=S.pages[i],im=d.firstChild;if(p&&im&&im.style&&!p.blob){im.style.aspectRatio=p.w+'/'+p.h;im.style.background='#111'}})}
 function pump(){while(act<MAXC&&q.length){const p=q.shift();if(p.blob||p.rend||!p.lazy)continue;doR(p)}}
 async function doR(p){p.rend=1;act++;try{
- const L=p.lazy,pg=await L.doc.getPage(L.n),w0=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(4,3000/w0)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+ const L=p.lazy;p.pdf={doc:L.doc,n:L.n};const pg=await L.doc.getPage(L.n),w0=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(5,PW()/w0)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
  await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
  p.text=await pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'');
- const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92)),i=S.pages.indexOf(p);
+ const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95)),i=S.pages.indexOf(p);
  p.w=c.width;p.h=c.height;if(i>=0&&Math.abs(i-S.i)<=3)p.bmp=await createImageBitmap(c);
  p.blob=blob;p.url=URL.createObjectURL(blob);p.lazy=null;
  if(i>=0){const d=$('rail').children[i];if(d&&d.firstChild){d.firstChild.src=p.url;d.firstChild.style.aspectRatio=''}sendPage(i)}
  need=1}catch(e){p.rend=0}finally{act--;p.rend=0;pump()}}
-function want(){const l=[3,2,-1,1,0];for(const k of l){const p=S.pages[S.i+k];if(p&&p.lazy&&!p.blob&&!p.rend){q=q.filter(x=>x!==p);q.unshift(p)}}pump()}
-const _go=go;go=function(i){_go(i);want()};
+function want(){const l=[4,3,2,-2,-1,1,0];for(const k of l){const p=S.pages[S.i+k];if(p&&p.lazy&&!p.blob&&!p.rend){q=q.filter(x=>x!==p);q.unshift(p)}}pump()}
+window.want=want;const _go=go;go=function(i){_go(i);want()};
 setInterval(want,300);
 const _bc=buildCards;buildCards=async function(m){if(S.pages.some(p=>p.lazy&&!p.blob)){toast('Reading all pages first…');while(S.pages.some(p=>p.lazy&&!p.blob))await new Promise(r=>setTimeout(r,300))}return _bc(m)};
 addFiles=async function(fs,fromLib){
@@ -665,7 +666,7 @@ async function liveStart(){
  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia)return toast('Screen share not supported in this browser');
  let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:{width:{ideal:2560},height:{ideal:1440},frameRate:{ideal:15}},audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
  $('md').style.display='none';
- mSet({type:'img',src:'data:,'});
+ mSet({type:'img',src:'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='});
  const v=document.createElement('video');v.srcObject=st;v.muted=true;v.playsInline=true;v.autoplay=true;v.id='mn';v.style.cssText='width:100%;height:100%;border:0;object-fit:contain;background:#000';
  const old=$('mn');if(old)old.replaceWith(v);v.play().catch(()=>{});
  const c=document.createElement('canvas'),x=c.getContext('2d');let busy=0;
@@ -716,27 +717,32 @@ placeWz=function(){const n=document.querySelector('#media iframe#mn'),box=$('med
  const sc=Math.min(r.width/L.vw,r.height/L.vh);n.style.left=Math.max(0,(r.width-L.vw*sc)/2)+'px';n.style.transform='scale('+sc.toFixed(4)+')'};
 if(STU){const _p=ch.onmessage;ch.onmessage=async ev=>{const m=ev&&ev.data;
  if(m&&m.t==='frame'){if(m.n){if(seen.has(m.n))return;seen.add(m.n);if(seen.size>400)seen.clear()}
-  if(!S.media||!m.b)return;const bm=await createImageBitmap(m.b);let c=$('mn');
-  if(!c||c.tagName!=='CANVAS'){const n=document.createElement('canvas');n.id='mn';n.width=2560;n.height=1440;n.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';if(c)c.replaceWith(n);else $('media').appendChild(n);c=n}
+  if(!S.media||!m.b||S.media.src!=='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==')return;const bm=await createImageBitmap(m.b);let c=$('mn');
+  if(!c||c.tagName!=='CANVAS'){const n=document.createElement('canvas');n.id='mn';n.width=3840;n.height=2160;n.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';if(c)c.replaceWith(n);else $('media').appendChild(n);c=n}
   const x=c.getContext('2d'),k=Math.min(c.width/bm.width,c.height/bm.height),w=bm.width*k,h=bm.height*k;x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);x.drawImage(bm,(c.width-w)/2,(c.height-h)/2,w,h);bm.close();return}
  return _p(ev)}}
 try{requestAnimationFrame(()=>placeWz())}catch(e){}
 </script>
 <script>
-/* ===== smoother live share: skip unchanged frames, adaptive rate, lighter frames ===== */
+/* ===== live share: fast frames while the picture changes, one sharp 4K frame when it stops ===== */
 liveStart=async function(){
  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia)return toast('Screen share not supported in this browser');
- let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:{width:{ideal:2560},height:{ideal:1440},frameRate:{ideal:15}},audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
- $('md').style.display='none';mSet({type:'img',src:'data:,'});
+ let st;try{st=await navigator.mediaDevices.getDisplayMedia({video:{width:{ideal:3840},height:{ideal:2160},frameRate:{ideal:20}},audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude'})}catch(e){return}
+ try{st.getVideoTracks()[0].contentHint='detail'}catch(e){}
+ $('md').style.display='none';mSet({type:'img',src:'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='});
  const v=document.createElement('video');v.srcObject=st;v.muted=true;v.playsInline=true;v.autoplay=true;v.id='mn';v.style.cssText='width:100%;height:100%;border:0;object-fit:contain;background:#000';
  const old=$('mn');if(old)old.replaceWith(v);v.play().catch(()=>{});
- const c=document.createElement('canvas'),x=c.getContext('2d'),sm=document.createElement('canvas');sm.width=48;sm.height=27;const sx=sm.getContext('2d',{willReadFrequently:true});
- let busy=0,last=0,prev=null,gap=150;
- const tm=setInterval(()=>{if(busy||!v.videoWidth)return;const now=performance.now();if(now-last<gap)return;
-  sx.drawImage(v,0,0,48,27);const d=sx.getImageData(0,0,48,27).data;let diff=0;if(prev){for(let i=0;i<d.length;i+=4)diff+=Math.abs(d[i]-prev[i])+Math.abs(d[i+1]-prev[i+1])+Math.abs(d[i+2]-prev[i+2])}else diff=1e9;
-  if(prev&&diff<40&&now-last<2000)return;prev=d;
-  const w=Math.min(2560,v.videoWidth),h=Math.round(w*v.videoHeight/v.videoWidth);c.width=w;c.height=h;x.drawImage(v,0,0,w,h);busy=1;last=now;
-  c.toBlob(b=>{busy=0;gap=Math.max(120,Math.min(500,(performance.now()-now)*2.5));if(b)send({t:'frame',b})},'image/jpeg',.92)},60);
+ const c=document.createElement('canvas'),x=c.getContext('2d'),sm=document.createElement('canvas');sm.width=64;sm.height=36;const sx=sm.getContext('2d',{willReadFrequently:true});
+ let busy=0,prev=null,lastChange=0,sharpPending=false,fw=1600,lastSend=0,lastB=null;
+ const send1=(w,q)=>{w=Math.min(w,v.videoWidth);const h=Math.round(w*v.videoHeight/v.videoWidth);c.width=w;c.height=h;x.imageSmoothingQuality=q>.9?'high':'medium';x.drawImage(v,0,0,w,h);busy=1;const t0=performance.now();
+  c.toBlob(b=>{busy=0;lastSend=performance.now();const dt=lastSend-t0;
+   if(q<.9){fw=dt>45?Math.max(1024,fw*.88):dt<20?Math.min(2400,fw*1.1):fw}   /* adapt fast-frame size to this computer */
+   if(b){lastB=b;send({t:'frame',b})}},'image/jpeg',q)};
+ const tm=setInterval(()=>{if(busy||!v.videoWidth)return;const now=performance.now();
+  if(lastB&&!sharpPending&&now-lastSend>1500){lastSend=now;send({t:'frame',b:lastB})}   /* keep the student screen filled even if it opened late */
+  sx.drawImage(v,0,0,64,36);const d=sx.getImageData(0,0,64,36).data;let diff=0;if(prev){for(let i=0;i<d.length;i+=4)diff+=Math.abs(d[i]-prev[i])+Math.abs(d[i+1]-prev[i+1])+Math.abs(d[i+2]-prev[i+2])}else diff=1e9;
+  if(diff>60){prev=d;lastChange=now;sharpPending=true;if(now-lastSend>45)send1(fw,.8);return}
+  if(sharpPending&&now-lastChange>350){sharpPending=false;send1(3840,.97)}},30);
  LV={st,tm};st.getVideoTracks()[0].onended=()=>{if(LV){mClose(1)}};
 };
 </script>
@@ -815,7 +821,7 @@ setInterval(()=>{if(!S.follow){S.follow=1;const b=document.getElementById('fol')
 clampV=function(){const v=S.v;v.z=Math.max(1,Math.min(10,v.z));const g=geo();if(!g||v.z<=1){v.cx=v.cy=.5;return}
  const vw=W/(g.bw*v.z),vh=H/(g.bh*v.z);
  v.cx=vw>=1?.5:Math.max(vw/2,Math.min(1-vw/2,v.cx));v.cy=vh>=1?.5:Math.max(vh/2,Math.min(1-vh/2,v.cy))};
-(function(){const _z=zoomBy;zoomBy=function(k){return _z(k)};
+(function(){const _z=zoomBy;zoomBy=function(k,sx,sy){return _z(k,sx,sy)};
  const _c=ch.onmessage;ch.onmessage=async ev=>{const r=await _c(ev);const m=ev&&ev.data;if(STU&&m&&m.t==='st'){clampV();need=1}return r};})();
 </script>
 <script>
@@ -1166,7 +1172,7 @@ const mk=(h,t,fn)=>{const b=document.createElement('button');b.innerHTML=h;b.tit
 async function rotP(p,turns,withStrokes){turns=((turns%4)+4)%4;if(!turns)return;
  const bm=p.bmp||await createImageBitmap(p.blob),w=bm.width,h=bm.height,odd=turns%2,c=document.createElement('canvas');
  c.width=odd?h:w;c.height=odd?w:h;const x=c.getContext('2d');x.translate(c.width/2,c.height/2);x.rotate(Math.PI/2*turns);x.drawImage(bm,-w/2,-h/2);
- p.blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));p.bmp=await createImageBitmap(p.blob);
+ p.blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95));p.bmp=await createImageBitmap(p.blob);p.mip=null;p.pdf=null;p.hi=null;
  const ow=p.w;if(odd){p.w=p.h;p.h=ow}
  if(withStrokes)p.strokes=p.strokes.map(s=>({...s,w:odd?s.w*ow/p.w:s.w,p:s.p.map(q=>{let a=q[0],b=q[1];for(let k=0;k<turns;k++){const t=a;a=1-b;b=t}return[a,b]})}));
  p.rot=((p.rot||0)+turns)%4;p.url=URL.createObjectURL(p.blob)}
@@ -1201,7 +1207,7 @@ if(!STU){const seen4=new Set(),prev=ch.onmessage;
    else if(m.t=='set'){p&&(p.strokes=m.l);need=1}
    else if(m.t=='live'){S.live=m.s;need=1}
    else if(m.t=='ptr'){S.ptr=m.p;need=1}
-   else if(m.t=='page'&&p&&m.p){Object.assign(p,{blob:m.p.blob,w:m.p.w,h:m.p.h,strokes:m.p.strokes,bmp:null,dec:0});p.url=URL.createObjectURL(m.p.blob);railImg(m.i);need=1}
+   else if(m.t=='page'&&p&&m.p){Object.assign(p,{blob:m.p.blob,w:m.p.w,h:m.p.h,strokes:m.p.strokes,bmp:null,mip:null,pdf:null,hi:null,dec:0});p.url=URL.createObjectURL(m.p.blob);railImg(m.i);need=1}
    return}
   return prev(ev)}}
 // student: tools appear only when the mouse goes to the bottom/right edge (or T key / corner tap)
@@ -1234,7 +1240,7 @@ function drawNb(dir){const p2=S.pages[S.i+dir];if(!p2)return;if(!p2.bmp){try{ens
  try{cx.imageSmoothingQuality=(performance.now()-(S.mvT||0)<250)?'low':'high';const mv=performance.now()-(S.mvT||0)<250;const[x,y]=toS(g2,0,0),dw=g2.bw*z,dh=g2.bh*z;if(y<H&&y+dh>0&&x<W&&x+dw>0){const ix=Math.max(0,x),iy=Math.max(0,y),ex=Math.min(W,x+dw),ey=Math.min(H,y+dh),bm=p2.bmp,kx=bm.width/dw,ky=bm.height/dh;
   if(ex>ix&&ey>iy){cx.drawImage(bm,(ix-x)*kx,(iy-y)*ky,(ex-ix)*kx,(ey-iy)*ky,ix,iy,ex-ix,ey-iy);cx.save();cx.beginPath();cx.rect(ix,iy,ex-ix,ey-iy);cx.clip();if(!mv)p2.strokes.forEach(s=>stroke(s,g2));cx.restore()}}}
  finally{S.v=sv}}
-const _stF=st;st=function(){S.mvT=performance.now();S.own=performance.now();_stF()};
+const _stF=st;let _stT=0,_stL=0;st=function(){S.mvT=performance.now();S.own=S.mvT;const gp=STU?70:45,n=S.mvT;if(n-_stL>=gp){_stL=n;_stF()}else if(!_stT){_stT=setTimeout(()=>{_stT=0;_stL=performance.now();_stF()},gp-(n-_stL))}};
 const _drFlow=draw;
 draw=function(){_drFlow();if(!S.flow||S.blank||!geo())return;cx.setTransform(D,0,0,D,0,0);drawNb(1);drawNb(-1)};
 function flowTick(AU){const n=S.pages.length,g=geo();if(!g||!n)return;const v=S.v;v.cy+=AU.d*50/(AU.s*1000);
@@ -1248,7 +1254,7 @@ $('stage').addEventListener('wheel',e=>{window.smoothWheel&&window.smoothWheel(e
  const b=document.createElement('button');b.title='Flow: pages scroll continuously (wheel / drag). Ctrl+wheel = zoom';b.textContent='📜';b.classList.add('on');
  const upd=()=>{b.classList.toggle('on',!!S.flow)};
  b.onclick=()=>{S.flow=!S.flow;const a=tb.querySelector('[title^="Auto page turn"]');if(a&&a.classList.contains('on'))a.click();upd();clampV();need=1;st();send({t:'flow',v:S.flow});toast(S.flow?'Pages flow continuously':'One page at a time')};
- tb.insertBefore(b,tb.querySelector('[title^="Rotate"]'));const zo=document.createElement('button');zo.textContent='➖';zo.title='Zoom out';zo.onclick=()=>zoomBy(1/1.3);const zi=document.createElement('button');zi.textContent='➕';zi.title='Zoom in';zi.onclick=()=>zoomBy(1.3);tb.insertBefore(zo,b);tb.insertBefore(zi,b);
+ tb.insertBefore(b,tb.querySelector('[title^="Rotate"]'));const zo=document.createElement('button');zo.textContent='➖';zo.title='Zoom out';zo.onclick=()=>window.smZoom?smZoom(-Math.log(1.3)):zoomBy(1/1.3);const zi=document.createElement('button');zi.textContent='➕';zi.title='Zoom in';zi.onclick=()=>window.smZoom?smZoom(Math.log(1.3)):zoomBy(1.3);tb.insertBefore(zo,b);tb.insertBefore(zi,b);
  const seenF=new Set(),pv=ch.onmessage;
  ch.onmessage=async ev=>{const m=ev&&ev.data;if(m&&m.t=='flow'){if(m.n){if(seenF.has(m.n))return;seenF.add(m.n)}S.flow=!!m.v;upd();clampV();need=1;return}return pv(ev)};
  if(STU){const h=document.createElement('div');h.id='hdl';h.title='Tools';h.onclick=()=>{window.__pin=true;document.body.classList.add('tbon')};document.body.appendChild(h);
@@ -1311,16 +1317,16 @@ document.addEventListener('keydown',e=>{if(/TEXTAREA|INPUT/.test(e.target.tagNam
 </script>
 <script>
 /* smooth, slower wheel scrolling + Ctrl/Alt/pinch zoom */
-(function(){let PX=0,PY=0,ZL=0,raf=0;
-function tick(){raf=0;const g=geo();if(!g){PX=PY=ZL=0;return}let ch=0;
- if(Math.abs(ZL)>.002){const p=ZL*.25;ZL-=p;zoomBy(Math.exp(p));ch=1}else ZL=0;
- if(Math.abs(PY)>.3||Math.abs(PX)>.3){const fy=PY*.18,fx=PX*.18;PY-=fy;PX-=fx;const g2=geo();S.v.cy+=fy/(g2.bh*S.v.z);S.v.cx+=fx/(g2.bw*S.v.z);clampV();need=1;st();ch=1}else{PX=PY=0}
+(function(){let PX=0,PY=0,ZL=0,raf=0,ZX=null,ZY=null;
+function tick(){raf=0;const nw=performance.now(),dt=Math.min(40,nw-(tick.t||nw-16));tick.t=nw;const a=1-Math.exp(-dt/65);const g=geo();if(!g){PX=PY=ZL=0;return}let ch=0;
+ if(Math.abs(ZL)>.002){const p=ZL*a;ZL-=p;zoomBy(Math.exp(p),ZX,ZY);ch=1}else ZL=0;
+ if(Math.abs(PY)>.3||Math.abs(PX)>.3){const fy=PY*a,fx=PX*a;PY-=fy;PX-=fx;const g2=geo();S.v.cy+=fy/(g2.bh*S.v.z);S.v.cx+=fx/(g2.bw*S.v.z);clampV();need=1;st();ch=1}else{PX=PY=0}
  if(ch||PX||PY||ZL)raf=requestAnimationFrame(tick)}
-const go1=()=>{if(!raf)raf=requestAnimationFrame(tick)};
+const go1=()=>{if(!raf){tick.t=0;raf=requestAnimationFrame(tick)}};window.smZoom=l=>{ZL+=l;ZX=ZY=null;go1()};
 window.smoothWheel=function(e){if(e.target.closest&&e.target.closest('#media,#ov'))return;if(!geo())return;
  const zk=e.ctrlKey||e.altKey||e.metaKey;if(!zk&&!S.flow)return;
  e.preventDefault();e.stopImmediatePropagation();const k=e.deltaMode==1?16:e.deltaMode==2?400:1;
- if(zk){ZL+=Math.max(-.6,Math.min(.6,-e.deltaY*k*.004))}
+ if(zk){const r=$('stage').getBoundingClientRect();ZX=e.clientX-r.left;ZY=e.clientY-r.top;ZL+=Math.max(-.6,Math.min(.6,-e.deltaY*k*.004))}
  else{PY+=Math.max(-150,Math.min(150,e.deltaY*k))*.6;PX+=Math.max(-150,Math.min(150,e.deltaX*k))*.6}
  go1()}})();
 </script>
@@ -1329,6 +1335,107 @@ window.smoothWheel=function(e){if(e.target.closest&&e.target.closest('#media,#ov
 (function(){const pf=ch.onmessage;let pend=null;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t=='fx'&&(document.hidden||document.visibilityState==='hidden')){pend={m,t:Date.now()};return}return pf(ev)};document.addEventListener('visibilitychange',()=>{if(document.hidden||!pend)return;const p=pend;pend=null;if(Date.now()-p.t<4000)pf({data:{...p.m,n:Math.random()}})})})();</script>
 <script>/* while you are moving this window, ignore view updates coming from the other one (no tug of war) */
 (function(){const pf=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t=='st'&&performance.now()-(S.own||0)<300)return;return pf(ev)}})();</script>
+<style id="pro-v7">
+#lkd{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center}
+#lkd .bx{background:#141a2c;color:#fff;border-radius:16px;padding:18px;width:min(560px,92vw);font:14px system-ui;display:flex;flex-direction:column;gap:8px}
+#lkd textarea,#lkd input{width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #334;background:#0d1120;color:#fff;padding:8px;font:13px system-ui}
+#lkd small{opacity:.7;line-height:1.4}#lkd .r{display:flex;gap:8px;justify-content:flex-end}
+.tb .gps{width:44px;height:28px;font-size:12px;text-align:center;border-radius:8px;padding:0 2px}
+</style>
+<script>
+/* ===== open Google Drive / Docs / Slides links or direct links ===== */
+(function(){if(STU)return;const KEY='ls_gkey';
+const gid=u=>{const m=u.match(/\/(?:file|document|presentation|spreadsheets)\/d\/([\w-]{15,})/)||u.match(/[?&]id=([\w-]{15,})/);return m&&m[1]};
+const ge=async r=>{try{const j=await r.json();return j.error&&j.error.message?' – '+j.error.message:''}catch(e){return''}};
+const mk=(b,n,t)=>{const f=new File([b],n,{type:b.type||t||''});return f};
+let _tk=null,_te=0;
+function tok(cid){if(_tk&&Date.now()<_te)return Promise.resolve(_tk);return new Promise((res,rej)=>{const go=()=>{const c=google.accounts.oauth2.initTokenClient({client_id:cid,scope:'https://www.googleapis.com/auth/drive.readonly',callback:r=>{if(r.access_token){_tk=r.access_token;_te=Date.now()+50*60000;res(_tk)}else rej(new Error('Google sign-in failed: '+(r.error||'')))},error_callback:e=>rej(new Error('Google sign-in: '+(e.type||'cancelled')))});c.requestAccessToken()};if(window.google&&google.accounts&&google.accounts.oauth2)return go();const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.onload=go;sc.onerror=()=>rej(new Error('Could not load Google sign-in'));document.head.appendChild(sc)})}
+async function pub(u,id){const rt=/rtpof=true/.test(u)||/\/file\/d\//.test(u),dl='https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t';
+ const d=rt?dl:/presentation/.test(u)?'https://docs.google.com/presentation/d/'+id+'/export/pdf':/spreadsheets/.test(u)?'https://docs.google.com/spreadsheets/d/'+id+'/export?format=pdf':/document/.test(u)?'https://docs.google.com/document/d/'+id+'/export?format=pdf':dl;
+ for(const t of[d,'https://corsproxy.io/?url='+encodeURIComponent(d),'https://api.allorigins.win/raw?url='+encodeURIComponent(d),'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(d),'https://thingproxy.freeboard.io/fetch/'+d]){try{const r=await fetch(t);if(!r.ok)continue;const b=await r.blob();if(/text\/html/.test(b.type)||b.size<200)continue;
+  const h=new Uint8Array(await b.slice(0,4).arrayBuffer());const ext=(h[0]==0x25&&h[1]==0x50)?'pdf':(h[0]==0x50&&h[1]==0x4B)?(/spreadsheets/.test(u)?'xlsx':/document\//.test(u)?'docx':'pptx'):'';if(!ext)continue;return mk(b,'Google file.'+ext)}catch(e){}}
+ throw new Error('Could not download it (Google blocks web pages from downloading files). Use File > Download in Google, then 📂 Open, or press Show embedded.')}
+async function grab(u,key,cid){const id=gid(u);
+ if(/\/folders\//.test(u))throw new Error('Open a file, not a folder');
+ let ke=null;if(id&&(key||cid)){try{let H={},q='';if(cid){H={Authorization:'Bearer '+await tok(cid)}}else q='&key='+encodeURIComponent(key);
+ const m=await fetch('https://www.googleapis.com/drive/v3/files/'+id+'?fields=name,mimeType&supportsAllDrives=true'+q,{headers:H});
+ if(!m.ok){const em=await ge(m);throw new Error(m.status==401&&!cid?'Google does not accept the key for this file. Share it as "Anyone with the link", or use Google sign-in (Client ID below)'+em:m.status==400&&/key/i.test(em)?'The Google API key is not valid'+em:(m.status==403||m.status==404)?'No access to this file (or Google Drive API is not enabled)'+em:'Drive error '+m.status+em)}
+ const j=await m.json();let url,name=j.name||'Drive file';
+ if(/^application\/vnd\.google-apps\./.test(j.mimeType)){url='https://www.googleapis.com/drive/v3/files/'+id+'/export?mimeType=application/pdf'+q;if(!/\.pdf$/i.test(name))name+='.pdf'}
+ else url='https://www.googleapis.com/drive/v3/files/'+id+'?alt=media&supportsAllDrives=true'+q;
+ const r=await fetch(url,{headers:H});if(!r.ok)throw new Error('Could not download ('+r.status+')'+await ge(r));const b=await r.blob();
+ if(b.type=='application/pdf'&&!/\.pdf$/i.test(name))name+='.pdf';return mk(b,name,j.mimeType)}catch(e0){ke=e0}}
+ if(id){try{return await pub(u,id)}catch(e1){throw ke||e1}}
+ const url=id?'https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t':u;
+ let r;try{r=await fetch(url)}catch(e){throw new Error(id?'Google blocks direct downloads here. Add a free Google API key below (one time).':'That site does not allow opening its files from a web page. Download it and use 📂 Open.')}
+ if(!r.ok)throw new Error('Could not download ('+r.status+')');const b=await r.blob();
+ let name=decodeURIComponent((new URL(url).pathname.split('/').pop()||'file'));if(b.type=='application/pdf'&&!/\.pdf$/i.test(name))name+='.pdf';
+ if(/text\/html/.test(b.type))throw new Error('That link opens a web page, not a file. Share it as "Anyone with the link".');return mk(b,name)}
+window.openLink=function(pre){if(document.getElementById('lkd'))return;let kv='',cv='';try{kv=localStorage.getItem(KEY)||'';cv=localStorage.getItem('ls_gcid')||''}catch(e){}
+ const d=document.createElement('div');d.id='lkd';d.innerHTML='<div class="bx"><b>🔗 Open from a link</b><textarea rows="3" id="lku" placeholder="Paste Google Drive / Docs / Slides link, or a direct PDF link (one per line)"></textarea><input id="lkk" type="password" placeholder="Google API key (needed for Drive links, saved on this device only)" value="'+kv.replace(/"/g,'')+'"><input id="lkid" placeholder="Google OAuth Client ID (optional: sign in to open PRIVATE files)" value="'+cv.replace(/"/g,'')+'"><small>Drive file must be shared as <b>Anyone with the link</b>. Key: Google Cloud Console → new project → enable <i>Google Drive API</i> → Credentials → API key. Google Docs / Slides / Sheets open as PDF.<br>Private files: Credentials → Create credentials → OAuth client ID → Web application → add the address of this page under Authorized JavaScript origins (https:// or localhost; file:// does not work), paste the Client ID above, and sign in when asked.<br>Easiest alternative: in Google Slides use File → Download → PDF, then 📂 Open.</small><div class="r"><button class="btn" id="lkc">Cancel</button><button class="btn" id="lke" style="display:none" title="Shows the live Google page, no key needed (can be softer, no pen on the slide)">Show embedded (no key)</button><button class="btn" id="lko">Open as pages</button></div></div>';
+ document.body.appendChild(d);const cl=()=>d.remove();$('lkc').onclick=cl;
+ const emb=u=>{const id=gid(u);return id&&/presentation|document|spreadsheets/.test(u)?'https://docs.google.com/'+(/presentation/.test(u)?'presentation':/spreadsheets/.test(u)?'spreadsheets':'document')+'/d/'+id+'/preview':null};
+ const chk=()=>{const f=$('lku').value.split(/\s+/).filter(Boolean)[0];$('lke').style.display=f&&emb(f)?'':'none'};$('lku').oninput=chk;
+ $('lke').onclick=()=>{const f=$('lku').value.split(/\s+/).filter(Boolean)[0],e=emb(f);if(e){cl();addMediaTab({type:'web',src:e},'Google file')}};
+ if(pre){$('lku').value=pre;chk();setTimeout(()=>$('lko').click(),50)}
+d.onclick=e=>{if(e.target===d)cl()};
+ $('lko').onclick=async()=>{const us=$('lku').value.split(/\s+/).filter(Boolean),key=$('lkk').value.trim(),cid=$('lkid').value.trim();if(!us.length)return;try{localStorage.setItem(KEY,key);localStorage.setItem('ls_gcid',cid)}catch(e){}
+  $('lko').disabled=true;const fs=[];try{for(const u of us){toast('Downloading…');fs.push(await grab(u,key,cid))}}catch(e){toast(e.message);$('lko').disabled=false;return}
+  cl();addFiles(fs)}}})();
+</script>
+<script>
+/* ===== sharper pages, smoother on tablets, page box on student screen ===== */
+(function(){
+// fast low-res copy used only while moving; full quality returns when you stop
+setInterval(()=>{if(!S.pages.length)return;for(const k of [S.i,S.i+1,S.i-1]){const p=S.pages[k];if(p&&p.bmp&&!p.mip&&!p.mp){p.mp=1;const w=Math.min(1400,p.bmp.width),h=Math.max(1,Math.round(p.bmp.height*w/p.bmp.width)),c=document.createElement('canvas');c.width=w;c.height=h;try{c.getContext('2d').drawImage(p.bmp,0,0,w,h);createImageBitmap(c).then(m=>{p.mip=m;p.mp=0}).catch(()=>p.mp=0)}catch(e){p.mp=0}}}
+ S.pages.forEach((p,k)=>{if(p.mip&&Math.abs(k-S.i)>3){try{p.mip.close()}catch(e){}p.mip=null}})},500);
+const _dr3=draw;draw=function(){const mv=performance.now()-(S.mvT||0)<220,sw=[];
+ if(mv)for(const d of[-1,0,1]){const p=S.pages[S.i+d];if(p&&p.mip&&p.bmp){sw.push([p,p.bmp]);p.bmp=p.mip}}
+ try{_dr3()}finally{sw.forEach(([p,b])=>p.bmp=b)}
+ if(mv){clearTimeout(S._mt);S._mt=setTimeout(()=>{need=1},240)}};
+// page number box on the student screen
+if(STU){const tb=$('tb'),g=document.createElement('input');g.type='number';g.min=1;g.className='gps';g.title='Go to page, press Enter';
+ const upd=()=>{g.placeholder=S.pages.length?(S.i+1)+'/'+S.pages.length:'Page'};
+ g.onkeydown=e=>{e.stopPropagation();if(e.key=='Enter'){const n=parseInt(g.value);if(n>=1&&n<=S.pages.length){go(n-1);g.value='';g.blur()}}};
+ tb.insertBefore(g,tb.firstChild);upd();const _u=ui;ui=function(){_u();upd()}}
+})();
+</script>
+<script>
+/* ===== crisp zoom: re-render the visible part of PDF pages at screen resolution when you stop moving ===== */
+(function(){const hk=g=>{const v=S.v;return[S.i,v.z.toFixed(4),v.cx.toFixed(5),v.cy.toFixed(5),W,H,D].join('|')};let rb=0;
+const _dr4=draw;draw=function(){_dr4();const g=geo(),p=g&&g.p,h=p&&p.hi;if(!h||S.blank||S.ptr||performance.now()-(S.mvT||0)<350)return;
+ if(h.key!==hk(g)||h.i!==S.i)return;cx.setTransform(D,0,0,D,0,0);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';cx.drawImage(h.bm,h.x,h.y,h.w,h.h);
+ p.strokes.forEach(s=>stroke(s,g));if(S.live)stroke(S.live,g)};
+setInterval(async()=>{S.pages.forEach(p=>{if(p.hi&&p.hi.i!==S.i){try{p.hi.bm.close()}catch(e){}p.hi=null}});
+ if(rb||S.blank||performance.now()-(S.mvT||0)<350)return;const g=geo();if(!g)return;const p=g.p;if(!p.pdf||!p.bmp)return;
+ const v=S.v,dw=g.bw*v.z,dh=g.bh*v.z;if(dw*D<p.bmp.width*.9){if(p.hi){try{p.hi.bm.close()}catch(e){}p.hi=null}return}
+ const key=hk(g);if(p.hi&&p.hi.key===key)return;
+ const[x,y]=toS(g,0,0),ix=Math.max(0,x),iy=Math.max(0,y),ex=Math.min(W,x+dw),ey=Math.min(H,y+dh);if(ex<=ix||ey<=iy)return;
+ let r=1;const px=(ex-ix)*D,py=(ey-iy)*D;if(px*py>16e6)r=Math.sqrt(16e6/(px*py));
+ rb=1;const i0=S.i;try{const pg=await p.pdf.doc.getPage(p.pdf.n),w1=pg.getViewport({scale:1}).width,sc=dw*D/w1*r,
+  vp=pg.getViewport({scale:sc,offsetX:-(ix-x)*D*r,offsetY:-(iy-y)*D*r}),c=document.createElement('canvas');c.width=Math.max(1,Math.round(px*r));c.height=Math.max(1,Math.round(py*r));
+  await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;const bm=await createImageBitmap(c);
+  const g2=geo();if(S.i===i0&&g2&&hk(g2)===key){if(p.hi){try{p.hi.bm.close()}catch(e){}}p.hi={bm,key,i:i0,x:ix,y:iy,w:ex-ix,h:ey-iy};need=1}else bm.close()}catch(e){}finally{rb=0}},300);
+})();
+</script>
+<script>
+if(!STU){const _mu2=mUrl;mUrl=function(){const el=$('mu'),u=el?el.value.trim():'';if(/(^|\/\/)(docs|drive)\.google\.com\//i.test(u)&&/\/d\/[\w-]{15,}|[?&]id=[\w-]{15,}/.test(u)){const id=(u.match(/\/d\/([\w-]{15,})/)||u.match(/[?&]id=([\w-]{15,})/))[1],t=/rtpof=true|\/file\/d\//.test(u)?'drive.google.com/file':/presentation/.test(u)?'docs.google.com/presentation':/spreadsheets/.test(u)?'docs.google.com/spreadsheets':/document/.test(u)?'docs.google.com/document':'drive.google.com/file';el.value='https://'+t+'/d/'+id+'/preview';toast('Using the embeddable Google viewer link')}
+return _mu2()}}
+</script>
+<script>
+/* opening anything new stops the old live share and clears the old screen on the student side */
+if(!STU){const _ms=mSet;mSet=function(m){if(LV){clearInterval(LV.tm);LV.st.getTracks().forEach(t=>t.stop());LV=null}return _ms(m)};
+ const _af=addFiles;addFiles=async function(fs,f){if(S.media||LV)mClose(1);return _af(fs,f)}}
+</script>
+<script>
+/* other window's view updates glide in instead of jumping */
+(function(){const pf=ch.onmessage;let tgt=null,raf=0;
+ const step=()=>{raf=0;if(!tgt)return;if(performance.now()-(S.own||0)<300){tgt=null;return}const v=S.v,a=.35;v.z+=(tgt.z-v.z)*a;v.cx+=(tgt.cx-v.cx)*a;v.cy+=(tgt.cy-v.cy)*a;
+  if(Math.abs(tgt.z-v.z)<.001&&Math.abs(tgt.cx-v.cx)<.0003&&Math.abs(tgt.cy-v.cy)<.0003){v.z=tgt.z;v.cx=tgt.cx;v.cy=tgt.cy;tgt=null}need=1;if(tgt)raf=requestAnimationFrame(step)};
+ ch.onmessage=async ev=>{const m=ev&&ev.data;if(m&&m.t=='st'){const pi=S.i,pv=S.v&&{z:S.v.z,cx:S.v.cx,cy:S.v.cy};const r=await pf(ev);
+   if(S.i===pi&&pv&&S.v&&Math.abs(S.v.z-pv.z)<3&&(S.v.z!==pv.z||S.v.cx!==pv.cx||S.v.cy!==pv.cy)){tgt={z:S.v.z,cx:S.v.cx,cy:S.v.cy};S.v.z=pv.z;S.v.cx=pv.cx;S.v.cy=pv.cy;if(!raf)raf=requestAnimationFrame(step)}else tgt=null;return r}
+  return pf(ev)}})();
+</script>
 <script>
 /* student window must get the WHOLE page (all fixes), not a half-loaded copy */
 (function(){
