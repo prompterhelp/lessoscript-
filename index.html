@@ -614,6 +614,32 @@ body.split .back,body.split .go{min-height:34px;font-size:.92rem;border-radius:1
 body.split .go .sub{display:none}
 body:not(.split):has(#view-stage:not([hidden])) .controls{display:none}
 </style>
+
+<style id="ui-fix-v1">
+/* ===== split: no overlap, each pane is its own scroller, sticky bars pinned to the pane top ===== */
+body.split .top{position:relative!important;top:auto!important;z-index:8}
+body.split .tabs{position:relative;z-index:9;flex:none}
+body.split main{min-height:0;flex:1 1 0}
+body.split main>.view.pA,body.split main>.view.pB{isolation:isolate;contain:layout paint;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+body.split .rp-tabs,body.split .ptabs,body.split .toolbar{top:0!important}
+body.split #view-reports.rp-wide .rp-pane:not([hidden])>.rp-pvcol{top:64px!important}
+body.split .rp-pvsticky{position:static!important}
+body.split .rp-tabs{z-index:4}
+/* ===== one standard box: same width, padding, radius, gap on every tab ===== */
+:root{--box-w:1040px;--box-pad:16px;--box-r:var(--r,14px);--box-gap:14px}
+#view-reports,#view-script,#view-notes,#view-history,#view-setup{width:100%;max-width:var(--box-w);margin-inline:auto;box-sizing:border-box}
+body.split #view-reports,body.split #view-script,body.split #view-notes,body.split #view-history,body.split #view-setup{max-width:none}
+#view-reports.rp-wide{max-width:none}
+#view-reports .rp-card,#view-script .rp-card,#view-notes .rp-card,#view-history .rp-card,#view-setup .rp-card,
+#view-notes .report,#view-notes .stats,#view-notes .banner,#view-history .hist-item,#view-history .banner,#view-setup .banner{
+ box-sizing:border-box;width:100%;max-width:var(--box-w);margin-inline:auto;margin-top:var(--box-gap);padding:var(--box-pad);border-radius:var(--box-r)}
+#view-reports .rp-pane:not(:has(>.rp-pvcol))>.rp-card{max-width:var(--box-w)}
+#view-reports.rp-wide .rp-pane>.rp-card{max-width:none}
+#view-reports .rp-card h3,#view-script .rp-card h3,#view-notes h2,#view-history h2,#view-setup h2,#view-script .rp-card summary{font-size:.98rem;font-weight:700;margin:0 0 12px}
+/* ===== tablet: no accidental page scroll / zoom drift ===== */
+html,body{overscroll-behavior:none}
+#view-stage,#view-stage iframe{touch-action:none;overscroll-behavior:contain}
+</style>
 </head>
 <body>
 
@@ -867,7 +893,7 @@ body:not(.split):has(#view-stage:not([hidden])) .controls{display:none}
     </section>
 
     <section class="view" id="view-stage" hidden style="padding:0">
-      <iframe id="stageFrame" title="LessonStage" allow="display-capture; fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;height:calc(100dvh - 130px);min-height:480px;border:0;border-radius:12px;background:#0b0d14"></iframe>
+      <iframe id="stageFrame" title="LessonStage" allow="display-capture; fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;height:calc(100svh - 130px);min-height:480px;border:0;border-radius:12px;background:#0b0d14;touch-action:none;overscroll-behavior:contain"></iframe>
     </section>
 
     <section class="view panel" id="view-setup" hidden>
@@ -4917,7 +4943,7 @@ document.addEventListener('click',e=>{ if(e.target.closest('#rpPasteBtn')) rpPas
   function stk(){ const tabs=$('rpTabs'), hd=document.querySelector('header.top'), v=$('view-reports'); if(!tabs||!hd||!v) return;
     let sc=tabs.parentElement; while(sc&&sc!==document.body&&sc!==root&&!/(auto|scroll)/.test(getComputedStyle(sc).overflowY)) sc=sc.parentElement;
     const cb=(sc&&sc!==document.body&&sc!==root)?sc.getBoundingClientRect().top:0;
-    root.style.setProperty('--topH',Math.max(0,hd.getBoundingClientRect().bottom-cb)+'px');
+    { const th=document.body.classList.contains('split')?'0px':Math.max(0,Math.round(hd.getBoundingClientRect().bottom-cb))+'px'; if(root.style.getPropertyValue('--topH')!==th) root.style.setProperty('--topH',th); }
     const was=v.classList.contains('rp-wide'), wide=v.clientWidth>=900; if(was!==wide){ v.classList.toggle('rp-wide',wide); try{ ctFit(); }catch(e){} } }
   window.addEventListener('resize',stk); setInterval(stk,1500); setTimeout(stk,200);
   if(window.ResizeObserver){ const hd=document.querySelector('header.top'); if(hd) new ResizeObserver(stk).observe(hd); }

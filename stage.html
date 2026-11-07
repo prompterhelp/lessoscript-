@@ -91,7 +91,13 @@ textarea{min-height:150px;resize:vertical;font-size:16px}
 #ybox{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#2a1020,#000);text-align:center;padding:24px;color:#fff;font-family:system-ui}
 #ybox .th{width:min(420px,70%);aspect-ratio:16/9;border-radius:14px;background:#111 center/cover;box-shadow:0 10px 40px #000a;position:relative}
 #ybox .th:after{content:'▶';position:absolute;inset:0;display:grid;place-items:center;font-size:54px;color:#fff;text-shadow:0 2px 12px #000}
-</style></head><body>
+</style><style id="tablet-fix-v1">
+html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%}
+#stage,#cv,#media{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#cv{transform:translateZ(0)}
+#rail,#panel{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+</style>
+</head><body>
 <div id="app">
  <div class="top"><div class="brand"><i></i>Stage</div><span class="mu" id="pg"></span><input type="number" id="gp" min="1" placeholder="Go to" title="Type page number, press Enter" style="width:74px;padding:6px 8px;border-radius:10px"><div class="sp"></div>
   <button class="btn" onclick="libDlg()">📚 Library</button><button class="btn" onclick="F.click()">📂 Open</button><button class="btn" onclick="openLink()" title="Open a Google Drive / Docs / Slides link or a direct PDF link">🔗 Link</button><button class="btn" onclick="addBoard()">＋ Board</button>
@@ -130,7 +136,7 @@ const cv=$('cv'),cx=cv.getContext('2d');let W=0,H=0,D=1,need=1,space=0;
 const P=()=>S.pages[S.i],BCOK=/^https?:$/.test(location.protocol),send=m=>{if(1){m.n=Math.random();if(BCOK)ch.postMessage(m);else try{if(STU)opener&&opener.postMessage(m,'*');else SW&&!SW.closed&&SW.postMessage(m,'*')}catch(e){}}};
 function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.opacity=0,1800)}
 function size(){const r=$('stage').getBoundingClientRect();D=Math.min(devicePixelRatio||1,IT()?(STU?1.5:1.75):2);W=r.width;H=r.height;cv.width=W*D;cv.height=H*D;need=1}
-new ResizeObserver(size).observe($('stage'));
+let _rw=0,_rh=0,_rt=0;new ResizeObserver(()=>{const r=$('stage').getBoundingClientRect();if(Math.abs(r.width-_rw)<2&&Math.abs(r.height-_rh)<2)return;_rw=r.width;_rh=r.height;cancelAnimationFrame(_rt);_rt=requestAnimationFrame(size)}).observe($('stage'));
 const geo=()=>{const p=P();if(!p)return null;const f=Math.min(W/p.w,H/p.h);return{p,bw:p.w*f,bh:p.h*f}};
 const toS=(g,x,y)=>[W/2+(x-S.v.cx)*g.bw*S.v.z,H/2+(y-S.v.cy)*g.bh*S.v.z],toN=(g,x,y)=>[(x-W/2)/(g.bw*S.v.z)+S.v.cx,(y-H/2)/(g.bh*S.v.z)+S.v.cy];
 function clampV(){const v=S.v;v.z=Math.max(1,Math.min(10,v.z));v.cx=Math.max(0,Math.min(1,v.cx));v.cy=Math.max(0,Math.min(1,v.cy));if(v.z==1){v.cx=v.cy=.5}}
@@ -161,7 +167,7 @@ cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.of
  if(t=='laser'||t=='spot'){cur='p';S.ptr={x,y,m:t};send({t:'ptr',p:S.ptr});need=1;return}
  cur={k:t,c:S.color,w:S.size/(g.bw*S.v.z),p:[[x,y]]};S.live=cur;need=1};
 cv.onpointermove=e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.offsetX,e.offsetY]);const g=geo();if(!g)return;
- if(pin&&pts.size==2){const m=mid(),[nx,ny]=toN(g,pin.x,pin.y);S.v.z=pin.z*m.d/pin.d;clampV();if(S.v.z>1){S.v.cx=nx-(m.x-W/2)/(g.bw*S.v.z);S.v.cy=ny-(m.y-H/2)/(g.bh*S.v.z);clampV()}need=1;st();return}
+ if(pin&&pts.size==2){const m=mid(),[nx,ny]=toN(g,pin.x,pin.y);if(!(pin.d>8)||!(m.d>0))return;S.v.z=pin.z*m.d/pin.d;clampV();if(S.v.z>1){S.v.cx=nx-(m.x-W/2)/(g.bw*S.v.z);S.v.cy=ny-(m.y-H/2)/(g.bh*S.v.z);clampV()}need=1;st();return}
  if(pan){S.v.cx=pan.cx-(e.offsetX-pan.x)/(g.bw*S.v.z);S.v.cy=pan.cy-(e.offsetY-pan.y)/(g.bh*S.v.z);clampV();need=1;st();return}
  if(!cur)return;const ev=e.getCoalescedEvents?e.getCoalescedEvents():[e];
  for(const c of(ev.length?ev:[e])){const r=cv.getBoundingClientRect(),[x,y]=toN(g,c.clientX-r.left,c.clientY-r.top);
@@ -961,7 +967,7 @@ setInterval(()=>{b.style.display=(S.media||LV)?'block':'none'},300)})();
   const base=clampV;
   clampV=function(){
     const v=S.v;v.z=Math.max(1,Math.min(10,v.z));const g=geo();
-    if(g&&v.z>1.001){const cov=Math.max(W/g.bw,H/g.bh);if(cov>1.001&&v.z<cov)v.z=(S.pz>v.z)?1:cov}
+    if(g&&v.z>1.001){const cov=Math.max(W/g.bw,H/g.bh);if(cov>1.001&&v.z<cov&&!pts.size)v.z=(S.pz>v.z)?1:cov}
     S.pz=v.z;return base();
   };
   setInterval(()=>{if(S.v.z<=1.001)S.pz=1},150);
@@ -1334,7 +1340,7 @@ window.smoothWheel=function(e){if(e.target.closest&&e.target.closest('#media,#ov
 <script>/* reactions sent while this window is hidden are dropped, not saved up */
 (function(){const pf=ch.onmessage;let pend=null;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t=='fx'&&(document.hidden||document.visibilityState==='hidden')){pend={m,t:Date.now()};return}return pf(ev)};document.addEventListener('visibilitychange',()=>{if(document.hidden||!pend)return;const p=pend;pend=null;if(Date.now()-p.t<4000)pf({data:{...p.m,n:Math.random()}})})})();</script>
 <script>/* while you are moving this window, ignore view updates coming from the other one (no tug of war) */
-(function(){const pf=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t=='st'&&performance.now()-(S.own||0)<300)return;return pf(ev)}})();</script>
+(function(){const pf=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t=='st'&&(pts.size||performance.now()-(S.own||0)<500))return;return pf(ev)}})();</script>
 <style id="pro-v7">
 #lkd{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center}
 #lkd .bx{background:#141a2c;color:#fff;border-radius:16px;padding:18px;width:min(560px,92vw);font:14px system-ui;display:flex;flex-direction:column;gap:8px}
@@ -1430,7 +1436,7 @@ if(!STU){const _ms=mSet;mSet=function(m){if(LV){clearInterval(LV.tm);LV.st.getTr
 <script>
 /* other window's view updates glide in instead of jumping */
 (function(){const pf=ch.onmessage;let tgt=null,raf=0;
- const step=()=>{raf=0;if(!tgt)return;if(performance.now()-(S.own||0)<300){tgt=null;return}const v=S.v,a=.35;v.z+=(tgt.z-v.z)*a;v.cx+=(tgt.cx-v.cx)*a;v.cy+=(tgt.cy-v.cy)*a;
+ const step=()=>{raf=0;if(!tgt)return;if(pts.size||performance.now()-(S.own||0)<500){tgt=null;return}const v=S.v,a=.35;v.z+=(tgt.z-v.z)*a;v.cx+=(tgt.cx-v.cx)*a;v.cy+=(tgt.cy-v.cy)*a;
   if(Math.abs(tgt.z-v.z)<.001&&Math.abs(tgt.cx-v.cx)<.0003&&Math.abs(tgt.cy-v.cy)<.0003){v.z=tgt.z;v.cx=tgt.cx;v.cy=tgt.cy;tgt=null}need=1;if(tgt)raf=requestAnimationFrame(step)};
  ch.onmessage=async ev=>{const m=ev&&ev.data;if(m&&m.t=='st'){const pi=S.i,pv=S.v&&{z:S.v.z,cx:S.v.cx,cy:S.v.cy};const r=await pf(ev);
    if(S.i===pi&&pv&&S.v&&Math.abs(S.v.z-pv.z)<3&&(S.v.z!==pv.z||S.v.cx!==pv.cx||S.v.cy!==pv.cy)){tgt={z:S.v.z,cx:S.v.cx,cy:S.v.cy};S.v.z=pv.z;S.v.cx=pv.cx;S.v.cy=pv.cy;if(!raf)raf=requestAnimationFrame(step)}else tgt=null;return r}
