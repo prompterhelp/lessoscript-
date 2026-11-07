@@ -1632,4 +1632,11 @@ setInterval(()=>{if(document.hidden||!S.pages.length)return;
  S.pages.forEach((p,k)=>{if(p.bmp&&Math.abs(k-S.i)>3&&p.blob){try{p.bmp.close()}catch(e){}p.bmp=null}});
  S.decks.forEach((d,k)=>{if(k!==S.d&&d.pages)d.pages.forEach(p=>{if(p.bmp&&p.blob){try{p.bmp.close()}catch(e){}p.bmp=null}if(p.mip){try{p.mip.close()}catch(e){}p.mip=null}if(p.hi){try{p.hi.bm.close()}catch(e){}p.hi=null}})})},2500);
 </script>
+<script>
+/* fix black slides: decoding flag was never reset after success, so a released page could never decode again */
+ensurePg=function(i){for(const k of[i,i+1,i-1,i+2]){const p=S.pages[k];if(p&&!p.bmp&&!p.dec&&p.blob){p.dec=1;createImageBitmap(p.blob).then(b=>{if(p.bmp){try{b.close()}catch(e){}}else p.bmp=b;need=1}).catch(()=>{}).finally(()=>{p.dec=0;need=1})}}};
+let _nq=0;setInterval(()=>{if(!S.pages.length)return;const p=S.pages[S.i];
+ if(p&&p.blob&&!p.bmp)ensurePg(S.i);
+ else if(STU&&(!p||!p.blob)&&performance.now()-_nq>1200){_nq=performance.now();send({t:'need',i:S.i})}},400);
+</script>
 </body></html>
