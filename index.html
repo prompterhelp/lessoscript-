@@ -1714,7 +1714,7 @@ const S = {
   theme: 'paper',
   focus: false,
   locked: false,
-  wide: false,
+  wide: true,
   cam: false,
   voice: false,
   voiceDelay: 0.7,
@@ -1753,7 +1753,7 @@ try {
   const p = JSON.parse(lsGet('lp.prefs') || 'null');
   if(p){
     S.fs = p.fs || 1; S.arFs = p.arFs || 1.25; S.cites = !!p.cites; S.autoStart = false;
-    S.wake = !!p.wake; S.theme = p.tv === 3 ? (p.theme || 'paper') : 'paper'; S.cam = !!p.cam; S.wide = !!p.wide;
+    S.wake = !!p.wake; S.theme = p.tv === 3 ? (p.theme || 'paper') : 'paper'; S.cam = !!p.cam; S.wide = p.wide === undefined ? true : !!p.wide;
     S.lh = p.lh || 1.55; S.tc = p.tc || ''; S.br = p.br || 1; S.fw = p.fw || 0; S.font = (p.fv === 2 && p.font) ? p.font : 'lora'; S.arFont = p.arFont || 'naskh'; S.full = p.full!==false; S.div = p.dv === 2 ? (p.div || 'none') : 'none'; S.presenter = !!p.pr; S.pip = p.pip || null; S.briefOff = p.bo || {}; S.floatRP = p.fr2===undefined ? true : !!p.fr2; if(p.vd2) S.voiceDelay = +p.voiceDelay; S.name = p.name||''; S.readAuto = p.ra!==false; S.rate = p.rate||0.95;
   }
 } catch(e){}
@@ -3616,8 +3616,26 @@ document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.id==='scNa
 setTimeout(()=>{ try{ scRender(); }catch(e){} },0);
 
 /* ===== First-run welcome guide (EN / AR) ===== */
-const GUIDE={en:{t:'Welcome 👋',st:[['1. Load a script','Setup → paste a script (for example from NotebookLM) or open a .txt / .docx file. Tag lines with [SPEAK], [ASK] or [PAUSE]. Save it in 📚 My saved scripts to reuse it.'],['2. Teach','Follow tab: tap Next to move through the lesson. The timer is manual — press Start when you want it.'],['3. Lesson reports','Reports tab: fill the short form after each lesson, then copy, send on WhatsApp, print or save as a picture. Arabic and English, with templates and fonts.'],['4. Monthly record','Reports → Monthly: upload your own Word form (.docx) once. The app fills it with your month’s lessons and keeps your exact layout.'],['5. Certificates','Reports → Certificate: choose a design, language and award, then print or save a picture.'],['6. Your data','Everything stays on this device. Export a backup from Setup now and then. Cloud sync (free Supabase) and AI features are optional; your keys are stored only in your browser.']],btn:'Get started',priv:'Privacy: no account, no tracking. Fonts load from Google Fonts; AI requests go straight from your browser to the provider you choose.'},
-ar:{t:'مرحبًا بك 👋',st:[['١. حمّل النص','من الإعدادات الصق نصًّا (مثلًا من NotebookLM) أو افتح ملف .txt / .docx. ضع الوسوم [SPEAK] أو [ASK] أو [PAUSE] في الأسطر. احفظه في «📚 نصوصي المحفوظة» لتعيد استخدامه.'],['٢. ابدأ الدرس','في تبويب Follow اضغط Next للتنقل بين أجزاء الدرس. المؤقّت يدوي — اضغط Start عندما تريد.'],['٣. تقارير الدروس','في تبويب Reports املأ النموذج القصير بعد كل درس، ثم انسخ التقرير أو أرسله عبر واتساب أو اطبعه أو احفظه كصورة. عربي وإنجليزي مع قوالب وخطوط.'],['٤. السجل الشهري','Reports ← Monthly: ارفع نموذج Word الخاص بك (.docx) مرة واحدة، وسيملؤه التطبيق بدروس الشهر مع الحفاظ على تنسيقه تمامًا.'],['٥. الشهادات','Reports ← Certificate: اختر التصميم واللغة ونوع الشهادة ثم اطبع أو احفظ صورة.'],['٦. بياناتك','كل شيء يبقى على جهازك. صدّر نسخة احتياطية من الإعدادات من وقت لآخر. المزامنة السحابية (Supabase المجانية) وميزات الذكاء الاصطناعي اختيارية، ومفاتيحك تُحفظ في متصفحك فقط.']],btn:'ابدأ الآن',priv:'الخصوصية: بدون حساب وبدون تتبّع. تُحمَّل الخطوط من Google Fonts، وتذهب طلبات الذكاء الاصطناعي مباشرة من متصفحك إلى المزوّد الذي تختاره.'}};
+const GUIDE={en:{t:'Welcome 👋',st:[
+['1. Load your lesson','Setup → paste a script (for example from NotebookLM) or open a .txt / .md / .docx file. Tag lines with [SPEAK], [ASK] or [PAUSE]. Mark extra lines [OPTIONAL] so Catch-Up can skip them when you run late. Save it in 📚 My saved scripts to reuse it.'],
+['2. Teach with Follow','Follow tab: tap Next to move through the lesson. Turn on Voice follow to highlight each word you say, or use read aloud, the camera column, mirror text and rehearsal mode. The timer is manual — press Start when you want it.'],
+['3. Show pages on Stage','Stage tab: open PDFs, images, web links, videos or a blank board, then draw and highlight on them. Student screen opens a synced window you can share on Zoom or Meet. Pin the tabs you use every lesson and they come back next time.'],
+['4. Split view','Split puts two tabs side by side — for example Follow and Stage — each with its own tab bar, so you can teach and present at once.'],
+['5. Lesson reports','Reports tab: fill the short form after each lesson, then copy, send on WhatsApp, print or save as a picture. Arabic and English, with templates and fonts.'],
+['6. Monthly record and certificates','Reports → Monthly: upload your own Word form (.docx) once. The app fills it with your month’s lessons and keeps your exact layout. Reports → Certificate: choose a design, language and award, then print or save a picture.'],
+['7. Notes and History','Notes keeps private reminders for next time. History shows past lessons, pacing and how well each part was understood.'],
+['8. Make it yours','Change the theme 🎨, text size, fonts and the interface language (English / العربية). The app opens in full wide mode to use your whole screen — turn it off in Setup → Wide mode if you prefer a narrower page.'],
+['9. Your data','Everything stays on this device. Export a backup from Setup now and then. Cloud sync (free Supabase) and AI features are optional; your keys are stored only in your browser.']],btn:'Get started',priv:'Privacy: no account, no tracking. Fonts load from Google Fonts; AI requests go straight from your browser to the provider you choose.'},
+ar:{t:'مرحبًا بك 👋',st:[
+['١. حمّل درسك','من الإعدادات الصق نصًّا (مثلًا من NotebookLM) أو افتح ملف .txt / .md / .docx. ضع الوسوم [SPEAK] أو [ASK] أو [PAUSE] في الأسطر. علّم الأسطر الإضافية بـ [OPTIONAL] ليتخطاها «اللحاق» عند التأخر. احفظه في «📚 نصوصي المحفوظة» لتعيد استخدامه.'],
+['٢. درّس من تبويب Follow','اضغط Next للتنقل بين أجزاء الدرس. فعّل تتبّع الصوت ليميّز كل كلمة تنطقها، أو استخدم القراءة بصوت عالٍ وعمود الكاميرا والنص المعكوس ووضع التدريب. المؤقّت يدوي — اضغط Start عندما تريد.'],
+['٣. اعرض الصفحات في Stage','في تبويب Stage افتح ملفات PDF أو صورًا أو روابط ويب أو فيديو أو لوحة بيضاء، ثم ارسم وظلّل عليها. زر «شاشة الطالب» يفتح نافذة متزامنة يمكنك مشاركتها في Zoom أو Meet. ثبّت التبويبات التي تستخدمها كل درس لتعود في المرة القادمة.'],
+['٤. العرض المقسّم','«Split» يضع تبويبين جنبًا إلى جنب — مثل Follow وStage — ولكل منهما شريط تبويبات خاص، لتدرّس وتعرض في وقت واحد.'],
+['٥. تقارير الدروس','في تبويب Reports املأ النموذج القصير بعد كل درس، ثم انسخ التقرير أو أرسله عبر واتساب أو اطبعه أو احفظه كصورة. عربي وإنجليزي مع قوالب وخطوط.'],
+['٦. السجل الشهري والشهادات','Reports ← Monthly: ارفع نموذج Word الخاص بك (.docx) مرة واحدة، وسيملؤه التطبيق بدروس الشهر مع الحفاظ على تنسيقه. Reports ← Certificate: اختر التصميم واللغة ونوع الشهادة ثم اطبع أو احفظ صورة.'],
+['٧. الملاحظات والسجل','تحفظ «Notes» تذكيراتك الخاصة للمرة القادمة، ويعرض «History» الدروس السابقة والإيقاع ومدى فهم كل جزء.'],
+['٨. اجعله على ذوقك','غيّر المظهر 🎨 وحجم النص والخطوط ولغة الواجهة (English / العربية). يفتح التطبيق بالوضع العريض الكامل ليستفيد من الشاشة كلها — أوقفه من الإعداد ← الوضع العريض إن فضّلت صفحة أضيق.'],
+['٩. بياناتك','كل شيء يبقى على جهازك. صدّر نسخة احتياطية من الإعدادات من وقت لآخر. المزامنة السحابية (Supabase المجانية) وميزات الذكاء الاصطناعي اختيارية، ومفاتيحك تُحفظ في متصفحك فقط.']],btn:'ابدأ الآن',priv:'الخصوصية: بدون حساب وبدون تتبّع. تُحمَّل الخطوط من Google Fonts، وتذهب طلبات الذكاء الاصطناعي مباشرة من متصفحك إلى المزوّد الذي تختاره.'}};
 function welcomeShow(l){
   let o=$('welcomeBox'); if(o) o.remove(); l=l||lsGet('lp.welcome.lang')||((navigator.language||'').slice(0,2)==='ar'?'ar':'en'); const G=GUIDE[l]||GUIDE.en;
   o=document.createElement('div'); o.id='welcomeBox'; o.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:14px';
