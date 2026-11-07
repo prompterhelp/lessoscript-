@@ -5377,9 +5377,15 @@ const IC={
  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',
  chat:'<path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/>',
  mail:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/>',
- split:'<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M12 4v16"/>'
+ split:'<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M12 4v16"/>',
+ undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+ redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
+ wide:'<path d="M3 12h18"/><path d="m7 8-4 4 4 4"/><path d="m17 8 4 4-4 4"/>',
+ mirror:'<path d="M12 3v18"/><path d="M8 7 3 17h5z"/><path d="m16 7 5 10h-5z"/>',
+ full:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'
 };
 const M={'📚':'lib','🔎':'search','🔍':'search','💾':'save','🎙':'mic','✨':'spark','📄':'file','📃':'file','📜':'script','📥':'down','⬇':'down','📤':'up','⬆':'up','❓':'help','❔':'help','🗑':'trash','📂':'folder','📁':'folder','🗂':'folder','🔗':'link','🎬':'play','▶':'play','⏸':'pause','⏹':'stop','🔊':'vol','🔈':'vol','🔉':'vol','🌐':'globe','✅':'check','✔':'check','☑':'check','❌':'x','✖':'x','⚠':'alert','🔄':'refresh','🔁':'refresh','♻':'refresh','➕':'plus','🏆':'award','🎖':'award','🎨':'palette','📅':'cal','🗓':'cal','📆':'cal','⭐':'star','🌟':'star','📋':'clip','🔒':'lock','🎯':'target','🖨':'print','💡':'bulb','👤':'user','👥':'users','🔔':'bell','☁':'cloud','🔑':'key','🖼':'image','📱':'phone','❤':'heart','🧹':'broom','✍':'edit','📝':'notes','✏':'edit','🕒':'history','⏱':'history','⚙':'setup','📊':'reports','📈':'reports','🖥':'stage','🎤':'mic','🧾':'file','📌':'target','💬':'notes','🔖':'file','🚀':'play','📲':'chat','💬':'chat','🟢':'chat','✉':'mail','📧':'mail','📸':'image','📷':'image','🎓':'award','🏅':'award','📖':'lib','📕':'lib','📗':'lib','📘':'lib','⏰':'history','⏳':'history','🧑':'user','👨':'user','👩':'user','🕐':'history','🔐':'lock'};
+Object.assign(M,{'↩':'undo','↪':'redo','↔':'wide','🪞':'mirror','⛶':'full','⤢':'full'});
 const EM=/(?:\p{Extended_Pictographic}|✅|⭐)(?:️|‍\p{Extended_Pictographic}|[\u{1F3FB}-\u{1F3FF}])*/gu;
 const SEL='button,summary,.tab,.chip,.rp-chip,label,h2,h3,.rp-lbl,.btn-q,a.btn';
 const SKIP='#scriptList,#stage,.stage,textarea,input,select,script,style,[contenteditable=true],.line,.ct,#ctPv,#rpPreview,#rpDesignPv,.history-banner';
@@ -5390,7 +5396,7 @@ function clean(root){
   const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const ns=[];let n;
   while((n=w.nextNode())){if(n.parentNode&&n.parentNode.closest&&n.parentNode.closest(SKIP))continue;EM.lastIndex=0;if(EM.test(n.nodeValue))ns.push(n)}
   ns.forEach(t=>{const v=t.nodeValue,f=document.createDocumentFragment();let last=0,m;EM.lastIndex=0;
-   while((m=EM.exec(v))){f.appendChild(document.createTextNode(v.slice(last,m.index)));const base=Array.from(m[0].replace(/[\uFE0F\u200D]/g,''))[0],k=M[base]||M[m[0]];if(k)f.appendChild(icon(k));last=m.index+m[0].length}
+   while((m=EM.exec(v))){f.appendChild(document.createTextNode(v.slice(last,m.index)));const base=Array.from(m[0].replace(/[\uFE0F\u200D]/g,''))[0],k=M[base]||M[m[0]];f.appendChild(k?icon(k):document.createTextNode(m[0]));last=m.index+m[0].length}
    f.appendChild(document.createTextNode(v.slice(last).replace(/^\s+/,' ')));t.parentNode.replaceChild(f,t)})
  })
 }
@@ -5446,5 +5452,19 @@ setInterval(sync,350);sync();
 <script id="ptH-fix">(function(){function m(){var b=document.querySelector('body.split .ptabs');if(!b)return;var h=Math.ceil(b.getBoundingClientRect().height)+8;var r=document.documentElement;if(r.style.getPropertyValue('--ptH')!==h+'px')r.style.setProperty('--ptH',h+'px')}addEventListener('resize',m);setInterval(m,500);
 var last=new WeakMap();document.addEventListener('scroll',function(e){var v=e.target;if(!v||!v.classList||!v.classList.contains('view')||!document.body.classList.contains('split')||v.id==='view-stage')return;var y=v.scrollTop,p=last.get(v)||0;last.set(v,y);if(y<24||y<p-4)v.classList.remove('ptoff');else if(y>p+4&&y>80)v.classList.add('ptoff')},true);
 setInterval(function(){document.querySelectorAll('.ptabs button').forEach(function(b){if(!b.title){var sp=b.querySelector('span');if(sp)b.title=sp.textContent}})},700);new MutationObserver(m).observe(document.body,{attributes:true,attributeFilter:['class']})})();</script>
+<style id="lp-fancy-tabs">
+/* split-pane tab bars: every tab always reachable, nothing cut or hidden */
+body.split .ptabs{display:flex!important;flex-wrap:nowrap;align-items:stretch;gap:3px!important;padding:4px!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x proximity;border-radius:16px!important;background:color-mix(in srgb,var(--surface-2) 92%,transparent)!important;box-shadow:inset 0 0 0 1px var(--line)}
+body.split .ptabs button{flex:1 1 0!important;min-width:40px!important;max-width:none;padding:8px 6px!important;border-radius:12px!important;scroll-snap-align:center;transition:background .18s,color .18s,flex-grow .22s,box-shadow .18s}
+body.split .ptabs button .ic{display:inline-flex!important;flex:none;width:1.2em!important;height:1.2em!important}
+body.split .ptabs button .ic svg{width:100%;height:100%}
+body.split .ptabs button:not(.on) span{display:none!important}
+body.split .ptabs button.on{flex:2.6 1 0!important;min-width:fit-content;background:var(--surface)!important;color:var(--fg)!important;box-shadow:var(--sh),inset 0 -2px 0 var(--accent)}
+body.split .ptabs button.on span{display:inline!important}
+body.split .ptabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+body.split .ptabs button:active{transform:scale(.96)}
+</style>
+<script id="lp-fancy-tabs-js">(function(){setInterval(function(){document.querySelectorAll('.ptabs button.on').forEach(function(b){if(b._lp)return;b._lp=1;try{b.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}})},500)})();</script>
+
 </body>
 </html>
