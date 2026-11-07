@@ -658,6 +658,17 @@ body.split #view-stage.pA iframe,body.split #view-stage.pB iframe{flex:1 1 0;hei
 html,body{overscroll-behavior:none}
 #view-stage,#view-stage iframe{touch-action:none;overscroll-behavior:contain}
 </style>
+<style id="ux-fix-main">
+/* tablet/mobile: main tabs show label only on active tab */
+@media(max-width:1100px){.tabs .tab .tl{display:none}.tabs .tab.on .tl,.tabs .tab.active .tl,.tabs .tab[aria-selected=true] .tl{display:inline}.tabs{gap:2px!important}.tab{padding:9px 6px!important}}
+@media(max-width:720px){.tabs .tab.on .tl,.tabs .tab.active .tl,.tabs .tab[aria-selected=true] .tl{display:none}}
+.tabs,.ptabs{scrollbar-width:none}.tabs::-webkit-scrollbar,.ptabs::-webkit-scrollbar{display:none}
+body.split .tab{padding:7px 8px!important}
+body.split .tabs .tab:not(.on) .tl{display:none}
+/* perf: skip rendering of off-screen heavy blocks */
+.view[hidden]{display:none!important}
+
+</style>
 </head>
 <body>
 

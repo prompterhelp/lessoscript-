@@ -107,6 +107,33 @@ html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%}
 #tb #tbMore button:not(.sw)::after{content:attr(data-l);font:600 10px system-ui;opacity:.75;text-align:center;line-height:1.15;white-space:normal}
 @media(max-width:560px){#tb button:not(.sw):not(#tbMore button){width:34px!important;height:34px!important;min-width:34px!important}}
 </style>
+<style id="ux-fix">
+/* hide stray scrollbars on strips */
+.top,#dtabs,#stabs{scrollbar-width:none;-ms-overflow-style:none}.top::-webkit-scrollbar,#dtabs::-webkit-scrollbar,#stabs::-webkit-scrollbar{display:none}
+.top{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden}.top>*{flex:none}
+/* doc tabs: compact, clear, with overflow list */
+#dtabs{position:relative;align-items:center;gap:3px;scroll-snap-type:x proximity}
+.dt{max-width:170px;min-width:64px;scroll-snap-align:center;contain:layout style}.dt span{min-width:0}
+#tlBtn{position:sticky;right:0;flex:none;margin-left:auto;padding:5px 10px;border-radius:9px;background:var(--s2);color:var(--tx);font-weight:700;font-size:12px;box-shadow:-10px 0 10px var(--s1);z-index:3}
+#tlPop{position:fixed;z-index:100000;display:none;flex-direction:column;gap:2px;min-width:220px;max-width:min(92vw,360px);max-height:60vh;overflow-y:auto;padding:6px;border-radius:14px;background:#10142cf7;border:1px solid #ffffff1f;box-shadow:0 16px 40px #000a}
+#tlPop.open{display:flex}#tlPop button{text-align:start;padding:9px 12px;border-radius:9px;color:var(--tx);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#tlPop button.on{background:var(--g);color:#05211d}
+/* teacher dock: slimmer + collapsible */
+#tb{bottom:8px;padding:3px;gap:1px;border-radius:14px;max-width:calc(100% - 64px)}
+#tb button:not(.sw){min-width:34px;height:34px;font-size:16px}
+#tb.min{display:none!important}
+#tbMin{position:absolute;left:10px;bottom:10px;z-index:61;width:34px;height:34px;border-radius:12px;background:#121623ee;border:1px solid var(--bd);color:var(--tx);font-size:15px;box-shadow:0 6px 20px #0008}
+@media(max-height:620px),(max-width:560px){#tb button:not(.sw){min-width:32px;height:32px;font-size:15px}#tb{bottom:4px}#tbMin{bottom:6px;left:6px}}
+/* student toolbar: fits between tab bar and bottom, wraps into columns */
+html body.stu.tbon .tb{display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(var(--rows,12),30px);grid-auto-columns:30px;gap:3px;align-items:center;justify-items:center;top:calc(var(--stabH,0px) + 8px)!important;bottom:auto!important;right:6px;left:auto;transform:none!important;max-height:calc(100dvh - var(--stabH,0px) - 16px)!important;max-width:calc(100vw - 12px)!important;overflow:hidden!important;padding:5px;border-radius:14px}
+html body.stu.tbon .tb .asec{width:auto}html body.stu.tbon .tb #sz{width:30px}
+html body.stu.tbon .tb button{min-width:30px!important;width:30px!important;height:30px!important}
+html body.stu.tbon .tb .sw{width:18px!important;min-width:18px!important;height:18px!important}
+html body.stu.tbon .tb hr{display:none}
+/* perf */
+#rail>*{content-visibility:auto;contain-intrinsic-size:auto 90px}
+#panel,#rail{contain:layout style}
+@media(max-width:1100px){.top .btn{padding:6px 8px}.top .brand{display:none}}
+</style>
 </head><body>
 <div id="app">
  <div class="top"><div class="brand"><i></i>Stage</div><span class="mu" id="pg"></span><input type="number" id="gp" min="1" placeholder="Go to" title="Type page number, press Enter" style="width:74px;padding:6px 8px;border-radius:10px"><div class="sp"></div>
@@ -1890,5 +1917,29 @@ document.addEventListener('pointerdown',function(e){if(!e.target.closest('#tb'))
 new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType==1&&n.parentNode===tb)toMore(n)})})}).observe(tb,{childList:true});
 setInterval(function(){more.classList.toggle('on',!!p2.querySelector('.on'));dot()},400)}
 dock();setTimeout(dock,600);setTimeout(dock,2000);
+})();</script>
+<script id="ux-fix-js">(function(){
+var $=function(i){return document.getElementById(i)},B=document.body;
+/* student toolbar: measure tab bar + choose rows */
+function fit(){if(!B.classList.contains('stu'))return;var sb=$('stabs'),tb=document.querySelector('.tb');
+var vis=sb&&!B.classList.contains('tabhide')&&sb.offsetHeight>0;var h=vis?sb.offsetHeight:6;B.style.setProperty('--stabH',h+'px');
+if(!tb)return;var n=[].filter.call(tb.children,function(x){return x.tagName!='HR'&&x.offsetParent!==null||x.tagName!='HR'&&getComputedStyle(x).display!='none'}).length||24;
+var avail=innerHeight-h-16-10,rows=Math.max(4,Math.min(n,Math.floor(avail/33)));tb.style.setProperty('--rows',rows)}
+var raf=0;function sched(){cancelAnimationFrame(raf);raf=requestAnimationFrame(fit)}
+addEventListener('resize',sched);addEventListener('orientationchange',sched);
+new MutationObserver(sched).observe(B,{attributes:true,attributeFilter:['class']});
+setTimeout(function(){var sb=$('stabs');if(sb&&window.ResizeObserver)new ResizeObserver(sched).observe(sb);var tb=document.querySelector('.tb');if(tb)new MutationObserver(sched).observe(tb,{childList:true})},500);sched();
+/* teacher dock collapse */
+if(!B.classList.contains('stu')){var st=$('stage'),tb=$('tb');if(st&&tb){var m=document.createElement('button');m.id='tbMin';m.type='button';m.title='Hide / show tools';m.textContent='\u2304';
+var ls=null;try{ls=localStorage.getItem('tbMin')}catch(e){}if(ls==='1'){tb.classList.add('min');m.textContent='\u270F\uFE0F'}
+m.onclick=function(){var x=tb.classList.toggle('min');m.textContent=x?'\u270F\uFE0F':'\u2304';try{localStorage.setItem('tbMin',x?'1':'0')}catch(e){}};st.appendChild(m)}}
+/* doc tab list + keep active tab visible */
+var dt=$('dtabs');if(dt){var pop=document.createElement('div');pop.id='tlPop';document.body.appendChild(pop);var busy=0;
+function dec(){if(busy)return;busy=1;var old=$('tlBtn');if(old)old.remove();var tabs=[].slice.call(dt.querySelectorAll('.dt'));
+if(tabs.length>1){var b=document.createElement('button');b.id='tlBtn';b.type='button';b.textContent='\u25BE '+tabs.length;b.title='All tabs';
+b.onclick=function(e){e.stopPropagation();pop.innerHTML='';tabs.forEach(function(t,k){var o=document.createElement('button');o.textContent=t.querySelector('span').textContent;if(t.classList.contains('on'))o.className='on';o.onclick=function(){pop.classList.remove('open');t.click()};pop.appendChild(o)});var r=b.getBoundingClientRect();pop.style.top=(r.bottom+6)+'px';pop.style.right=Math.max(6,innerWidth-r.right)+'px';pop.classList.toggle('open')};dt.appendChild(b)}
+var on=dt.querySelector('.dt.on');if(on)on.scrollIntoView({block:'nearest',inline:'center'});busy=0}
+new MutationObserver(function(){if(busy)return;cancelAnimationFrame(dec.r);dec.r=requestAnimationFrame(dec)}).observe(dt,{childList:true});
+document.addEventListener('pointerdown',function(e){if(!e.target.closest('#tlPop,#tlBtn'))pop.classList.remove('open')},true);dec()}
 })();</script>
 </body></html>
