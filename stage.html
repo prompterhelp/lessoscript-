@@ -1626,4 +1626,10 @@ fix();try{new MutationObserver(fix).observe(document.getElementById('tb'),{child
 /* student window must contain everything added above */
 (function(){if(STU)return;try{const c=document.documentElement.cloneNode(true);['fxl','rbar','rtog','fxc','stopshare','stopshare2','stopTop','wshield','stabs','mcur','mtrail'].forEach(i=>c.querySelectorAll('#'+i).forEach(e=>e.remove()));SRC='<!doctype html>'+c.outerHTML}catch(e){}})();
 </script>
+<script>
+/* memory saver: decoded page bitmaps are the biggest RAM cost; keep only the pages near the current slide (they decode again instantly when needed) */
+setInterval(()=>{if(document.hidden||!S.pages.length)return;
+ S.pages.forEach((p,k)=>{if(p.bmp&&Math.abs(k-S.i)>3&&p.blob){try{p.bmp.close()}catch(e){}p.bmp=null}});
+ S.decks.forEach((d,k)=>{if(k!==S.d&&d.pages)d.pages.forEach(p=>{if(p.bmp&&p.blob){try{p.bmp.close()}catch(e){}p.bmp=null}if(p.mip){try{p.mip.close()}catch(e){}p.mip=null}if(p.hi){try{p.hi.bm.close()}catch(e){}p.hi=null}})})},2500);
+</script>
 </body></html>
