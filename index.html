@@ -556,6 +556,9 @@ body.presenter #pip{border-color:var(--good)}
 .tp-grid{display:grid;grid-template-columns:repeat(auto-fill,168px);gap:12px;justify-content:center;margin-top:12px}
 .tp{text-align:start;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:3px;color:var(--fg);font:inherit}
 .tp[aria-pressed="true"]{border-color:var(--accent)}.tp b{font-size:.86rem}.tp small{color:var(--muted);min-height:1em}
+.tp{content-visibility:auto;contain-intrinsic-size:auto 300px}
+#rpSections>.rp-card{content-visibility:auto;contain-intrinsic-size:auto 260px}
+#rpPreview,#rpDesignPv{contain:layout paint}
 .tp-sc{height:236px;overflow:hidden;border-radius:10px;background:#fff;position:relative;pointer-events:none}
 .tp-sc .rc{width:390px;max-width:none;margin:0;transform:scale(.39);transform-origin:top left}
 @media(max-width:560px){.rp-q{grid-template-columns:1fr 1fr 40px}.rp-q select{grid-column:1/-1}}
@@ -3112,7 +3115,11 @@ function rpChips(){
   $('rpGrades').innerHTML=RP_GRADES.map(g=>'<button type="button" class="rp-chip" data-grade="'+rpEsc(g)+'" aria-pressed="'+(REPF.grade===g)+'">'+rpEsc(RPL==='ar'?RP_GRADES_AR[RP_GRADES.indexOf(g)]:g)+'</button>').join('')+rpCG().map(g=>'<button type="button" class="rp-chip" dir="auto" data-grade="'+rpEsc(g)+'" aria-pressed="'+(REPF.grade===g)+'">'+rpEsc(g)+' <span data-delgrade="'+rpEsc(g)+'" title="Remove" style="opacity:.6;margin-inline-start:4px">✕</span></button>').join('');
   $('rpDurQ').innerHTML=[[20,'20 min'],[30,'30 min'],[45,'45 min'],[60,'1 hr'],[90,'1 hr 30'],[120,'2 hr']].map(x=>'<button type="button" class="rp-sc" data-dm="'+x[0]+'">⏱ '+(RPL==='ar'?rpDurL(x[0]):x[1])+'</button>').join('');
 }
-function rpPreview(){ $('rpPreview').innerHTML=rpHTML(rpModel(rpCur())); try{ const _t=$('rpTextPrev'); if(_t){ _t.textContent=rpText(rpModel(rpCur())); _t.dir=(RPL==='ar'?'rtl':'ltr'); } }catch(e){} }
+function rpPreview(){ const m=rpModel(rpCur()); $('rpPreview').innerHTML=rpHTML(m); try{ const _t=$('rpTextPrev'); if(_t){ _t.textContent=rpText(m); _t.dir=(RPL==='ar'?'rtl':'ltr'); } }catch(e){} }
+/* perf: coalesce rapid typing into one render per ~150ms */
+let _rpPT=0, _rpMT=0;
+function rpPreviewSoon(){ clearTimeout(_rpPT); _rpPT=setTimeout(()=>{ _rpPT=0; rpPreview(); },150); }
+function rpMonthSoon(){ clearTimeout(_rpMT); _rpMT=setTimeout(()=>{ _rpMT=0; const p=document.querySelector('#view-reports .rp-pane[data-pane="month"]'); if(p&&!p.hidden) rpMonthRender(); },250); }
 function rpTxtR(r){ return rpText(rpModel(r)); }
 function rpList(){
   const all=rpAll().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.saved||0)-(a.saved||0));
@@ -3209,9 +3216,11 @@ function rpApplyDesign(){
   let st=$('rpThemeStyle'); if(!st){ st=document.createElement('style'); st.id='rpThemeStyle'; document.head.appendChild(st); }
   st.textContent=rpThemeCSS();
   if(rpFonts().length) rpLoadFontLinks(rpLinkFams());
-  try{ rpPreview(); rpMonthRender(); rpGallery(); }catch(e){}
+  try{ rpPreview();
+    const vis=n=>{ const p=document.querySelector('#view-reports .rp-pane[data-pane="'+n+'"]'); return p&&!p.hidden; };
+    if(vis('month')) rpMonthRender(); if(vis('design')) rpGallery(); }catch(e){}
 }
-function rpGalFonts(){ if($('rpGalLink')) return; const m=document.createElement('meta'); m.id='rpGalLink'; document.head.appendChild(m); rpLoadFontLinks([].concat.apply([],rpAllT().map(t=>[rpFam(t.f),rpFam(t.af)])).filter(Boolean)); }
+function rpGalFonts(){ if($('rpGalLink')) return; const m=document.createElement('meta'); m.id='rpGalLink'; document.head.appendChild(m); const _gf=[].concat.apply([],rpAllT().map(t=>[rpFam(t.f),rpFam(t.af)])).filter(Boolean); let _gi=0; (function step(){ if(_gi>=_gf.length) return; rpLoadFontLinks(_gf.slice(_gi,_gi+3)); _gi+=3; setTimeout(step,400); })(); }
 function rpSample(){ const ar=RPL==='ar'; return {name:ar?'حمزة':'Hamza',subj:ar?'القرآن':'Qur’an',date:'31/10/2026',dur:ar?'ساعة':'1 hour',teacher:'',bis:true,notes:[{icon:'📖',title:ar?'القرآن':'Qur’an',rows:[['',ar?'سورة الفاتحة (كاملة)':'Surah Al-Fatihah (full surah)']]}],hw:[{icon:'📖',title:ar?'القرآن':'Qur’an',text:ar?'مراجعة السورة':'Revise the surah'}],grade:ar?'ممتاز ما شاء الله ⭐':'Excellent, MashaAllah! ⭐'}; }
 function rpGallery(){
   const g=$('rpGallery'); if(!g) return; const sm=rpSample(), sId=rpTh('s').id, mId=rpTh('m').id, ar=RPL==='ar';
@@ -3511,8 +3520,8 @@ function rpInit(){
           if(t.tagName==='SELECT'){ t.removeAttribute('size'); t.innerHTML=rpOpts('',en.s); t.value=en.s; const si=row.previousElementSibling; if(si&&si.dataset&&si.dataset.qs!==undefined) si.value=''; if(t.blur) t.blur(); } } } }
       if(t.id==='rpName') rpHint();
       if(t.id==='rpSearch') return rpList();
-      if(['rpTeacher','rpMonth','rpAcademy','rpAcSub','rpScope','rpProg','rpMNote'].includes(t.id)){ if(t.id==='rpAcademy'||t.id==='rpAcSub') lsSet('lp.rep.acad',JSON.stringify({a:$('rpAcademy').value,s:$('rpAcSub').value})); rpMonthRender(); if(t.id!=='rpTeacher'&&t.id!=='rpAcademy') return; }
-      rpPreview();
+      if(['rpTeacher','rpMonth','rpAcademy','rpAcSub','rpScope','rpProg','rpMNote'].includes(t.id)){ if(t.id==='rpAcademy'||t.id==='rpAcSub') lsSet('lp.rep.acad',JSON.stringify({a:$('rpAcademy').value,s:$('rpAcSub').value})); rpMonthSoon(); if(t.id!=='rpTeacher'&&t.id!=='rpAcademy') return; }
+      rpPreviewSoon();
     });
     view.addEventListener('keydown',e=>{ const t=e.target; if(e.key==='Enter'&&t.dataset&&t.dataset.addst!==undefined){ e.preventDefault(); const bt=[...view.querySelectorAll('[data-act="addst"]')].find(x=>x.dataset.for===t.dataset.addst); if(bt) bt.click(); } });
     view.addEventListener('change',e=>{ if(['rpShowAc','rpBis'].includes(e.target.id)){ rpPrefs(); rpPreview(); } if(e.target.id==='rpStyle'){ lsSet('lp.rep.style',e.target.value); rpPreview(); } if(rpDesignChange(e.target)) return; if(e.target.id==='rpMTplIn'){ const f=e.target.files[0]; e.target.value=''; if(f) mrUpload(f); return; } if(e.target.id==='rpFilter') rpList(); if(e.target.id==='rpName') rpHint(); });
@@ -4992,7 +5001,7 @@ document.addEventListener('click',e=>{ if(e.target.closest('#rpPasteBtn')) rpPas
     const cb=(sc&&sc!==document.body&&sc!==root)?sc.getBoundingClientRect().top:0;
     { const th=document.body.classList.contains('split')?'0px':Math.max(0,Math.round(hd.getBoundingClientRect().bottom-cb))+'px'; if(root.style.getPropertyValue('--topH')!==th) root.style.setProperty('--topH',th); }
     const was=v.classList.contains('rp-wide'), wide=v.clientWidth>=900; if(was!==wide){ v.classList.toggle('rp-wide',wide); try{ ctFit(); }catch(e){} } }
-  window.addEventListener('resize',stk); setInterval(stk,1500); setTimeout(stk,200);
+  window.addEventListener('resize',stk); setInterval(()=>{ const v=$('view-reports'); if(document.hidden||!v||v.hidden) return; stk(); },1500); setTimeout(stk,200);
   if(window.ResizeObserver){ const hd=document.querySelector('header.top'); if(hd) new ResizeObserver(stk).observe(hd); }
 })();
 
@@ -5033,7 +5042,7 @@ try{ if(lsGet('lp.rep.tab')==='cert') rpTab('cert'); else rpDesignPv(); }catch(e
     const c=hd.closest('.rp-card'); if(!c) return; const k=keyOf(c);
     if(closed.has(k)) closed.delete(k); else closed.add(k); deco();
   });
-  new MutationObserver(sched).observe(pane,{childList:true,subtree:true});
+  new MutationObserver(ms=>{ if(ms.some(m=>!(m.target.closest&&m.target.closest('#rpPreview,#rpDesignPv,#rpTextPrev')))) sched(); }).observe(pane,{childList:true,subtree:true});
   deco();
 })();
 /* ===== Tap-to-edit previews v2: edit any text, add text/logo, resize, drag, reset ===== */
