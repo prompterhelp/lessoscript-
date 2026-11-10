@@ -187,7 +187,7 @@ function stroke(s,g){const z=S.v.z;cx.save();cx.lineCap=cx.lineJoin='round';cx.s
  cx.stroke();cx.restore()}
 function ensurePg(i){for(const k of[i,i+1,i-1]){const p=S.pages[k];if(p&&!p.bmp&&!p.dec&&p.blob){p.dec=1;createImageBitmap(p.blob).then(b=>{p.bmp=b;need=1}).catch(()=>{p.dec=0})}}}
 function draw(){need=0;cx.setTransform(D,0,0,D,0,0);cx.clearRect(0,0,W,H);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';const g=geo();if(!g||S.blank){if(S.blank&&STU){cx.fillStyle='#000';cx.fillRect(0,0,W,H)}return}
- const[x,y]=toS(g,0,0);if(!g.p.bmp){ensurePg(S.i);return}const dw=g.bw*S.v.z,dh=g.bh*S.v.z,bm=g.p.bmp,ix=Math.max(0,x),iy=Math.max(0,y),ex=Math.min(W,x+dw),ey=Math.min(H,y+dh);cx.imageSmoothingQuality=(performance.now()-(S.mvT||0)<160)?'low':'high';if(ex>ix&&ey>iy){const kx=bm.width/dw,ky=bm.height/dh;cx.drawImage(bm,(ix-x)*kx,(iy-y)*ky,(ex-ix)*kx,(ey-iy)*ky,ix,iy,ex-ix,ey-iy)}g.p.strokes.forEach(s=>stroke(s,g));if(S.live)stroke(S.live,g);
+ const[x,y]=toS(g,0,0);if(!g.p.bmp){ensurePg(S.i);return}const dw=g.bw*S.v.z,dh=g.bh*S.v.z,bm=g.p.bmp,ix=Math.max(0,x),iy=Math.max(0,y),ex=Math.min(W,x+dw),ey=Math.min(H,y+dh);cx.imageSmoothingQuality=(performance.now()-(S.mvT||0)<160||S.live||S.ptr)?'low':'high';if(ex>ix&&ey>iy){const kx=bm.width/dw,ky=bm.height/dh;cx.drawImage(bm,(ix-x)*kx,(iy-y)*ky,(ex-ix)*kx,(ey-iy)*ky,ix,iy,ex-ix,ey-iy)}g.p.strokes.forEach(s=>stroke(s,g));if(S.live)stroke(S.live,g);
  const q=S.ptr;if(q){const[px,py]=toS(g,q.x,q.y);if(q.m=='spot'){const r=Math.min(W,H)*.16;cx.fillStyle='rgba(0,0,0,.78)';cx.beginPath();cx.rect(0,0,W,H);cx.arc(px,py,r,0,7);cx.fill('evenodd')}
  else{const gr=cx.createRadialGradient(px,py,0,px,py,18);gr.addColorStop(0,'#fff');gr.addColorStop(.25,'#ff2d55');gr.addColorStop(1,'rgba(255,45,85,0)');cx.fillStyle=gr;cx.beginPath();cx.arc(px,py,18,0,7);cx.fill()}}}
 (function loop(){if(need)draw();requestAnimationFrame(loop)})();
@@ -213,7 +213,7 @@ cv.onpointermove=e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.offs
  for(const c of(ev.length?ev:[e])){const r=cv.getBoundingClientRect(),[x,y]=toN(g,c.clientX-r.left,c.clientY-r.top);
   if(cur=='e')er(x,y,g);else if(cur=='p'){S.ptr={x,y,m:S.tool};}
   else if(cur.k=='line'||cur.k=='rect')cur.p=[cur.p[0],[x,y]];else cur.p.push([x,y])}
- if(cur=='p')send({t:'ptr',p:S.ptr});else if(cur&&cur!='e'){const n=performance.now();if(n-lastL>30){lastL=n;send({t:'live',s:cur})}}need=1};
+ if(cur=='p')send({t:'ptr',p:S.ptr});else if(cur&&cur!='e'){const n=performance.now();if(n-lastL>30){lastL=n;const L=cur.p.length,K=Math.ceil(L/120);send({t:'live',s:K>1?{...cur,p:cur.p.filter((_,i)=>i%K==0||i==L-1)}:cur})}}need=1};
 const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pin=null;if(pan){pan=null;cv.style.cursor=STU?'grab':''}
  if(pts.size)return;if(cur&&cur!='e'&&cur!='p'){if(cur.p.length>0){snap();P().strokes.push(cur);send({t:'add',i:S.i,s:cur})}S.live=null;send({t:'live',s:null})}
  if(cur=='p'){S.ptr=null;send({t:'ptr',p:null})}cur=null;need=1};
@@ -553,7 +553,7 @@ ui();
 /* ===== fix: black / slow slides ===== */
 ensurePg=function(i){for(let k=i-1;k<=i+2;k++){const p=S.pages[k];if(p&&!p.bmp&&!p.dec&&p.blob){p.dec=1;createImageBitmap(p.blob).then(b=>{p.bmp=b;need=1}).catch(()=>{}).finally(()=>{p.dec=0})}}};
 function needPg(i){const m={t:'need',i,n:Math.random()};try{if(BCOK)ch.postMessage(m);else if(opener)opener.postMessage(m,'*')}catch(e){}}
-(function(){const prev=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='need'){if(!STU&&S.pages[m.i])sendPage(m.i);return}return prev(ev)}})();
+(function(){const prev=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='need'){if(!STU&&S.pages[m.i]){const nw=performance.now(),T=window._nt=window._nt||{};if(!(nw-(T[m.i]||0)<1500)){T[m.i]=nw;if(window.wantAt)window.wantAt(m.i);sendPage(m.i)}}return}return prev(ev)}})();
 setInterval(()=>{const n=S.pages.length;if(!n)return;
  if(STU)for(let k=Math.max(0,S.i-2);k<Math.min(n,S.i+6);k++){const p=S.pages[k];if(!p||!p.blob)needPg(k)}
  const c=S.pages[S.i];if(c&&c.blob){ensurePg(S.i);if(!c.bmp)need=1}
@@ -578,7 +578,7 @@ async function doR(p){p.rend=1;act++;try{
  if(i>=0){const d=$('rail').children[i];if(d&&d.firstChild){d.firstChild.src=p.url;d.firstChild.style.aspectRatio=''}sendPage(i)}
  need=1}catch(e){p.rend=0}finally{act--;p.rend=0;pump()}}
 function want(){const l=[4,3,2,-2,-1,1,0];for(const k of l){const p=S.pages[S.i+k];if(p&&p.lazy&&!p.blob&&!p.rend){q=q.filter(x=>x!==p);q.unshift(p)}}pump()}
-window.want=want;const _go=go;go=function(i){_go(i);want()};
+window.want=want;window.wantAt=function(i){const p=S.pages[i];if(p&&p.lazy&&!p.blob&&!p.rend){q=q.filter(x=>x!==p);q.unshift(p);pump()}};const _go=go;go=function(i){_go(i);want()};
 setInterval(want,300);
 const _bc=buildCards;buildCards=async function(m){if(S.pages.some(p=>p.lazy&&!p.blob)){toast('Reading all pages first…');while(S.pages.some(p=>p.lazy&&!p.blob))await new Promise(r=>setTimeout(r,300))}return _bc(m)};
 addFiles=async function(fs,fromLib){
@@ -1435,7 +1435,7 @@ d.onclick=e=>{if(e.target===d)cl()};
 // fast low-res copy used only while moving; full quality returns when you stop
 setInterval(()=>{if(!S.pages.length)return;for(const k of [S.i,S.i+1,S.i-1]){const p=S.pages[k];if(p&&p.bmp&&!p.mip&&!p.mp){p.mp=1;const w=Math.min(1400,p.bmp.width),h=Math.max(1,Math.round(p.bmp.height*w/p.bmp.width)),c=document.createElement('canvas');c.width=w;c.height=h;try{c.getContext('2d').drawImage(p.bmp,0,0,w,h);createImageBitmap(c).then(m=>{p.mip=m;p.mp=0}).catch(()=>p.mp=0)}catch(e){p.mp=0}}}
  S.pages.forEach((p,k)=>{if(p.mip&&Math.abs(k-S.i)>3){try{p.mip.close()}catch(e){}p.mip=null}})},500);
-const _dr3=draw;draw=function(){const mv=performance.now()-(S.mvT||0)<220,sw=[];
+const _dr3=draw;draw=function(){const mv=performance.now()-(S.mvT||0)<220||!!S.live||!!S.ptr,sw=[];
  if(mv)for(const d of[-1,0,1]){const p=S.pages[S.i+d];if(p&&p.mip&&p.bmp){sw.push([p,p.bmp]);p.bmp=p.mip}}
  try{_dr3()}finally{sw.forEach(([p,b])=>p.bmp=b)}
  if(mv){clearTimeout(S._mt);S._mt=setTimeout(()=>{need=1},240)}};
@@ -2055,4 +2055,60 @@ setInterval(function(){if(!document.hidden)sync()},3000);
 addEventListener('focus',soon);document.addEventListener('visibilitychange',soon);
 })();</script>
 
+<script id="remote-student">
+/* ===== Remote student: a student on their OWN device opens a link, sees the student screen and can draw; the teacher sees the strokes.
+   Uses the teacher's own Supabase project (Realtime broadcast, no database tables). Everything else in the app is unchanged. ===== */
+(function(){
+if(!/^https?:$/.test(location.protocol))return;
+const qs=new URLSearchParams(location.search),ID=Math.random().toString(36).slice(2,8),LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
+const OUT_T=['pages','st','add','set','live','ptr','tm','page','pick'],OUT_S=['hello','need','add','set','live','ptr'];
+let cl=null,rc=null,on=false,room='';
+const op=ch.postMessage.bind(ch);
+const loadLib=()=>window.supabase&&window.supabase.createClient?Promise.resolve():new Promise((ok,no)=>{const e=document.createElement('script');e.src=LIB;e.onload=ok;e.onerror=()=>no(new Error('The online library could not load - check the internet'));document.head.appendChild(e)});
+const tx=p=>{try{Promise.resolve(rc.send({type:'broadcast',event:'m',payload:p})).catch(()=>{})}catch(e){}};
+const lat={},tm={};
+function fast(m){lat[m.t]=m;if(tm[m.t])return;tm[m.t]=setTimeout(()=>{tm[m.t]=0;const x=lat[m.t];lat[m.t]=null;if(x)tx(x)},40)}
+const cache=new WeakMap();
+async function enc(blob){let d=cache.get(blob);if(d)return d;const bm=await createImageBitmap(blob),w=Math.min(1400,bm.width),h=Math.max(1,Math.round(bm.height*w/bm.width)),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(bm,0,0,w,h);try{bm.close()}catch(e){}
+ const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.72));d=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});cache.set(blob,d);return d}
+async function sendPageRT(m,o){const p=m.p;if(!p||!p.blob)return;const d=await enc(p.blob),id=Math.random().toString(36).slice(2),Z=70000,N=Math.ceil(d.length/Z),sj=JSON.stringify(p.strokes||[]);
+ for(let k=0;k<N;k++){const x={t:'pc',id,k,n:N,i:m.i,o,d:d.slice(k*Z,(k+1)*Z)};if(k==N-1){x.w=p.w;x.h=p.h;if(sj.length<120000)x.s=p.strokes||[]}tx(x);if(k%3==2)await new Promise(r=>setTimeout(r,30))}}
+function out(m,keep){if(!on||!m)return;if(!(STU?OUT_S:OUT_T).includes(m.t))return;const o=keep&&m.o?m.o:ID;
+ if(m.t==='page'){sendPageRT(m,o).catch(()=>{});return}
+ let x=m;if(m.t==='pages')x={t:'pages',l:(m.l||[]).map(p=>({w:p.w,h:p.h,strokes:[],r:p.r||0}))};
+ x={...x,o};if(m.t==='live'||m.t==='ptr')fast(x);else tx(x)}
+ch.postMessage=function(m){op(m);try{out(m)}catch(e){}};
+const asm={};
+function rcv(m){if(!m||m.o===ID)return;
+ if(m.t==='pc'){const now=Date.now();for(const k in asm)if(now-asm[k].t>60000)delete asm[k];
+  const a=asm[m.id]=asm[m.id]||{p:[],c:0,t:now};a.p[m.k]=m.d;a.c++;if(m.w){a.w=m.w;a.h=m.h;a.s=m.s}
+  if(a.c===m.n){delete asm[m.id];fetch(a.p.join('')).then(r=>r.blob()).then(b=>{ch.onmessage&&ch.onmessage({data:{t:'page',i:m.i,n:Math.random(),p:{blob:b,w:a.w,h:a.h,strokes:a.s||[]}}})}).catch(()=>{})}
+  return}
+ if(STU){ch.onmessage&&ch.onmessage({data:m});return}
+ if(m.t==='hello'||m.t==='need'){ch.onmessage&&ch.onmessage({data:m});return}
+ if(['add','set','live','ptr'].includes(m.t)){ch.onmessage&&ch.onmessage({data:m});op(m);out(m,true)}}
+async function connect(url,key,r){await loadLib();room=r;cl=window.supabase.createClient(url,key,{realtime:{params:{eventsPerSecond:40}}});
+ rc=cl.channel('ls-'+r,{config:{broadcast:{self:false,ack:false}}});rc.on('broadcast',{event:'m'},e=>{try{rcv(e.payload)}catch(x){}});
+ return new Promise((ok,no)=>{let done=0;rc.subscribe(s=>{if(s==='SUBSCRIBED'){on=true;if(STU)tx({t:'hello',o:ID,n:Math.random()});if(!done){done=1;ok()}}
+  else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'){on=false;if(!done){done=1;no(new Error('Could not connect - check the Project URL / key and that Realtime is on'))}}else if(s==='CLOSED')on=false})})}
+function stop(){on=false;try{rc&&cl.removeChannel(rc)}catch(e){}rc=null;cl=null}
+if(STU){const r=qs.get('r'),u=qs.get('u'),k=qs.get('k');
+ if(r&&u&&k){toast('Connecting to your teacher…');connect(u,k,r).then(()=>toast('Connected. Waiting for the teacher…')).catch(e=>toast(e.message))}return}
+/* teacher side */
+const cfg=()=>{try{return JSON.parse(localStorage.getItem('lp.cloud')||'{}')}catch(e){return{}}};
+const mb=[...document.querySelectorAll('button')].find(b=>/Media/.test(b.textContent)&&/mDlg/.test(b.getAttribute('onclick')||''));
+if(!mb)return;
+const btn=document.createElement('button');btn.className='btn';btn.textContent='🌐 Remote student';btn.title='Let a student on their own device see the student screen and draw';mb.parentNode.insertBefore(btn,mb);
+function link(){const c=cfg();return location.href.split('#')[0].split('?')[0]+'?r='+encodeURIComponent(room)+'&u='+encodeURIComponent(c.url)+'&k='+encodeURIComponent(c.key)+'#student'}
+function dlg(){let d=document.getElementById('rsd');if(d)d.remove();d=document.createElement('div');d.id='rsd';d.style.cssText='position:fixed;inset:0;z-index:99999;background:#0009;display:flex;align-items:center;justify-content:center';
+ d.innerHTML='<div style="background:#1a2032;color:#eaeefb;border:1px solid #272e45;border-radius:16px;padding:18px;width:min(520px,92vw);font:14px system-ui"><b>🌐 Remote student link</b><p style="color:#8b95b5;margin:8px 0">Send this link to the student. They open it on their own device, see the student screen and can draw. Anyone with the link can join, so share it only with your student.</p><input id="rsl" readonly style="width:100%;padding:10px;border-radius:10px;border:1px solid #272e45;background:#0b0d14;color:#eaeefb"><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn" id="rsc">Copy link</button><button class="btn" id="rss" style="background:#e11d48;border:0;color:#fff">Stop sharing</button><button class="btn" id="rsx">Close</button></div></div>';
+ document.body.appendChild(d);const i=d.querySelector('#rsl');i.value=link();i.onfocus=()=>i.select();
+ d.querySelector('#rsc').onclick=()=>{i.select();try{navigator.clipboard.writeText(i.value)}catch(e){document.execCommand('copy')}toast('Link copied')};
+ d.querySelector('#rss').onclick=()=>{stop();btn.classList.remove('on');btn.textContent='🌐 Remote student';d.remove();toast('Remote student stopped')};
+ d.querySelector('#rsx').onclick=()=>d.remove();d.onclick=e=>{if(e.target===d)d.remove()}}
+btn.onclick=async()=>{if(on){dlg();return}const c=cfg();if(!c.url||!c.key){toast('First add your Supabase URL and key in Reports > Cloud sync');return}
+ let r=localStorage.getItem('lp.room');if(!r){r=Math.random().toString(36).slice(2,10);try{localStorage.setItem('lp.room',r)}catch(e){}}
+ btn.textContent='Connecting…';try{await connect(c.url,c.key,r);btn.classList.add('on');btn.textContent='🌐 Remote: on';dlg()}catch(e){btn.textContent='🌐 Remote student';toast(e.message)}}
+})();
+</script>
 </body></html>
