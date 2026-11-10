@@ -2063,20 +2063,21 @@ if(!/^https?:$/.test(location.protocol))return;
 const qs=new URLSearchParams(location.search),ID=Math.random().toString(36).slice(2,8),LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
 const OUT_T=['pages','st','add','set','live','ptr','tm','page','pick'],OUT_S=['hello','need','add','set','live','ptr'];
 let cl=null,rc=null,on=false,room='';
-let op=ch.postMessage.bind(ch),ALLOW=false,RD=false;
+let op=ch.postMessage.bind(ch),ALLOW=false,RD=false,sentRT=new WeakMap();
 const loadLib=()=>window.supabase&&window.supabase.createClient?Promise.resolve():new Promise((ok,no)=>{const e=document.createElement('script');e.src=LIB;e.onload=ok;e.onerror=()=>no(new Error('The online library could not load - check the internet'));document.head.appendChild(e)});
 const tx=p=>{try{Promise.resolve(rc.send({type:'broadcast',event:'m',payload:p})).catch(()=>{})}catch(e){}};
 const lat={},tm={};
-function fast(m){lat[m.t]=m;if(tm[m.t])return;tm[m.t]=setTimeout(()=>{tm[m.t]=0;const x=lat[m.t];lat[m.t]=null;if(x)tx(x)},40)}
+function fast(m){if(tm[m.t]){lat[m.t]=m;return}tx(m);tm[m.t]=setTimeout(()=>{tm[m.t]=0;const x=lat[m.t];lat[m.t]=null;if(x)tx(x)},25)}
 const cache=new WeakMap();
-async function enc(blob){let d=cache.get(blob);if(d)return d;const bm=await createImageBitmap(blob),w=Math.min(1400,bm.width),h=Math.max(1,Math.round(bm.height*w/bm.width)),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(bm,0,0,w,h);try{bm.close()}catch(e){}
- const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.72));d=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});cache.set(blob,d);return d}
+async function enc(blob){let d=cache.get(blob);if(d)return d;const bm=await createImageBitmap(blob),w=Math.min(1280,bm.width),h=Math.max(1,Math.round(bm.height*w/bm.width)),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(bm,0,0,w,h);try{bm.close()}catch(e){}
+ const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.68));d=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});cache.set(blob,d);return d}
 async function sendPageRT(m,o){const p=m.p;if(!p||!p.blob)return;const d=await enc(p.blob),id=Math.random().toString(36).slice(2),Z=70000,N=Math.ceil(d.length/Z),sj=JSON.stringify(p.strokes||[]);
  for(let k=0;k<N;k++){const x={t:'pc',id,k,n:N,i:m.i,o,d:d.slice(k*Z,(k+1)*Z)};if(k==N-1){x.w=p.w;x.h=p.h;x.z=p.blob.size;if(sj.length<120000)x.s=p.strokes||[]}tx(x);if(k%3==2)await new Promise(r=>setTimeout(r,30))}}
 function out(m,keep){if(!on||!m)return;if(!(STU?OUT_S:OUT_T).includes(m.t))return;const o=keep&&m.o?m.o:ID;
- if(m.t==='page'){sendPageRT(m,o).catch(()=>{});return}
+ if(m.t==='page'){const b=m.p&&m.p.blob;if(!b)return;const nw=Date.now();if(nw-(sentRT.get(b)||0)<5000)return;sentRT.set(b,nw);sendPageRT(m,o).catch(()=>{});return}
  let x=m;if(m.t==='pages')x={t:'pages',l:(m.l||[]).map(p=>({w:p.w,h:p.h,strokes:[],r:p.r||0,z:p.blob?p.blob.size:0}))};
- x={...x,o};if(m.t==='live'||m.t==='ptr')fast(x);else tx(x)}
+ x={...x,o};if(m.t==='live'||m.t==='ptr'||m.t==='st')fast(x);else tx(x);if(!STU&&m.t==='st')prefetch(m.i)}
+function prefetch(i){for(const k of[i,i+1,i+2,i-1]){const p=S.pages[k];if(!p)continue;if(p.blob){const b=p.blob,nw=Date.now();if(nw-(sentRT.get(b)||0)>=5000){sentRT.set(b,nw);sendPageRT({i:k,p},ID).catch(()=>{})}}else if(window.wantAt)window.wantAt(k)}}
 ch.postMessage=function(m){op(m);try{out(m)}catch(e){}};
 const asm={};
 function rcv(m){if(!m||m.o===ID)return;
@@ -2088,9 +2089,9 @@ function rcv(m){if(!m||m.o===ID)return;
   if(m.t==='perm'){setDraw(!!m.d);return}
   if(m.t==='pages'){const old=S.pages.slice();Promise.resolve(ch.onmessage&&ch.onmessage({data:m})).then(()=>{(m.l||[]).forEach((q,i)=>{const o=old[i],n=S.pages[i];if(o&&n&&o.blob&&q.z&&q.z===o.z){n.blob=o.blob;n.bmp=o.bmp;n.url=o.url;n.z=o.z;n.strokes=o.strokes||n.strokes}});need=1});return}
   ch.onmessage&&ch.onmessage({data:m});return}
- if(m.t==='hello'||m.t==='need'){if(m.t==='hello')tx({t:'perm',d:ALLOW?1:0,o:ID});ch.onmessage&&ch.onmessage({data:m});return}
+ if(m.t==='hello'||m.t==='need'){if(m.t==='hello'){sentRT=new WeakMap();tx({t:'perm',d:ALLOW?1:0,o:ID})}ch.onmessage&&ch.onmessage({data:m});return}
  if(['add','set','live','ptr'].includes(m.t)){if(!ALLOW)return;ch.onmessage&&ch.onmessage({data:m});op(m);out(m,true)}}
-async function connect(url,key,r){await loadLib();room=r;cl=window.supabase.createClient(url,key,{realtime:{params:{eventsPerSecond:40}}});
+async function connect(url,key,r){await loadLib();room=r;cl=window.supabase.createClient(url,key,{realtime:{params:{eventsPerSecond:60}}});
  rc=cl.channel('ls-'+r,{config:{broadcast:{self:false,ack:false}}});rc.on('broadcast',{event:'m'},e=>{try{rcv(e.payload)}catch(x){}});
  return new Promise((ok,no)=>{let done=0;rc.subscribe(s=>{if(s==='SUBSCRIBED'){on=true;if(STU)tx({t:'hello',o:ID,n:Math.random()});if(!done){done=1;ok()}}
   else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'){on=false;if(!done){done=1;no(new Error('Could not connect - check the Project URL / key and that Realtime is on'))}}else if(s==='CLOSED')on=false})})}
@@ -2101,7 +2102,7 @@ if(STU){const cvv=document.getElementById('cv');cvv&&cvv.addEventListener('point
 if(STU){const r=qs.get('r'),u=qs.get('u'),k=qs.get('k');
  if(r&&u&&k){try{ch.close()}catch(e){}op=()=>{};setDraw(false);toast('Connecting to your teacher…');connect(u,k,r).then(()=>toast('Connected. Waiting for the teacher…')).catch(e=>toast(e.message))}return}
 /* teacher side */
-ch.addEventListener('message',e=>{const m=e.data;if(m&&['add','set','live','ptr'].includes(m.t))out(m)});
+ch.addEventListener('message',e=>{const m=e.data;if(m&&['add','set','live','ptr','st'].includes(m.t))out(m)});
 const cfg=()=>{try{return JSON.parse(localStorage.getItem('lp.cloud')||'{}')}catch(e){return{}}};
 const mb=[...document.querySelectorAll('button')].find(b=>/Media/.test(b.textContent)&&/mDlg/.test(b.getAttribute('onclick')||''));
 if(!mb)return;
