@@ -5418,13 +5418,15 @@ Object.assign(M,{'↩':'undo','↪':'redo','↔':'wide','🪞':'mirror','⛶':'f
 const EM=/(?:\p{Extended_Pictographic}|✅|⭐)(?:️|‍\p{Extended_Pictographic}|[\u{1F3FB}-\u{1F3FF}])*/gu;
 const SEL='button,summary,.tab,.chip,.rp-chip,label,h2,h3,.rp-lbl,.btn-q,a.btn';
 const SKIP='#scriptList,#stage,.stage,textarea,input,select,script,style,[contenteditable=true],.line,.ct,#ctPv,#rpPreview,#rpDesignPv,.history-banner';
+/* only touch text that holds at least one emoji we have an icon for; otherwise the node is rewritten with the same emoji forever and the observer loops (constant CPU use) */
+function hasMapped(v){EM.lastIndex=0;let m;while((m=EM.exec(v))){const base=Array.from(m[0].replace(/[\uFE0F\u200D]/g,''))[0];if(M[base]||M[m[0]]){EM.lastIndex=0;return true}}EM.lastIndex=0;return false}
 function icon(k){const s=document.createElement('span');s.className='ic';s.innerHTML=S(IC[k]);return s}
 function clean(root){
  const r0=root||document;const list=r0.querySelectorAll?[...r0.querySelectorAll(SEL)]:[];if(r0.matches&&r0.matches(SEL))list.unshift(r0);
  list.forEach(el=>{
   if(el.closest(SKIP))return;
   const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const ns=[];let n;
-  while((n=w.nextNode())){if(n.parentNode&&n.parentNode.closest&&n.parentNode.closest(SKIP))continue;EM.lastIndex=0;if(EM.test(n.nodeValue))ns.push(n)}
+  while((n=w.nextNode())){if(n.parentNode&&n.parentNode.closest&&n.parentNode.closest(SKIP))continue;if(hasMapped(n.nodeValue))ns.push(n)}
   ns.forEach(t=>{const v=t.nodeValue,f=document.createDocumentFragment();let last=0,m;EM.lastIndex=0;
    while((m=EM.exec(v))){f.appendChild(document.createTextNode(v.slice(last,m.index)));const base=Array.from(m[0].replace(/[\uFE0F\u200D]/g,''))[0],k=M[base]||M[m[0]];f.appendChild(k?icon(k):document.createTextNode(m[0]));last=m.index+m[0].length}
    f.appendChild(document.createTextNode(v.slice(last).replace(/^\s+/,' ')));t.parentNode.replaceChild(f,t)})

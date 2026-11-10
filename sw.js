@@ -1,5 +1,5 @@
 /* Service worker: installable + offline. Pages load from the network but fall back to cache fast; CDN libraries are cached so Stage opens quickly */
-const CACHE = 'lesson-prompter-v39';
+const CACHE = 'lesson-prompter-v40';
 const ASSETS = ['./', './index.html', './stage.html', './manifest.json', './icon-192.png', './icon-512.png'];
 const CDN_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.jsdelivr.net'];
 const CDN_WARM = ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'];
@@ -51,19 +51,19 @@ self.addEventListener('fetch', e => {
     if (CDN_HOSTS.includes(url.hostname)) {
       /* libraries & fonts never change per URL: cache first, refresh quietly */
       e.respondWith(caches.match(req).then(hit => {
-        const net = fetch(req).then(res => { if (res && (res.ok || res.type === 'opaque')) { const c = res.clone(); caches.open(CACHE).then(k => k.put(req, c)).catch(() => {}); } return res; }).catch(() => hit);
+        const net = fetch(req).then(res => { if (res && (res.ok || res.type === 'opaque')) { const c = res.clone(); caches.open(CACHE).then(k => k.put(req, c)).catch(() => {}); } return res; }).catch(() => hit || Response.error());
         return hit || net;
       }));
       return;
     }
-    e.respondWith(fetch(req).then(res => { const c = res.clone(); caches.open(CACHE).then(k => k.put(req, c)).catch(() => {}); return res; }).catch(() => caches.match(req)));
+    e.respondWith(fetch(req).then(res => { const c = res.clone(); caches.open(CACHE).then(k => k.put(req, c)).catch(() => {}); return res; }).catch(() => caches.match(req).then(r => r || Response.error())));
     return;
   }
   const isPage = req.mode === 'navigate' || /\/(index\.html|stage\.html|manifest\.json)?$/.test(url.pathname);
   if (isPage) { e.respondWith(networkFirstFast(req)); return; }
   e.respondWith(
     caches.match(req, {ignoreSearch: true}).then(hit => {
-      const net = fetch(req).then(res => { const c = res.clone(); caches.open(CACHE).then(k => k.put(req, c)).catch(() => {}); return res; }).catch(() => hit);
+      const net = fetch(req).then(res => { const c = res.clone(); caches.open(CACHE).then(k => k.put(req, c)).catch(() => {}); return res; }).catch(() => hit || Response.error());
       return hit || net;
     })
   );
