@@ -2068,10 +2068,12 @@ const loadLib=()=>window.supabase&&window.supabase.createClient?Promise.resolve(
 const tx=p=>{try{Promise.resolve(rc.send({type:'broadcast',event:'m',payload:p})).catch(()=>{})}catch(e){}};
 const lat={},tm={};
 function fast(m){if(tm[m.t]){lat[m.t]=m;return}tx(m);tm[m.t]=setTimeout(()=>{tm[m.t]=0;const x=lat[m.t];lat[m.t]=null;if(x)tx(x)},25)}
-const cache=new WeakMap();
-async function enc(blob){let d=cache.get(blob);if(d)return d;const bm=await createImageBitmap(blob),w=Math.min(1280,bm.width),h=Math.max(1,Math.round(bm.height*w/bm.width)),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(bm,0,0,w,h);try{bm.close()}catch(e){}
- const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.68));d=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});cache.set(blob,d);return d}
-async function sendPageRT(m,o){const p=m.p;if(!p||!p.blob)return;const d=await enc(p.blob),id=Math.random().toString(36).slice(2),Z=70000,N=Math.ceil(d.length/Z),sj=JSON.stringify(p.strokes||[]);
+const cache=new WeakMap(),cachePv=new WeakMap();globalThis.__rsc=cache;
+async function enc(blob,W,Q,cache){W=W||1280;Q=Q||.68;cache=cache||globalThis.__rsc;let d=cache.get(blob);if(d)return d;const bm=await createImageBitmap(blob),w=Math.min(W,bm.width),h=Math.max(1,Math.round(bm.height*w/bm.width)),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(bm,0,0,w,h);try{bm.close()}catch(e){}
+ const b=await new Promise(r=>c.toBlob(r,'image/jpeg',Q));d=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});cache.set(blob,d);return d}
+async function sendPageRT(m,o){const p=m.p;if(!p||!p.blob)return;
+ try{const v=await enc(p.blob,480,.5,cachePv);if(v.length<90000)tx({t:'pc',id:Math.random().toString(36).slice(2),k:0,n:1,i:m.i,o,d:v,w:p.w,h:p.h,z:-1,pv:1,s:[]})}catch(e){}
+ const d=await enc(p.blob),id=Math.random().toString(36).slice(2),Z=70000,N=Math.ceil(d.length/Z),sj=JSON.stringify(p.strokes||[]);
  for(let k=0;k<N;k++){const x={t:'pc',id,k,n:N,i:m.i,o,d:d.slice(k*Z,(k+1)*Z)};if(k==N-1){x.w=p.w;x.h=p.h;x.z=p.blob.size;if(sj.length<120000)x.s=p.strokes||[]}tx(x);if(k%3==2)await new Promise(r=>setTimeout(r,30))}}
 function out(m,keep){if(!on||!m)return;if(!(STU?OUT_S:OUT_T).includes(m.t))return;const o=keep&&m.o?m.o:ID;
  if(m.t==='page'){const b=m.p&&m.p.blob;if(!b)return;const nw=Date.now();if(nw-(sentRT.get(b)||0)<5000)return;sentRT.set(b,nw);sendPageRT(m,o).catch(()=>{});return}
@@ -2082,8 +2084,8 @@ ch.postMessage=function(m){op(m);try{out(m)}catch(e){}};
 const asm={};
 function rcv(m){if(!m||m.o===ID)return;
  if(m.t==='pc'){const now=Date.now();for(const k in asm)if(now-asm[k].t>60000)delete asm[k];
-  const a=asm[m.id]=asm[m.id]||{p:[],c:0,t:now};a.p[m.k]=m.d;a.c++;if(m.w){a.w=m.w;a.h=m.h;a.s=m.s;a.z=m.z}
-  if(a.c===m.n){delete asm[m.id];if(STU&&S.pages[m.i]&&S.pages[m.i].blob&&S.pages[m.i].z===a.z)return;fetch(a.p.join('')).then(r=>r.blob()).then(b=>{ch.onmessage&&ch.onmessage({data:{t:'page',i:m.i,n:Math.random(),p:{blob:b,w:a.w,h:a.h,z:a.z,strokes:a.s||[]}}})}).catch(()=>{})}
+  const a=asm[m.id]=asm[m.id]||{p:[],c:0,t:now};a.p[m.k]=m.d;a.c++;if(m.w){a.w=m.w;a.h=m.h;a.s=m.s;a.z=m.z;a.pv=m.pv}
+  if(a.c===m.n){delete asm[m.id];const cp=S.pages[m.i];if(STU&&cp&&cp.blob&&(a.pv||cp.z===a.z))return;fetch(a.p.join('')).then(r=>r.blob()).then(b=>{const c2=S.pages[m.i];if(a.pv&&c2&&c2.blob)return;ch.onmessage&&ch.onmessage({data:{t:'page',i:m.i,n:Math.random(),p:{blob:b,w:a.w,h:a.h,z:a.z,strokes:a.s||[]}}})}).catch(()=>{})}
   return}
  if(STU){
   if(m.t==='perm'){setDraw(!!m.d);return}
@@ -2098,7 +2100,7 @@ async function connect(url,key,r){await loadLib();room=r;cl=window.supabase.crea
 function stop(){on=false;try{rc&&cl.removeChannel(rc)}catch(e){}rc=null;cl=null}
 const css=document.createElement('style');css.textContent='body.rnodraw #tb [data-t]:not([data-t=hand]),body.rnodraw #tb [onclick^="undo"],body.rnodraw #tb [onclick^="redo"],body.rnodraw #tb [onclick^="clr"]{display:none!important}';document.head.appendChild(css);
 function setDraw(v){RD=v;if(!STU)return;document.body.classList.toggle('rnodraw',!v);const t=document.querySelector('#tb [data-t='+(v?'pen':'hand')+']');S.tool=v?'pen':'hand';if(t)t.click();if(v){document.body.classList.add('tbon');window.__pin=true;toast('The teacher allowed you to draw')}else{window.__pin=false;toast('Drawing is off - the teacher leads')}}
-if(STU){const cvv=document.getElementById('cv');cvv&&cvv.addEventListener('pointerdown',()=>{if(!RD&&S.tool!=='hand'){S.tool='hand'}},true)}
+if(STU&&qs.get('r')&&qs.get('u')&&qs.get('k')){const cvv=document.getElementById('cv');cvv&&cvv.addEventListener('pointerdown',()=>{if(!RD&&S.tool!=='hand'){S.tool='hand'}},true)}
 if(STU){const r=qs.get('r'),u=qs.get('u'),k=qs.get('k');
  if(r&&u&&k){try{ch.close()}catch(e){}op=()=>{};setDraw(false);toast('Connecting to your teacher…');connect(u,k,r).then(()=>toast('Connected. Waiting for the teacher…')).catch(e=>toast(e.message))}return}
 /* teacher side */
