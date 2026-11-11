@@ -137,13 +137,14 @@ html body.stu.tbon .tb hr{display:none}
 #panel,#rail{contain:layout style}
 @media(max-width:1100px){.top .btn{padding:6px 8px}.top .brand{display:none}}
 </style>
+<style>#snL{display:flex;flex-direction:column;gap:6px}.snr{position:relative;display:flex;align-items:center;gap:4px;padding:6px;border:1px solid var(--bd);border-radius:10px;background:var(--s2);overflow:hidden}.snr.cu{border-color:var(--a)}.snr.pl{border-color:#2ee59d;background:#12302a}.snr .gr{cursor:grab;color:var(--mu);padding:0 4px;touch-action:none}.snr .pb{flex:0 0 40px;height:40px;border-radius:50%;background:var(--g);color:#05211d;font-size:16px}.snr .nm{flex:1;min-width:0;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.snr button:not(.pb){width:26px;height:30px;color:var(--mu)}.snr i{position:absolute;left:0;bottom:0;height:3px;width:0;background:#2ee59d}#snd select{background:var(--s2);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:7px}</style>
 </head><body>
 <div id="app">
  <div class="top"><div class="brand"><i></i>Stage</div><span class="mu" id="pg"></span><input type="number" id="gp" min="1" placeholder="Go to" title="Type page number, press Enter" style="width:74px;padding:6px 8px;border-radius:10px"><div class="sp"></div>
   <button class="btn" onclick="libDlg()">📚 Library</button><button class="btn" onclick="F.click()">📂 Open</button><button class="btn" onclick="openLink()" title="Open a Google Drive / Docs / Slides link or a direct PDF link">🔗 Link</button><button class="btn" onclick="addBoard()">＋ Board</button>
   <button class="btn" onclick="zen()" title="Hide panels (Tab)">⛶ Focus</button>
   <button class="btn" onclick="tp()" title="Notes · Words · Study · Class">☰</button>
-  <button class="btn" onclick="mDlg()">🎬 Media</button><button class="btn" id="stopShare" onclick="closeMedia()" title="Stop showing this on the student screen" style="display:none;background:#e11d48;border:0;color:#fff">⏹ Stop share</button><button class="btn pri" onclick="openStu()">🖥 Student screen</button>
+  <button class="btn" onclick="sndOpen()" title="Voice clips (N = next, M = stop)">🔊 Sounds</button><button class="btn" onclick="mDlg()">🎬 Media</button><button class="btn" id="stopShare" onclick="closeMedia()" title="Stop showing this on the student screen" style="display:none;background:#e11d48;border:0;color:#fff">⏹ Stop share</button><button class="btn pri" onclick="openStu()">🖥 Student screen</button>
   <input id="F" type="file" multiple accept=".pdf,.pptx,image/*" hidden></div>
  <div id="dtabs"></div><aside id="rail"></aside>
  <main id="col"><div id="stage"><canvas id="cv"></canvas>
@@ -157,14 +158,19 @@ html body.stu.tbon .tb hr{display:none}
    
    <button onclick="rst()" title="Reset zoom (0)">⤢</button><button onclick="blank()" id="bl" title="Blank student screen (B)">🙈</button><button onclick="go(S.i-1)">◀</button><button onclick="go(S.i+1)">▶</button><button onclick="fs()" title="Fullscreen (F)">⛶</button>
   </div></main>
- <aside id="panel"><div class="tabs"><button onclick="tp()" title="Close panel" style="flex:0 0 40px">✕</button><button class="on" data-p="n">Notes</button><button data-p="w">Words</button><button data-p="q">Study</button><button data-p="c">Class</button></div>
+ <aside id="panel"><div class="tabs"><button onclick="tp()" title="Close panel" style="flex:0 0 40px">✕</button><button class="on" data-p="n">Notes</button><button data-p="w">Words</button><button data-p="q">Study</button><button data-p="c">Class</button><button data-p="snd">🔊</button></div>
   <div class="pane on" id="n"><textarea id="nt" dir="auto" style="min-height:60vh" placeholder="Notes for this slide"></textarea><div class="mu">Only you see these.</div></div>
   <div class="pane" id="w"><div class="mu">One per line: <b>term | meaning | note</b></div><textarea id="wt" dir="auto" placeholder="term | meaning | note"></textarea>
    <div class="row"><button class="btn pri" id="wb" onclick="S.words=!S.words;wb();st()">Show to students</button></div><div class="mu">Preview: exactly what students will see</div><div id="wprev" class="wv"></div><div id="wl"></div></div>
   <div class="pane" id="q"><button class="btn pri" onclick="buildCards(true)">✨ Auto-build cards (files + AI)</button><div class="row"><button class="btn" onclick="startFC()">🃏 Flashcards</button><button class="btn" onclick="startQZ()">❓ Quiz</button></div><div class="mu" id="qc">0 cards</div><textarea id="ct" dir="auto" style="min-height:50vh" placeholder="term | meaning (one card per line)"></textarea><div class="mu">Edit freely. Both screens show the card or quiz live.</div></div>
   <div class="pane" id="c"><b>Timer</b><div id="tpv" class="tpv">05:00</div><div class="mu">Preview: students see it large, top-centre</div><div class="row"><input type="number" id="tm" value="5" min="1" style="width:80px"><span class="mu">min</span><button class="btn pri" onclick="timer(+tm.value*60)">Start</button><button class="btn" onclick="timer(0)">Stop</button><button class="btn" onclick="timer(0);tm.value=5;tpv()">↺ Reset</button></div>
    <b>Pick a student</b><textarea id="nm" dir="auto" style="min-height:90px" placeholder="One name per line"></textarea><button class="btn pri" onclick="pickN()">🎲 Pick random</button>
-   <b>Shortcuts</b><div class="mu">← → slides · P pen · H highlight · E erase · L laser · S spotlight · V move · B blank student · F fullscreen · Tab hide panels · Ctrl+Z undo · wheel / pinch zoom · double-click reset</div></div></aside>
+   <b>Shortcuts</b><div class="mu">← → slides · P pen · H highlight · E erase · L laser · S spotlight · V move · B blank student · F fullscreen · Tab hide panels · Ctrl+Z undo · wheel / pinch zoom · double-click reset</div></div>  <div class="pane" id="snd"><div class="row"><select id="snSet" style="flex:1;min-width:0"></select><button class="btn" id="snNew" title="New lesson set">＋ Set</button></div>
+   <div class="row"><button class="btn pri" id="snN" style="flex:1;justify-content:center;padding:14px 10px;font-size:15px">▶ Next</button><button class="btn" id="snS" style="padding:14px 14px;background:#e11d48;border:0;color:#fff" title="Stop (M)">⏹</button></div>
+   <div class="row"><button class="btn" onclick="$('snF').click()">＋ Add sounds</button><input type="file" id="snF" multiple accept="audio/*,video/mp4,.mp3,.m4a,.mp4,.aac,.wav,.ogg,.opus" hidden><label class="mu" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="snA">Play all in a row</label><button class="btn" id="snClr" title="Delete all in this set">🗑</button></div>
+   <div class="row"><span class="mu">🔈</span><input type="range" id="snV" min="0" max="1" step="0.05" style="flex:1"></div>
+   <div id="snL"></div><div class="mu" style="font-size:12px">N = play next · M = stop · drag ⠿ or ▲▼ to arrange. Saved on this device only (your teacher screen plays the sound).</div></div>
+</aside>
 </div><div id="toast"></div><div id="md"><div class="mdc"><b>Show media to students</b><button class="btn" onclick="$('mf').click()">📁 Video or image from device</button><input type="file" id="mf" accept="video/*,image/*" hidden onchange="mFile(this.files[0]);this.value=''"><button class="btn pri" onclick="liveStart()">🖥 Show a website (share its browser tab)</button><div class="mu" style="font-size:12px">Open the site (e.g. quran.com/quraysh) in another tab, click here, pick that tab. It shows live here and on the student screen.</div><div class="row"><input type="text" id="mu" placeholder="Website, YouTube, video or image link (e.g. https://quran.com/quraysh)" style="flex:1"><button class="btn pri" onclick="mUrl()">Add</button></div><button class="btn" onclick="mDlg()">Cancel</button></div></div>
 <script>
 function IT(){return /iPad|Android|Tablet/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform))}function PW(){return IT()?2600:4096}
@@ -2119,6 +2125,68 @@ function dlg(){let d=document.getElementById('rsd');if(d)d.remove();d=document.c
 btn.onclick=async()=>{if(on){dlg();return}const c=cfg();if(!c.url||!c.key){toast('First add your Supabase URL and key in Reports > Cloud sync');return}
  let r=localStorage.getItem('lp.room');if(!r){r=Math.random().toString(36).slice(2,10);try{localStorage.setItem('lp.room',r)}catch(e){}}
  btn.textContent='Connecting…';try{await connect(c.url,c.key,r);btn.classList.add('on');btn.textContent='🌐 Remote: on';dlg()}catch(e){btn.textContent='🌐 Remote student';toast(e.message)}}
+})();
+</script>
+<script>
+/* 🔊 Sounds: instant voice-clip player for live classes (Web Audio = no delay, clips are decoded in advance and saved on this device) */
+(function(){if(STU)return;
+const DB='lessonsounds',AC=window.AudioContext||window.webkitAudioContext;let ctx,master,gain=+(localStorage.getItem('ls.snd.vol')||1);
+let items=[],setName=localStorage.getItem('ls.snd.set')||'Lesson 1',cue=0,cur=null,db,auto=localStorage.getItem('ls.snd.auto')==='1',dragId=null,tick=0;
+const bufs=new Map(),$s=id=>document.getElementById(id);
+const open=()=>db||(db=new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('clips',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}));
+const tx=async(m,f)=>{const d=await open();return new Promise((res,rej)=>{const t=d.transaction('clips',m),s=t.objectStore('clips');const r=f(s);t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error)})};
+const put=c=>tx('readwrite',s=>s.put(c)),del=id=>tx('readwrite',s=>s.delete(id)),all=()=>tx('readonly',s=>s.getAll());
+function audio(){if(!AC)return null;if(!ctx){ctx=new AC({latencyHint:'interactive'});master=ctx.createGain();master.gain.value=gain;master.connect(ctx.destination)}if(ctx.state!=='running')ctx.resume();return ctx}
+async function prep(c){if(bufs.has(c.id))return;const a=audio();c.big=c.blob.size>12e6;if(c.big||!a){bufs.set(c.id,null);return}
+ try{bufs.set(c.id,await a.decodeAudioData(await c.blob.arrayBuffer()))}catch(e){bufs.set(c.id,null)}} /* null = play through a normal audio element instead */
+function stop(fade){if(!cur)return;const x=cur;cur=null;try{if(x.src){const t=ctx.currentTime;x.g.gain.setTargetAtTime(0,t,fade?.02:.001);x.src.stop(t+(fade?.12:.01))}else{x.el.pause();URL.revokeObjectURL(x.url)}}catch(e){}x.done&&x.done(true);draw()}
+async function play(id,from){const i=items.findIndex(c=>c.id===id);if(i<0)return;const c=items[i];stop(true);const a=audio();let b=bufs.get(id);
+ if(b===undefined){await prep(c);b=bufs.get(id)}
+ const me={id,t0:performance.now()};cur=me;cue=Math.min(i+1,items.length);
+ const end=()=>{if(cur!==me)return;cur=null;if(auto&&cue<items.length){play(items[cue].id)}else draw()};
+ if(b&&a){const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.connect(g);g.connect(master);me.src=s;me.g=g;me.dur=b.duration;s.onended=end;s.start(0)}
+ else{const url=URL.createObjectURL(c.blob),el=new Audio(url);el.volume=Math.min(1,gain);me.el=el;me.url=url;el.onended=()=>{URL.revokeObjectURL(url);end()};el.onloadedmetadata=()=>me.dur=el.duration;try{await el.play()}catch(e){toast('Tap again to allow sound');cur=null}}
+ draw();loop()}
+function next(){if(!items.length)return toast('No sounds yet');if(cue>=items.length){cue=0}play(items[cue].id)}
+function loop(){cancelAnimationFrame(tick);const f=()=>{const bar=document.querySelector('.snr.pl i');if(cur&&bar){const e=cur.src?ctx.currentTime-0:0;const t=(performance.now()-cur.t0)/1000;const d=cur.dur||(cur.el&&cur.el.duration)||0;bar.style.width=(d?Math.min(100,(cur.el&&!cur.src?cur.el.currentTime:t)/d*100):0)+'%'}if(cur)tick=requestAnimationFrame(f)};f()}
+const nice=n=>n.replace(/\.[^.]+$/,'').replace(/[_]+/g,' ').trim();
+async function load(){items=(await all()).filter(c=>c.set===setName).sort((a,b)=>a.order-b.order);draw();for(const c of items)await prep(c);draw()}
+async function add(files){const a=audio();let n=0;const base=items.length?Math.max(...items.map(c=>c.order))+1:0;
+ const fs=[...files].filter(f=>/^(audio|video)\//.test(f.type)||/\.(mp3|m4a|mp4|aac|wav|ogg|opus|webm|flac)$/i.test(f.name)).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+ for(const f of fs){const c={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),set:setName,name:nice(f.name),order:base+n++,blob:f,size:f.size};await put(c);items.push(c);toast('Loading '+n+' / '+fs.length);await prep(c);draw()}
+ if(fs.length)toast(fs.length+' sound'+(fs.length>1?'s':'')+' ready');try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}}
+async function saveOrder(){for(let i=0;i<items.length;i++){items[i].order=i;await put(items[i])}}
+async function move(id,to){const i=items.findIndex(c=>c.id===id);if(i<0||to<0||to>=items.length)return;const [c]=items.splice(i,1);items.splice(to,0,c);draw();await saveOrder()}
+async function sets(){return [...new Set([...(await all()).map(c=>c.set),setName])].sort()}
+async function drawSets(){const s=$s('snSet');if(!s)return;s.innerHTML='';(await sets()).forEach(n=>{const o=document.createElement('option');o.textContent=n;o.selected=n===setName;s.appendChild(o)})}
+function draw(){const L=$s('snL');if(!L)return;const esc=s=>s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+ L.innerHTML=items.length?items.map((c,i)=>`<div class="snr${cur&&cur.id===c.id?' pl':''}${i===cue&&!(cur&&cur.id===c.id)?' cu':''}" draggable="true" data-id="${c.id}"><span class="gr" title="Drag to reorder">⠿</span><button class="pb" data-a="p">${cur&&cur.id===c.id?'⏹':'▶'}</button><span class="nm" data-a="p"><b>${i+1}.</b> ${esc(c.name)}${bufs.get(c.id)===undefined?' <em>…</em>':''}</span><button data-a="u" title="Move up">▲</button><button data-a="d" title="Move down">▼</button><button data-a="r" title="Rename">✎</button><button data-a="x" title="Delete">✕</button><i></i></div>`).join(''):'<div class="mu">Add your voice files (mp3, m4a, mp4) and they will be ready to play instantly. They stay saved on this device.</div>';
+ const nx=items[cue];$s('snN').textContent=nx?('▶ Next: '+(cue+1)+'. '+nx.name):'↺ Start again';
+ const tb=$s('snTb');if(tb)tb.classList.toggle('on',!!cur)}
+function ui(){
+ const L=$s('snL');
+ L.onclick=async e=>{const r=e.target.closest('.snr'),a=e.target.closest('[data-a]');if(!r||!a)return;const id=r.dataset.id,i=items.findIndex(c=>c.id===id);
+  if(a.dataset.a==='p'){cur&&cur.id===id?stop(true):play(id)}
+  else if(a.dataset.a==='u')move(id,i-1);else if(a.dataset.a==='d')move(id,i+1);
+  else if(a.dataset.a==='r'){const n=prompt('Name',items[i].name);if(n&&n.trim()){items[i].name=n.trim();put(items[i]);draw()}}
+  else if(a.dataset.a==='x'&&confirm('Delete "'+items[i].name+'"?')){if(cur&&cur.id===id)stop();items.splice(i,1);bufs.delete(id);await del(id);if(cue>items.length)cue=items.length;draw()}};
+ L.ondragstart=e=>{const r=e.target.closest('.snr');if(r){dragId=r.dataset.id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','s')}};
+ L.ondragover=e=>{if(dragId)e.preventDefault()};
+ L.ondrop=e=>{const r=e.target.closest('.snr');if(!dragId||!r)return;e.preventDefault();e.stopPropagation();const to=items.findIndex(c=>c.id===r.dataset.id);move(dragId,to);dragId=null};
+ const P=$s('snd');['dragover','drop'].forEach(t=>P.addEventListener(t,e=>{if(dragId||!(e.dataTransfer&&[...e.dataTransfer.types].includes('Files')))return;e.preventDefault();if(t==='drop'){e.stopPropagation();add(e.dataTransfer.files)}}));
+ $s('snF').onchange=e=>{add(e.target.files);e.target.value=''};
+ $s('snN').onclick=next;$s('snS').onclick=()=>stop(true);
+ $s('snV').value=gain;$s('snV').oninput=e=>{gain=+e.target.value;localStorage.setItem('ls.snd.vol',gain);if(master)master.gain.value=gain;if(cur&&cur.el)cur.el.volume=Math.min(1,gain)};
+ $s('snA').checked=auto;$s('snA').onchange=e=>{auto=e.target.checked;localStorage.setItem('ls.snd.auto',auto?1:0)};
+ $s('snSet').onchange=async e=>{stop();setName=e.target.value;localStorage.setItem('ls.snd.set',setName);cue=0;await load()};
+ $s('snNew').onclick=async()=>{const n=prompt('New lesson set name');if(n&&n.trim()){stop();setName=n.trim();localStorage.setItem('ls.snd.set',setName);items=[];cue=0;await drawSets();draw()}};
+ $s('snClr').onclick=async()=>{if(!items.length||!confirm('Delete all sounds in "'+setName+'"?'))return;stop();for(const c of items){bufs.delete(c.id);await del(c.id)}items=[];cue=0;await drawSets();draw()};
+ document.addEventListener('keydown',e=>{if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName)||e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();if(k==='n'){e.preventDefault();next()}else if(k==='m'){stop(true)}});
+ /* wake the audio engine on the first tap anywhere so the very first clip is instant */
+ const wake=()=>{audio();document.removeEventListener('pointerdown',wake,true)};document.addEventListener('pointerdown',wake,true);
+ window.sndOpen=()=>{if(!document.body.classList.contains('po'))tp();document.querySelector('.tabs button[data-p="snd"]').click()};
+ drawSets().then(load)}
+ui();
 })();
 </script>
 </body></html>
