@@ -138,7 +138,7 @@ html body.stu.tbon .tb hr{display:none}
 @media(max-width:1100px){.top .btn{padding:6px 8px}.top .brand{display:none}}
 </style>
 <style>#snL{display:flex;flex-direction:column;gap:6px}.snr{position:relative;display:flex;align-items:center;gap:4px;padding:6px;border:1px solid var(--bd);border-radius:10px;background:var(--s2);overflow:hidden}.snr.cu{border-color:var(--a)}.snr.pl{border-color:#2ee59d;background:#12302a}.snr .gr{cursor:grab;color:var(--mu);padding:0 4px;touch-action:none}.snr .pb{flex:0 0 40px;height:40px;border-radius:50%;background:var(--g);color:#05211d;font-size:16px}.snr .nm{flex:1;min-width:0;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.snr button:not(.pb){width:26px;height:30px;color:var(--mu)}.snr i{position:absolute;left:0;bottom:0;height:3px;width:0;background:#2ee59d}#snd select{background:var(--s2);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:7px}</style>
-<style>#snBar{display:none;position:fixed;left:10px;bottom:58px;z-index:7;gap:5px;padding:5px;background:#121623ee;border:1px solid var(--bd);border-radius:14px;box-shadow:0 6px 24px #0008;max-width:min(92vw,330px)}.snbar #snBar{display:flex}.stu #snBar{display:none!important}#snBar button{height:36px;min-width:36px;border-radius:9px;background:var(--s2);color:var(--tx);font-size:14px;font-weight:700}#snBar .n{background:var(--g);color:#05211d;padding:0 10px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+<style>#snBar{display:none;position:fixed;right:10px;bottom:10px;z-index:7;gap:5px;padding:5px;background:#121623ee;border:1px solid var(--bd);border-radius:14px;box-shadow:0 6px 24px #0008;max-width:min(92vw,330px)}.snbar #snBar{display:flex}.stu #snBar{display:none!important}#snBar button{height:36px;min-width:36px;border-radius:9px;background:var(--s2);color:var(--tx);font-size:14px;font-weight:700}#snBar .n{background:var(--g);color:#05211d;padding:0 10px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #snL.pads{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}#snL.pads .snr{flex-direction:column;justify-content:center;min-height:86px;padding:8px;text-align:center;cursor:pointer;background:hsl(var(--h) 45% 24%);border-color:hsl(var(--h) 60% 45%)}#snL.pads .snr .gr,#snL.pads .snr button:not(.pb),#snL.pads .snr .pb{display:none}#snL.pads .snr .nm{flex:none;white-space:normal;font-size:15px;font-weight:700}#snL.pads .snr.cu{outline:2px solid var(--a)}#snL.pads .snr.pl{background:#14693f;outline:2px solid #2ee59d}</style>
 </head><body>
 <div id="app">
@@ -2179,7 +2179,7 @@ function draw(){const L=$s('snL');if(!L)return;const esc=s=>s.replace(/[&<>"]/g,
  const nx=items[cue],pl=paused?'▶':'⏸';
  $s('snN').textContent=nx?('▶ Next: '+(cue+1)+'. '+nx.name):'↺ Start again';$s('snP').textContent=pl;$s('snPads').classList.toggle('on',pads);
  $s('bN').textContent=nx?('▶ '+(cue+1)+'. '+nx.name):'↺ Again';$s('bP').textContent=pl;$s('bP').style.opacity=cur?1:.4;
- document.body.classList.toggle('snbar',bar&&items.length>0)}
+ document.body.classList.toggle('snbar',bar&&items.length>0&&!!cur)}
 function ui(){
  const L=$s('snL');
  L.onclick=async e=>{const r=e.target.closest('.snr');if(!r)return;let a=e.target.closest('[data-a]');a=a?a.dataset.a:(pads?'p':'');if(!a)return;const id=r.dataset.id,i=items.findIndex(c=>c.id===id);
