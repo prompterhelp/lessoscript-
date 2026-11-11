@@ -138,6 +138,8 @@ html body.stu.tbon .tb hr{display:none}
 @media(max-width:1100px){.top .btn{padding:6px 8px}.top .brand{display:none}}
 </style>
 <style>#snL{display:flex;flex-direction:column;gap:6px}.snr{position:relative;display:flex;align-items:center;gap:4px;padding:6px;border:1px solid var(--bd);border-radius:10px;background:var(--s2);overflow:hidden}.snr.cu{border-color:var(--a)}.snr.pl{border-color:#2ee59d;background:#12302a}.snr .gr{cursor:grab;color:var(--mu);padding:0 4px;touch-action:none}.snr .pb{flex:0 0 40px;height:40px;border-radius:50%;background:var(--g);color:#05211d;font-size:16px}.snr .nm{flex:1;min-width:0;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.snr button:not(.pb){width:26px;height:30px;color:var(--mu)}.snr i{position:absolute;left:0;bottom:0;height:3px;width:0;background:#2ee59d}#snd select{background:var(--s2);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:7px}</style>
+<style>#snBar{display:none;position:fixed;left:12px;bottom:12px;z-index:7;gap:6px;padding:6px;background:#121623ee;border:1px solid var(--bd);border-radius:14px;box-shadow:0 6px 24px #0008;max-width:min(92vw,460px)}.snbar #snBar{display:flex}.stu #snBar{display:none!important}#snBar button{height:44px;min-width:44px;border-radius:10px;background:var(--s2);color:var(--tx);font-size:16px;font-weight:700}#snBar .n{background:var(--g);color:#05211d;padding:0 14px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#snL.pads{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}#snL.pads .snr{flex-direction:column;justify-content:center;min-height:86px;padding:8px;text-align:center;cursor:pointer;background:hsl(var(--h) 45% 24%);border-color:hsl(var(--h) 60% 45%)}#snL.pads .snr .gr,#snL.pads .snr button:not(.pb),#snL.pads .snr .pb{display:none}#snL.pads .snr .nm{flex:none;white-space:normal;font-size:15px;font-weight:700}#snL.pads .snr.cu{outline:2px solid var(--a)}#snL.pads .snr.pl{background:#14693f;outline:2px solid #2ee59d}</style>
 </head><body>
 <div id="app">
  <div class="top"><div class="brand"><i></i>Stage</div><span class="mu" id="pg"></span><input type="number" id="gp" min="1" placeholder="Go to" title="Type page number, press Enter" style="width:74px;padding:6px 8px;border-radius:10px"><div class="sp"></div>
@@ -166,12 +168,16 @@ html body.stu.tbon .tb hr{display:none}
   <div class="pane" id="c"><b>Timer</b><div id="tpv" class="tpv">05:00</div><div class="mu">Preview: students see it large, top-centre</div><div class="row"><input type="number" id="tm" value="5" min="1" style="width:80px"><span class="mu">min</span><button class="btn pri" onclick="timer(+tm.value*60)">Start</button><button class="btn" onclick="timer(0)">Stop</button><button class="btn" onclick="timer(0);tm.value=5;tpv()">↺ Reset</button></div>
    <b>Pick a student</b><textarea id="nm" dir="auto" style="min-height:90px" placeholder="One name per line"></textarea><button class="btn pri" onclick="pickN()">🎲 Pick random</button>
    <b>Shortcuts</b><div class="mu">← → slides · P pen · H highlight · E erase · L laser · S spotlight · V move · B blank student · F fullscreen · Tab hide panels · Ctrl+Z undo · wheel / pinch zoom · double-click reset</div></div>  <div class="pane" id="snd"><div class="row"><select id="snSet" style="flex:1;min-width:0"></select><button class="btn" id="snNew" title="New lesson set">＋ Set</button></div>
-   <div class="row"><button class="btn pri" id="snN" style="flex:1;justify-content:center;padding:14px 10px;font-size:15px">▶ Next</button><button class="btn" id="snS" style="padding:14px 14px;background:#e11d48;border:0;color:#fff" title="Stop (M)">⏹</button></div>
-   <div class="row"><button class="btn" onclick="$('snF').click()">＋ Add sounds</button><input type="file" id="snF" multiple accept="audio/*,video/mp4,.mp3,.m4a,.mp4,.aac,.wav,.ogg,.opus" hidden><label class="mu" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="snA">Play all in a row</label><button class="btn" id="snClr" title="Delete all in this set">🗑</button></div>
+   <div class="row"><button class="btn pri" id="snN" style="flex:1;justify-content:center;padding:14px 10px;font-size:15px;min-width:0;overflow:hidden">▶ Next</button><button class="btn" id="snP" title="Pause / resume (K)" style="padding:14px 14px">⏸</button><button class="btn" id="snR" title="Repeat last clip (J)" style="padding:14px 14px">↺</button><button class="btn" id="snS" style="padding:14px 14px;background:#e11d48;border:0;color:#fff" title="Stop (M)">⏹</button></div>
+   <div class="row"><button class="btn" onclick="$('snF').click()">＋ Add sounds</button><input type="file" id="snF" multiple accept="audio/*,video/*,.mp3,.mpeg,.mpg,.mpga,.mp2,.m4a,.m4b,.mp4,.aac,.adts,.wav,.wave,.ogg,.oga,.opus,.webm,.weba,.flac,.aif,.aiff,.caf,.amr,.3gp,.3gpp,.wma,.mka" hidden><button class="btn" id="snPads" title="Big buttons for quick tapping">▦ Pads</button><button class="btn" id="snClr" title="Delete all in this set">🗑</button></div>
    <div class="row"><span class="mu">🔈</span><input type="range" id="snV" min="0" max="1" step="0.05" style="flex:1"></div>
-   <div id="snL"></div><div class="mu" style="font-size:12px">N = play next · M = stop · drag ⠿ or ▲▼ to arrange. Saved on this device only (your teacher screen plays the sound).</div></div>
+   <div class="row"><label class="mu" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="snA">Play all in a row, wait</label><input type="number" id="snG" min="0" max="30" step="0.5" style="width:64px"><span class="mu">sec between</span></div>
+   <label class="mu" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="snB">Show quick bar on the stage</label>
+   <div id="snL"></div>
+   <div class="row" style="border-top:1px solid var(--bd);padding-top:10px"><button class="btn" id="snBk" title="Save all sets and clips to one file">💾 Backup</button><button class="btn" onclick="$('snRF').click()" title="Load a backup file">📥 Restore</button><input type="file" id="snRF" accept=".lsounds" hidden></div>
+   <div class="mu" style="font-size:12px">N next · M stop · K pause · J repeat · drag ⠿ or ▲▼ to arrange. Saved on this device; use Backup to move them. The teacher screen plays the sound.</div></div>
 </aside>
-</div><div id="toast"></div><div id="md"><div class="mdc"><b>Show media to students</b><button class="btn" onclick="$('mf').click()">📁 Video or image from device</button><input type="file" id="mf" accept="video/*,image/*" hidden onchange="mFile(this.files[0]);this.value=''"><button class="btn pri" onclick="liveStart()">🖥 Show a website (share its browser tab)</button><div class="mu" style="font-size:12px">Open the site (e.g. quran.com/quraysh) in another tab, click here, pick that tab. It shows live here and on the student screen.</div><div class="row"><input type="text" id="mu" placeholder="Website, YouTube, video or image link (e.g. https://quran.com/quraysh)" style="flex:1"><button class="btn pri" onclick="mUrl()">Add</button></div><button class="btn" onclick="mDlg()">Cancel</button></div></div>
+</div><div id="snBar"><button id="bR" title="Repeat last (J)">↺</button><button id="bN" class="n">▶ Next</button><button id="bP" title="Pause (K)">⏸</button><button id="bS" title="Stop (M)">⏹</button></div><div id="toast"></div><div id="md"><div class="mdc"><b>Show media to students</b><button class="btn" onclick="$('mf').click()">📁 Video or image from device</button><input type="file" id="mf" accept="video/*,image/*" hidden onchange="mFile(this.files[0]);this.value=''"><button class="btn pri" onclick="liveStart()">🖥 Show a website (share its browser tab)</button><div class="mu" style="font-size:12px">Open the site (e.g. quran.com/quraysh) in another tab, click here, pick that tab. It shows live here and on the student screen.</div><div class="row"><input type="text" id="mu" placeholder="Website, YouTube, video or image link (e.g. https://quran.com/quraysh)" style="flex:1"><button class="btn pri" onclick="mUrl()">Add</button></div><button class="btn" onclick="mDlg()">Cancel</button></div></div>
 <script>
 function IT(){return /iPad|Android|Tablet/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform))}function PW(){return IT()?2600:4096}
 let SRC='<!doctype html>'+document.documentElement.outerHTML;let SW=null;const $=id=>document.getElementById(id),STU=location.hash==='#student'||window.name==='lsstudent',F=$('F');
@@ -2130,59 +2136,76 @@ btn.onclick=async()=>{if(on){dlg();return}const c=cfg();if(!c.url||!c.key){toast
 <script>
 /* 🔊 Sounds: instant voice-clip player for live classes (Web Audio = no delay, clips are decoded in advance and saved on this device) */
 (function(){if(STU)return;
-const DB='lessonsounds',AC=window.AudioContext||window.webkitAudioContext;let ctx,master,gain=+(localStorage.getItem('ls.snd.vol')||1);
-let items=[],setName=localStorage.getItem('ls.snd.set')||'Lesson 1',cue=0,cur=null,db,auto=localStorage.getItem('ls.snd.auto')==='1',dragId=null,tick=0;
+const DB='lessonsounds',AC=window.AudioContext||window.webkitAudioContext,LS=localStorage;let ctx,master,gain=+(LS.getItem('ls.snd.vol')||1);
+let items=[],setName=LS.getItem('ls.snd.set')||'Lesson 1',cue=0,cur=null,db,auto=LS.getItem('ls.snd.auto')==='1',gap=+(LS.getItem('ls.snd.gap')||0),pads=LS.getItem('ls.snd.pads')==='1',bar=LS.getItem('ls.snd.bar')!=='0',paused=0,last=null,gapT=0,dragId=null,tick=0;
 const bufs=new Map(),$s=id=>document.getElementById(id);
 const open=()=>db||(db=new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('clips',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}));
 const tx=async(m,f)=>{const d=await open();return new Promise((res,rej)=>{const t=d.transaction('clips',m),s=t.objectStore('clips');const r=f(s);t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error)})};
 const put=c=>tx('readwrite',s=>s.put(c)),del=id=>tx('readwrite',s=>s.delete(id)),all=()=>tx('readonly',s=>s.getAll());
-function audio(){if(!AC)return null;if(!ctx){ctx=new AC({latencyHint:'interactive'});master=ctx.createGain();master.gain.value=gain;master.connect(ctx.destination)}if(ctx.state!=='running')ctx.resume();return ctx}
-async function prep(c){if(bufs.has(c.id))return;const a=audio();c.big=c.blob.size>12e6;if(c.big||!a){bufs.set(c.id,null);return}
+function audio(){if(!AC)return null;if(!ctx){ctx=new AC({latencyHint:'interactive'});master=ctx.createGain();master.gain.value=gain;master.connect(ctx.destination)}if(ctx.state!=='running'&&!paused)ctx.resume();return ctx}
+async function prep(c){if(bufs.has(c.id))return;const a=audio();if(c.blob.size>12e6||!a){bufs.set(c.id,null);return}
  try{bufs.set(c.id,await a.decodeAudioData(await c.blob.arrayBuffer()))}catch(e){bufs.set(c.id,null)}} /* null = play through a normal audio element instead */
-function stop(fade){if(!cur)return;const x=cur;cur=null;try{if(x.src){const t=ctx.currentTime;x.g.gain.setTargetAtTime(0,t,fade?.02:.001);x.src.stop(t+(fade?.12:.01))}else{x.el.pause();URL.revokeObjectURL(x.url)}}catch(e){}x.done&&x.done(true);draw()}
-async function play(id,from){const i=items.findIndex(c=>c.id===id);if(i<0)return;const c=items[i];stop(true);const a=audio();let b=bufs.get(id);
+function stop(fade){clearTimeout(gapT);gapT=0;if(!cur){draw();return}const x=cur;cur=null;
+ try{if(paused&&x.src)ctx.resume();paused=0;if(x.src){const t=ctx.currentTime;x.g.gain.setTargetAtTime(0,t,fade?.02:.001);x.src.stop(t+(fade?.12:.01))}else{x.el.pause();URL.revokeObjectURL(x.url)}}catch(e){}paused=0;draw()}
+async function play(id){const i=items.findIndex(c=>c.id===id);if(i<0)return;const c=items[i];stop(true);const a=audio();let b=bufs.get(id);
  if(b===undefined){await prep(c);b=bufs.get(id)}
- const me={id,t0:performance.now()};cur=me;cue=Math.min(i+1,items.length);
- const end=()=>{if(cur!==me)return;cur=null;if(auto&&cue<items.length){play(items[cue].id)}else draw()};
+ const me={id,t0:performance.now()};cur=me;last=id;cue=Math.min(i+1,items.length);
+ const end=()=>{if(cur!==me)return;cur=null;paused=0;if(auto&&cue<items.length){const nid=items[cue].id;if(gap>0)gapT=setTimeout(()=>{gapT=0;play(nid)},gap*1000);else play(nid)}draw()};
  if(b&&a){const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.connect(g);g.connect(master);me.src=s;me.g=g;me.dur=b.duration;s.onended=end;s.start(0)}
  else{const url=URL.createObjectURL(c.blob),el=new Audio(url);el.volume=Math.min(1,gain);me.el=el;me.url=url;el.onended=()=>{URL.revokeObjectURL(url);end()};el.onloadedmetadata=()=>me.dur=el.duration;try{await el.play()}catch(e){toast('Tap again to allow sound');cur=null}}
  draw();loop()}
-function next(){if(!items.length)return toast('No sounds yet');if(cue>=items.length){cue=0}play(items[cue].id)}
-function loop(){cancelAnimationFrame(tick);const f=()=>{const bar=document.querySelector('.snr.pl i');if(cur&&bar){const e=cur.src?ctx.currentTime-0:0;const t=(performance.now()-cur.t0)/1000;const d=cur.dur||(cur.el&&cur.el.duration)||0;bar.style.width=(d?Math.min(100,(cur.el&&!cur.src?cur.el.currentTime:t)/d*100):0)+'%'}if(cur)tick=requestAnimationFrame(f)};f()}
-const nice=n=>n.replace(/\.[^.]+$/,'').replace(/[_]+/g,' ').trim();
+function next(){if(!items.length)return toast('No sounds yet');if(cue>=items.length)cue=0;play(items[cue].id)}
+function repeat(){if(last&&items.some(c=>c.id===last))play(last);else toast('Nothing to repeat yet')}
+function pause(){if(!cur)return;if(!paused){paused=1;cur.pt=performance.now();if(cur.src)ctx.suspend();else cur.el.pause()}else{paused=0;cur.t0+=performance.now()-cur.pt;if(cur.src)ctx.resume();else cur.el.play().catch(()=>{})}draw()}
+function loop(){cancelAnimationFrame(tick);const f=()=>{const b=document.querySelector('.snr.pl i');if(cur&&b){const d=cur.dur||(cur.el&&cur.el.duration)||0,t=cur.el&&!cur.src?cur.el.currentTime:((paused?cur.pt:performance.now())-cur.t0)/1000;b.style.width=(d?Math.min(100,t/d*100):0)+'%'}if(cur)tick=requestAnimationFrame(f)};f()}
+const nice=n=>n.replace(/\.[^.]+$/,'').replace(/_+/g,' ').trim();
 async function load(){items=(await all()).filter(c=>c.set===setName).sort((a,b)=>a.order-b.order);draw();for(const c of items)await prep(c);draw()}
-async function add(files){const a=audio();let n=0;const base=items.length?Math.max(...items.map(c=>c.order))+1:0;
- const fs=[...files].filter(f=>/^(audio|video)\//.test(f.type)||/\.(mp3|m4a|mp4|aac|wav|ogg|opus|webm|flac)$/i.test(f.name)).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+async function add(files){audio();let n=0;const base=items.length?Math.max(...items.map(c=>c.order))+1:0;
+ const fs=[...files].filter(f=>/^(audio|video)\//.test(f.type)||/\.(mp3|mpeg|mpg|mpga|mp2|m4a|m4b|mp4|aac|adts|wav|wave|ogg|oga|opus|webm|weba|flac|aif|aiff|caf|amr|3gp|3gpp|wma|mka)$/i.test(f.name)).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
  for(const f of fs){const c={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),set:setName,name:nice(f.name),order:base+n++,blob:f,size:f.size};await put(c);items.push(c);toast('Loading '+n+' / '+fs.length);await prep(c);draw()}
  if(fs.length)toast(fs.length+' sound'+(fs.length>1?'s':'')+' ready');try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}}
 async function saveOrder(){for(let i=0;i<items.length;i++){items[i].order=i;await put(items[i])}}
 async function move(id,to){const i=items.findIndex(c=>c.id===id);if(i<0||to<0||to>=items.length)return;const [c]=items.splice(i,1);items.splice(to,0,c);draw();await saveOrder()}
-async function sets(){return [...new Set([...(await all()).map(c=>c.set),setName])].sort()}
-async function drawSets(){const s=$s('snSet');if(!s)return;s.innerHTML='';(await sets()).forEach(n=>{const o=document.createElement('option');o.textContent=n;o.selected=n===setName;s.appendChild(o)})}
+async function drawSets(){const s=$s('snSet');if(!s)return;const names=[...new Set([...(await all()).map(c=>c.set),setName])].sort();s.innerHTML='';names.forEach(n=>{const o=document.createElement('option');o.textContent=n;o.selected=n===setName;s.appendChild(o)})}
+/* backup = one .lsounds file (header + the audio files), no libraries needed */
+async function backup(){const a=await all();if(!a.length)return toast('Nothing to back up');const head=new TextEncoder().encode(JSON.stringify({v:1,clips:a.map(c=>({id:c.id,set:c.set,name:c.name,order:c.order,size:c.blob.size,type:c.blob.type}))})),len=new Uint8Array(4);new DataView(len.buffer).setUint32(0,head.length);
+ const u=URL.createObjectURL(new Blob([len,head,...a.map(c=>c.blob)],{type:'application/octet-stream'})),l=document.createElement('a');l.href=u;l.download='lessoscript-sounds-'+new Date().toISOString().slice(0,10)+'.lsounds';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),30000);toast(a.length+' sounds saved to a file')}
+async function restore(f){try{const dv=new DataView(await f.slice(0,4).arrayBuffer()),n=dv.getUint32(0),h=JSON.parse(new TextDecoder().decode(await f.slice(4,4+n).arrayBuffer()));let off=4+n;
+ for(const m of h.clips){await put({id:m.id,set:m.set,name:m.name,order:m.order,size:m.size,blob:f.slice(off,off+m.size,m.type)});off+=m.size}
+ toast(h.clips.length+' sounds restored');await drawSets();await load()}catch(e){toast('This is not a sounds backup file')}}
 function draw(){const L=$s('snL');if(!L)return;const esc=s=>s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
- L.innerHTML=items.length?items.map((c,i)=>`<div class="snr${cur&&cur.id===c.id?' pl':''}${i===cue&&!(cur&&cur.id===c.id)?' cu':''}" draggable="true" data-id="${c.id}"><span class="gr" title="Drag to reorder">⠿</span><button class="pb" data-a="p">${cur&&cur.id===c.id?'⏹':'▶'}</button><span class="nm" data-a="p"><b>${i+1}.</b> ${esc(c.name)}${bufs.get(c.id)===undefined?' <em>…</em>':''}</span><button data-a="u" title="Move up">▲</button><button data-a="d" title="Move down">▼</button><button data-a="r" title="Rename">✎</button><button data-a="x" title="Delete">✕</button><i></i></div>`).join(''):'<div class="mu">Add your voice files (mp3, m4a, mp4) and they will be ready to play instantly. They stay saved on this device.</div>';
- const nx=items[cue];$s('snN').textContent=nx?('▶ Next: '+(cue+1)+'. '+nx.name):'↺ Start again';
- const tb=$s('snTb');if(tb)tb.classList.toggle('on',!!cur)}
+ L.className=pads?'pads':'';
+ L.innerHTML=items.length?items.map((c,i)=>`<div class="snr${cur&&cur.id===c.id?' pl':''}${i===cue&&!(cur&&cur.id===c.id)?' cu':''}" style="--h:${(i*47)%360}" draggable="${!pads}" data-id="${c.id}"><span class="gr" title="Drag to reorder">⠿</span><button class="pb" data-a="p">${cur&&cur.id===c.id?'⏹':'▶'}</button><span class="nm" data-a="p"><b>${i+1}.</b> ${esc(c.name)}${bufs.get(c.id)===undefined?' <em>…</em>':''}</span><button data-a="u" title="Move up">▲</button><button data-a="d" title="Move down">▼</button><button data-a="r" title="Rename">✎</button><button data-a="x" title="Delete">✕</button><i></i></div>`).join(''):'<div class="mu">Add your voice files (mp3, m4a, mp4) and they will be ready to play instantly. They stay saved on this device.</div>';
+ const nx=items[cue],pl=paused?'▶':'⏸';
+ $s('snN').textContent=nx?('▶ Next: '+(cue+1)+'. '+nx.name):'↺ Start again';$s('snP').textContent=pl;$s('snPads').classList.toggle('on',pads);
+ $s('bN').textContent=nx?('▶ '+(cue+1)+'. '+nx.name):'↺ Again';$s('bP').textContent=pl;$s('bP').style.opacity=cur?1:.4;
+ document.body.classList.toggle('snbar',bar&&items.length>0)}
 function ui(){
  const L=$s('snL');
- L.onclick=async e=>{const r=e.target.closest('.snr'),a=e.target.closest('[data-a]');if(!r||!a)return;const id=r.dataset.id,i=items.findIndex(c=>c.id===id);
-  if(a.dataset.a==='p'){cur&&cur.id===id?stop(true):play(id)}
-  else if(a.dataset.a==='u')move(id,i-1);else if(a.dataset.a==='d')move(id,i+1);
-  else if(a.dataset.a==='r'){const n=prompt('Name',items[i].name);if(n&&n.trim()){items[i].name=n.trim();put(items[i]);draw()}}
-  else if(a.dataset.a==='x'&&confirm('Delete "'+items[i].name+'"?')){if(cur&&cur.id===id)stop();items.splice(i,1);bufs.delete(id);await del(id);if(cue>items.length)cue=items.length;draw()}};
+ L.onclick=async e=>{const r=e.target.closest('.snr');if(!r)return;let a=e.target.closest('[data-a]');a=a?a.dataset.a:(pads?'p':'');if(!a)return;const id=r.dataset.id,i=items.findIndex(c=>c.id===id);
+  if(a==='p'){cur&&cur.id===id&&!pads?stop(true):play(id)}
+  else if(pads)return;
+  else if(a==='u')move(id,i-1);else if(a==='d')move(id,i+1);
+  else if(a==='r'){const n=prompt('Name',items[i].name);if(n&&n.trim()){items[i].name=n.trim();put(items[i]);draw()}}
+  else if(a==='x'&&confirm('Delete "'+items[i].name+'"?')){if(cur&&cur.id===id)stop();items.splice(i,1);bufs.delete(id);await del(id);if(cue>items.length)cue=items.length;draw()}};
  L.ondragstart=e=>{const r=e.target.closest('.snr');if(r){dragId=r.dataset.id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','s')}};
  L.ondragover=e=>{if(dragId)e.preventDefault()};
  L.ondrop=e=>{const r=e.target.closest('.snr');if(!dragId||!r)return;e.preventDefault();e.stopPropagation();const to=items.findIndex(c=>c.id===r.dataset.id);move(dragId,to);dragId=null};
  const P=$s('snd');['dragover','drop'].forEach(t=>P.addEventListener(t,e=>{if(dragId||!(e.dataTransfer&&[...e.dataTransfer.types].includes('Files')))return;e.preventDefault();if(t==='drop'){e.stopPropagation();add(e.dataTransfer.files)}}));
  $s('snF').onchange=e=>{add(e.target.files);e.target.value=''};
- $s('snN').onclick=next;$s('snS').onclick=()=>stop(true);
- $s('snV').value=gain;$s('snV').oninput=e=>{gain=+e.target.value;localStorage.setItem('ls.snd.vol',gain);if(master)master.gain.value=gain;if(cur&&cur.el)cur.el.volume=Math.min(1,gain)};
- $s('snA').checked=auto;$s('snA').onchange=e=>{auto=e.target.checked;localStorage.setItem('ls.snd.auto',auto?1:0)};
- $s('snSet').onchange=async e=>{stop();setName=e.target.value;localStorage.setItem('ls.snd.set',setName);cue=0;await load()};
- $s('snNew').onclick=async()=>{const n=prompt('New lesson set name');if(n&&n.trim()){stop();setName=n.trim();localStorage.setItem('ls.snd.set',setName);items=[];cue=0;await drawSets();draw()}};
+ $s('snRF').onchange=e=>{if(e.target.files[0])restore(e.target.files[0]);e.target.value=''};
+ $s('snBk').onclick=backup;
+ $s('snN').onclick=next;$s('snS').onclick=()=>stop(true);$s('snP').onclick=pause;$s('snR').onclick=repeat;
+ $s('bN').onclick=next;$s('bS').onclick=()=>stop(true);$s('bP').onclick=pause;$s('bR').onclick=repeat;
+ $s('snPads').onclick=()=>{pads=!pads;LS.setItem('ls.snd.pads',pads?1:0);draw()};
+ $s('snV').value=gain;$s('snV').oninput=e=>{gain=+e.target.value;LS.setItem('ls.snd.vol',gain);if(master)master.gain.value=gain;if(cur&&cur.el)cur.el.volume=Math.min(1,gain)};
+ $s('snA').checked=auto;$s('snA').onchange=e=>{auto=e.target.checked;LS.setItem('ls.snd.auto',auto?1:0)};
+ $s('snG').value=gap;$s('snG').oninput=e=>{gap=Math.max(0,Math.min(30,+e.target.value||0));LS.setItem('ls.snd.gap',gap)};
+ $s('snB').checked=bar;$s('snB').onchange=e=>{bar=e.target.checked;LS.setItem('ls.snd.bar',bar?1:0);draw()};
+ $s('snSet').onchange=async e=>{stop();setName=e.target.value;LS.setItem('ls.snd.set',setName);cue=0;last=null;await load()};
+ $s('snNew').onclick=async()=>{const n=prompt('New lesson set name');if(n&&n.trim()){stop();setName=n.trim();LS.setItem('ls.snd.set',setName);items=[];cue=0;last=null;await drawSets();draw()}};
  $s('snClr').onclick=async()=>{if(!items.length||!confirm('Delete all sounds in "'+setName+'"?'))return;stop();for(const c of items){bufs.delete(c.id);await del(c.id)}items=[];cue=0;await drawSets();draw()};
- document.addEventListener('keydown',e=>{if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName)||e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();if(k==='n'){e.preventDefault();next()}else if(k==='m'){stop(true)}});
- /* wake the audio engine on the first tap anywhere so the very first clip is instant */
+ document.addEventListener('keydown',e=>{if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName)||e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key.toLowerCase();if(k==='n'){e.preventDefault();next()}else if(k==='m')stop(true);else if(k==='k')pause();else if(k==='j')repeat()});
  const wake=()=>{audio();document.removeEventListener('pointerdown',wake,true)};document.addEventListener('pointerdown',wake,true);
  window.sndOpen=()=>{if(!document.body.classList.contains('po'))tp();document.querySelector('.tabs button[data-p="snd"]').click()};
  drawSets().then(load)}
