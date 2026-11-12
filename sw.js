@@ -1,5 +1,5 @@
 /* Service worker: installable + offline. Pages load from the network but fall back to cache fast; CDN libraries are cached so Stage opens quickly */
-const CACHE = 'lesson-prompter-v46';
+const CACHE = 'lesson-prompter-v49';
 const ASSETS = ['./', './index.html', './stage.html', './manifest.json', './icon-192.png', './icon-512.png'];
 const CDN_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.jsdelivr.net'];
 const CDN_WARM = ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'];
