@@ -4933,11 +4933,12 @@ function ctBuild(){
 }
 function ctPrint(){
   const all=[].concat.apply([],CT_DES.map(d=>[rpFam(d.f),rpFam(d.af)].concat(ctImpFonts(d)))).concat(ctFonts(CT)).filter(Boolean), u=rpFontURL(all);
-  pvPrintDoc('<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+ctImpCSS()+'@page{size:A4 landscape;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;width:1123px}</style></head><body>'+pvExport(ctHTML(CT))+'</body></html>');
+  pvPrintDoc('<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+ctImpCSS()+'@page{size:A4 landscape;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;width:1123px}</style></head><body>'+pvExport(ctHTML(CT),0,'cert')+'</body></html>');
 }
 async function ctPng(){
   window.RP_XF=ctFonts(CT); window.RP_XCSS=CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+ctImpCSS(); window.RP_XPAD=0;
-  try{ await rpToPng(ctHTML(CT),1123,'Certificate_'+(CT.name||'student')); } finally { window.RP_XF=null; window.RP_XCSS=''; window.RP_XPAD=null; }
+  window.PV_FORCE='cert';
+  try{ await rpToPng(ctHTML(CT),1123,'Certificate_'+(CT.name||'student')); } finally { window.PV_FORCE=null; window.RP_XF=null; window.RP_XCSS=''; window.RP_XPAD=null; }
 }
 (function(){ const f=rpTab; rpTab=function(n){ const r=f.apply(this,arguments); if(n==='cert'){ ctBuild(); } return r; }; })();
 
@@ -5171,7 +5172,7 @@ function pvApply(root, S, mark, bw){ let n = 0; const W = bw || (root.firstEleme
 function ctFitMid(ct){ const m = ct && ct.querySelector('.ct-mid'); if(!m) return; m.style.transform = ''; const kids = [].slice.call(m.children); if(!kids.length) return;
   const top = Math.min.apply(null, kids.map(c => c.offsetTop)), bot = Math.max.apply(null, kids.map(c => c.offsetTop + c.offsetHeight)), need = bot - top + 10, k = m.clientHeight / need;
   if(k < .995){ m.style.transformOrigin = 'center center'; m.style.transform = 'scale(' + Math.max(.6, k).toFixed(3) + ')'; } }
-function pvExport(html, w){ try{ const d = document.createElement('div'); d.innerHTML = html; const key = d.querySelector('.ct-in') ? 'cert' : d.querySelector('.rc') ? 'report' : ''; if(!key) return html;
+function pvExport(html, w, force){ try{ const d = document.createElement('div'); d.innerHTML = html; const key = force || (d.querySelector('.ct-in') ? 'cert' : d.querySelector('.rc') ? 'report' : ''); if(!key) return html;
   const S = PVE.S[key]; if(key === 'report' && !pvCount(S)) return html;
   pvApply(d, S, false, key === 'cert' ? 1123 : (w ? w - 28 : 560));
   if(key === 'cert'){ d.style.cssText = 'position:fixed;left:-99999px;top:0;width:1123px'; document.body.appendChild(d); try{ ctFitMid(d.querySelector('.ct')); }finally{ d.remove(); d.style.cssText = ''; } }
@@ -5281,7 +5282,7 @@ document.addEventListener('click', e => { const r = e.target.closest('[data-pvre
 (function(){ const f = rpPreview; rpPreview = function(){ const r = f.apply(this, arguments); pvAfter('rpPreview','report'); return r; }; })();
 (function(){ const f = rpDesignPv; rpDesignPv = function(){ const r = f.apply(this, arguments); pvAfter('rpDesignPv','design'); return r; }; })();
 (function(){ const f = ctRender; ctRender = function(){ const r = f.apply(this, arguments); pvAfter('ctPv','cert'); return r; }; })();
-(function(){ const f = rpToPng; rpToPng = function(html, w, name, text){ return f.call(this, pvExport(html, w), w, name, text); }; })();
+(function(){ const f = rpToPng; rpToPng = function(html, w, name, text){ return f.call(this, pvExport(html, w, window.PV_FORCE), w, name, text); }; })();
 (function(){ const f = rpPrintDoc; rpPrintDoc = function(t, html, css){ return f.call(this, t, pvExport(html), css); }; })();
 pvAfter('rpPreview','report'); pvAfter('rpDesignPv','design'); pvAfter('ctPv','cert');
 
