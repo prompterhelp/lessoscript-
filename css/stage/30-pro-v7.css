@@ -1,0 +1,5 @@
+#lkd{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100000;display:flex;align-items:center;justify-content:center}
+#lkd .bx{background:#141a2c;color:#fff;border-radius:16px;padding:18px;width:min(560px,92vw);font:14px system-ui;display:flex;flex-direction:column;gap:8px}
+#lkd textarea,#lkd input{width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #334;background:#0d1120;color:#fff;padding:8px;font:13px system-ui}
+#lkd small{opacity:.7;line-height:1.4}#lkd .r{display:flex;gap:8px;justify-content:flex-end}
+.tb .gps{width:44px;height:28px;font-size:12px;text-align:center;border-radius:8px;padding:0 2px}

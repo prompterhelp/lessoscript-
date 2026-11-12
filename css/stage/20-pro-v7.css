@@ -1,0 +1,18 @@
+/* ===== Words: clean, professional cards ===== */
+#ovw{background:radial-gradient(1100px 620px at 50% -8%,#1b2750 0%,#0a0e1c 62%,#05070e 100%)!important}
+#ovw .wvin,#wprev .wvin{gap:calc(var(--u)*.85)!important;max-width:min(94%,calc(var(--u)*var(--cols,2)*19))!important}
+#ovw .wvin[data-n="1"],#wprev .wvin[data-n="1"]{max-width:min(92%,calc(var(--u)*22))!important}
+#ovw .wc,#wprev .wc{position:relative;overflow:hidden;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:0!important;
+ padding:calc(var(--u)*1.4) calc(var(--u)*1.1)!important;border-radius:calc(var(--u)*1.1)!important;
+ background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.03))!important;
+ border:1px solid rgba(255,255,255,.13)!important;
+ box-shadow:0 calc(var(--u)*1.1) calc(var(--u)*3) rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)!important}
+#ovw .wc::after,#wprev .wc::after{left:0!important;right:0!important;top:0!important;height:calc(var(--u)*.14)!important;border-radius:0!important;background:linear-gradient(90deg,transparent,#5eead4 30%,#a78bfa 70%,transparent)!important;opacity:.85}
+#ovw .wc::before,#wprev .wc::before{top:calc(var(--u)*.6)!important;inset-inline-start:calc(var(--u)*.8)!important;font:600 max(9px,calc(var(--u)*.5)) Inter,sans-serif!important;color:rgba(255,255,255,.3)!important}
+#ovw .wt,#wprev .wt{font-family:Inter,Amiri,'Noto Naskh Arabic','Traditional Arabic','Segoe UI',serif!important;font-weight:700!important;font-size:calc(var(--u)*2.6)!important;line-height:1.65!important;
+ color:#fff!important;background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;
+ text-shadow:0 0 calc(var(--u)*1.6) rgba(94,234,212,.28);text-align:center;padding:0!important;max-width:100%;overflow-wrap:anywhere}
+#ovw .wd,#wprev .wd{display:block;width:38%;height:1px;margin:calc(var(--u)*.7) 0 calc(var(--u)*.65);background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent)}
+#ovw .wm,#wprev .wm{font-family:Inter,Amiri,'Noto Naskh Arabic','Segoe UI',sans-serif!important;font-weight:500!important;font-size:calc(var(--u)*1.15)!important;line-height:1.5!important;
+ color:#cfe0ff!important;width:auto!important;max-width:100%;padding:0!important;border:0!important;text-align:center!important}
+#ovw .wm small,#wprev .wm small{display:inline-block;margin-top:calc(var(--u)*.55);padding:.18em .85em;border-radius:99px;font-size:.68em!important;font-weight:600;color:#9fe9dd!important;background:rgba(94,234,212,.1)!important;border:1px solid rgba(94,234,212,.22)!important}

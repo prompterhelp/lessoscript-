@@ -1,0 +1,30 @@
+/* stage follows the app theme (light, sepia, paper, blue, dark, night, contrast...) */
+html.lp-th{color-scheme:var(--lp-cs,dark)}
+html.lp-th body,html.lp-th body #col,html.lp-th body #stage,html.lp-th body #app{background:var(--bg)!important;color:var(--tx)}
+html.lp-th body .top,html.lp-th body #dtabs,html.lp-th body #rail,html.lp-th body #panel{background:var(--s1)!important;border-color:var(--bd)!important;color:var(--tx)}
+html.lp-th body .brand{color:var(--tx)}
+html.lp-th body .dt{background:var(--s2)!important;color:var(--mu)!important}
+html.lp-th body .dt.on{background:var(--bg)!important;color:var(--tx)!important}
+html.lp-th body #tlBtn{background:var(--s2)!important;color:var(--tx)!important;box-shadow:-10px 0 10px var(--s1)}
+html.lp-th body #tlPop,html.lp-th body #tb .tbpop{background:color-mix(in srgb,var(--s1) 97%,transparent)!important;border-color:var(--bd)!important;color:var(--tx)}
+html.lp-th body #tlPop button{color:var(--tx)}
+html.lp-th body #tlPop button.on{background:var(--g)!important;color:var(--oa)!important}
+html.lp-th body .tgrp,html.lp-th body #pg,html.lp-th body #gp{background:var(--s2)!important;border-color:var(--bd)!important;color:var(--tx)}
+html.lp-th body .top .btn,html.lp-th body .top button{color:var(--tx)}
+html.lp-th body .btn.pri,html.lp-th body .obar .pri,html.lp-th body .top .btn.pri{background:var(--g)!important;color:var(--oa)!important}
+html.lp-th body #tb,html.lp-th body .top #tb{background:color-mix(in srgb,var(--s2) 78%,transparent)!important;border-color:var(--bd)!important;box-shadow:none}
+html.lp-th body #tb button:not(.sw){color:var(--mu)!important}
+html.lp-th body #tb button:not(.sw):hover{color:var(--tx)!important;background:color-mix(in srgb,var(--tx) 10%,transparent)!important}
+html.lp-th body #tb button:not(.sw).on{color:var(--a)!important;background:color-mix(in srgb,var(--a) 20%,transparent)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a) 55%,transparent)}
+html.lp-th body #tbMin,html.lp-th body .top #tbMin{background:color-mix(in srgb,var(--s2) 85%,transparent)!important;border-color:var(--bd)!important;color:var(--tx)!important}
+html.lp-th body #cnt,html.lp-th body #tmr,html.lp-th body #mbar:not(.yb){background:color-mix(in srgb,var(--s1) 88%,transparent)!important;color:var(--tx);border-color:var(--bd)}
+html.lp-th body #mbar button{background:var(--s2);color:var(--tx)}
+html.lp-th body #rbar{background:color-mix(in srgb,var(--s1) 82%,transparent)!important;box-shadow:0 0 0 1px var(--bd),0 12px 32px rgba(0,0,0,.25)!important}
+html.lp-th body #rbar button:hover{background:color-mix(in srgb,var(--tx) 12%,transparent)!important}
+html.lp-th body #empty,html.lp-th body #empty h1{color:var(--tx)}
+html.lp-th body .mu,html.lp-th body .mdc{color:var(--mu)}
+html.lp-th body .mdc{background:var(--s1);border-color:var(--bd)}
+html.lp-th body .th{background:var(--s2)}
+html.lp-th body ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--mu) 55%,transparent);border-radius:8px}
+/* student screen stays as the teacher sends it */
+html.lp-th.lp-stu body .top{background:revert}

@@ -1,0 +1,5 @@
+#tb button svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#tb button:not(.sw){filter:none!important;color:#b9c2e0}
+#tb button:not(.sw):hover{color:#fff}
+#tb button:not(.sw).on{color:#5eead4}
+#tb button[data-t=laser].on{color:#ff5d7a}

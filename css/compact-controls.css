@@ -1,0 +1,4 @@
+body.split .controls{padding-block:3px;gap:6px}
+body.split .back,body.split .go{min-height:34px;font-size:.92rem;border-radius:10px;flex-direction:row}
+body.split .go .sub{display:none}
+body:not(.split):has(#view-stage:not([hidden])) .controls{display:none}

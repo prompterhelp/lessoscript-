@@ -1,0 +1,6 @@
+#ovw{padding:3.5vmin!important}
+#ovw .wvin,#wprev .wvin{max-height:none!important;overflow:visible!important;width:100%!important;max-width:min(96%,calc(var(--u)*var(--cols,2)*17))!important;gap:calc(var(--u)*.55)!important}
+#ovw .wc,#wprev .wc{padding:calc(var(--u)*.8) calc(var(--u)*.7)!important;border-radius:min(calc(var(--u)*.7),30px)!important;gap:calc(var(--u)*.3)!important}
+#ovw .wt,#wprev .wt{font-size:calc(var(--u)*2)!important;line-height:1.45!important;padding:.06em 0 .12em!important}
+#ovw .wm,#wprev .wm{font-size:calc(var(--u)*.95)!important;line-height:1.4!important;padding-top:calc(var(--u)*.35)!important}
+#ovw .wc::before,#wprev .wc::before{font-size:max(9px,calc(var(--u)*.5))!important}

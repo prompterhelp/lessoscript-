@@ -1,0 +1,38 @@
+/* ===== split: no overlap, each pane is its own scroller, sticky bars pinned to the pane top ===== */
+body.split .top{position:relative!important;top:auto!important;z-index:8}
+body.split .tabs{position:relative;z-index:9;flex:none}
+body.split main{min-height:0;flex:1 1 0}
+body.split main>.view.pA,body.split main>.view.pB{isolation:isolate;contain:layout paint;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+body.split .ptabs{top:0!important;z-index:8!important;background:var(--surface-2)!important;margin-bottom:8px!important}
+body.split .toolbar,body.split .rp-tabs{top:var(--ptH,54px)!important;z-index:7}
+body.split .toolbar{background:var(--bg)}
+body.split main>.view.pA,body.split main>.view.pB{padding-inline:8px!important;padding-bottom:14px!important;box-sizing:border-box}
+body.split #view-reports.rp-wide .rp-pane:not([hidden])>.rp-pvcol{top:calc(var(--ptH,54px) + 56px)!important}
+body.split .rp-pvsticky{position:static!important}
+body.split .rp-tabs{z-index:4}
+/* ===== one standard box: same width, padding, radius, gap on every tab ===== */
+:root{--box-w:1040px;--box-pad:16px;--box-r:var(--r,14px);--box-gap:14px}
+#view-reports,#view-script,#view-notes,#view-history,#view-setup{width:100%;max-width:var(--box-w);margin-inline:auto;box-sizing:border-box}
+body.split #view-reports,body.split #view-script,body.split #view-notes,body.split #view-history,body.split #view-setup{max-width:none}
+#view-reports.rp-wide{max-width:none}
+#view-reports .rp-card,#view-script .rp-card,#view-notes .rp-card,#view-history .rp-card,#view-setup .rp-card,
+#view-notes .report,#view-notes .stats,#view-notes .banner,#view-history .hist-item,#view-history .banner,#view-setup .banner{
+ box-sizing:border-box;width:100%;max-width:var(--box-w);margin-inline:auto;margin-top:var(--box-gap);padding:var(--box-pad);border-radius:var(--box-r)}
+#view-reports .rp-pane:not(:has(>.rp-pvcol))>.rp-card{max-width:var(--box-w)}
+#view-reports.rp-wide .rp-pane>.rp-card{max-width:none}
+#view-reports .rp-card h3,#view-script .rp-card h3,#view-notes h2,#view-history h2,#view-setup h2,#view-script .rp-card summary{font-size:.98rem;font-weight:700;margin:0 0 12px}
+/* ===== split pane tab bar: all 7 tabs reachable (icons, active shows label), hides while scrolling down ===== */
+body.split .ptabs{overflow:visible!important;transition:transform .22s ease,opacity .22s ease;gap:2px}
+body.split .ptabs button{flex:0 0 auto;padding:7px 11px;min-width:0}
+body.split .ptabs button.on{flex:1 1 auto}
+body.split .ptabs button:not(.on) span{display:none}
+body.split .view.ptoff>.ptabs{transform:translateY(-140%);opacity:0;pointer-events:none}
+body.split .view.ptoff .toolbar,body.split .view.ptoff .rp-tabs{top:6px!important}
+/* stage pane: iframe fits under the pane tab bar so its bottom tools are never cut off */
+body.split #view-stage.pA,body.split #view-stage.pB{padding-bottom:0!important;overflow:hidden!important}
+body.split #view-stage.pA,body.split #view-stage.pB{display:flex!important;flex-direction:column}
+body.split #view-stage.pA>.ptabs,body.split #view-stage.pB>.ptabs{flex:none}
+body.split #view-stage.pA iframe,body.split #view-stage.pB iframe{flex:1 1 0;height:auto!important;min-height:0!important}
+/* ===== tablet: no accidental page scroll / zoom drift ===== */
+html,body{overscroll-behavior:none}
+#view-stage,#view-stage iframe{touch-action:none;overscroll-behavior:contain}

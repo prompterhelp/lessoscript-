@@ -1,0 +1,1 @@
+(function(){setInterval(function(){if(document.hidden)return;document.querySelectorAll('.ptabs button.on').forEach(function(b){if(b._lp)return;b._lp=1;try{b.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}})},3000)})();

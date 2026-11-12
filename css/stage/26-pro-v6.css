@@ -1,0 +1,9 @@
+.stu #rtog,.stu #hdl{display:none!important}
+.stu.tbon .tb{display:flex!important;flex-direction:column;position:fixed;right:6px;left:auto;top:50%;bottom:auto;transform:translateY(-50%);max-height:94vh;max-width:none;overflow-y:auto;overflow-x:hidden;padding:4px;gap:2px;scrollbar-width:none}
+.stu .tb::-webkit-scrollbar{display:none}
+.stu.tbon .tb hr{width:22px;height:1px;margin:2px 0}
+.stu.tbon .tb button{min-width:30px!important;height:30px!important;font-size:15px!important}
+.stu.tbon .tb .sw{width:18px!important;min-width:18px!important;height:18px!important}
+.stu.tbon .tb .asec{width:34px}.stu.tbon .tb #sz{width:34px}
+.stu #rbar{left:6px!important;right:auto!important;top:50%}
+.stu #rbar button::after{display:none}

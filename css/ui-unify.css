@@ -1,0 +1,35 @@
+/* ===== unified calm theme for every tab (uses the active theme colours) ===== */
+:root{--r:14px;--r-sm:10px;--sh:0 1px 2px rgba(0,0,0,.12),0 8px 24px -12px rgba(0,0,0,.35)}
+body{letter-spacing:.005em}
+.tabs{gap:4px;padding:4px;margin:10px 0 6px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
+.tab{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 8px!important;border:0!important;border-radius:12px;font-weight:600;font-size:.88rem!important;color:var(--muted);transition:background .15s,color .15s,box-shadow .15s}
+.tab:hover{color:var(--fg);background:color-mix(in srgb,var(--surface) 55%,transparent)}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:var(--sh)}
+.tab[aria-selected="true"] .ic{color:var(--accent)}
+.tab[data-sec="1"]{border:0!important}
+.prog{height:3px;margin-top:8px}.strip{height:16px!important;border-radius:8px;overflow:hidden;margin-top:6px}
+.btn,.btn.small,.btn.icon{border-radius:12px;min-height:36px;border:1px solid var(--line);background:var(--surface);font-weight:600;gap:7px;box-shadow:none;transition:background .15s,border-color .15s,transform .1s}
+.btn:hover{background:var(--surface-2);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.07);background:var(--accent)}
+.chip,.rp-chip{border-radius:999px;font-weight:600;padding:6px 14px;background:var(--surface);border:1px solid var(--line);transition:background .15s}
+.chip:hover,.rp-chip:hover{background:var(--surface-2)}
+.rp-card,details.rp-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-top:14px;box-shadow:var(--sh)}
+.rp-card summary{font-weight:700;list-style:none;display:flex;align-items:center;gap:8px;cursor:pointer}
+.rp-card summary::-webkit-details-marker{display:none}
+.rp-card summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;flex:none}
+.rp-card[open]>summary::before{transform:rotate(45deg)}
+.rp-card h3{font-size:.98rem;font-weight:700;margin:0 0 12px}
+.rp-card h3 i{border-radius:9px;background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}
+.field{border-radius:12px;margin-top:10px;padding:10px 14px;border:1px solid var(--line);transition:border-color .15s,box-shadow .15s}
+.field:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.row-actions,.rp-grid,.rp-chips,.chips,.filters{gap:8px}
+.help,.hint{color:var(--muted);line-height:1.5}
+.view{padding-top:4px}.view>*+*{margin-top:12px}
+.opt,.rp-opt{padding:12px 0;border-bottom:1px solid var(--line)}
+.opt:last-child{border-bottom:0}
+*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--muted) 45%,transparent) transparent}
+.ic{display:inline-flex;align-items:center;justify-content:center;flex:none;width:1.15em;height:1.15em;vertical-align:-.2em}
+.ic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:720px){.tab .tl{display:none}.tab{padding:10px 6px!important}}

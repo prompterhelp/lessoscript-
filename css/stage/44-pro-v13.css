@@ -1,0 +1,4 @@
+/* the bottom-right corner trigger sat on top of the student tools and swallowed clicks */
+.stu #hot{display:none!important}
+#thot{z-index:99990!important}
+.stu.tbon .tb,.stu #rbar{pointer-events:auto}

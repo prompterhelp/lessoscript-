@@ -1,0 +1,25 @@
+/* hide stray scrollbars on strips */
+.top,#dtabs,#stabs{scrollbar-width:none;-ms-overflow-style:none}.top::-webkit-scrollbar,#dtabs::-webkit-scrollbar,#stabs::-webkit-scrollbar{display:none}
+.top{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden}.top>*{flex:none}
+/* doc tabs: compact, clear, with overflow list */
+#dtabs{position:relative;align-items:center;gap:3px;scroll-snap-type:x proximity}
+.dt{max-width:170px;min-width:64px;scroll-snap-align:center;contain:layout style}.dt span{min-width:0}
+#tlBtn{position:sticky;right:0;flex:none;margin-left:auto;padding:5px 10px;border-radius:9px;background:var(--s2);color:var(--tx);font-weight:700;font-size:12px;box-shadow:-10px 0 10px var(--s1);z-index:3}
+#tlPop{position:fixed;z-index:100000;display:none;flex-direction:column;gap:2px;min-width:220px;max-width:min(92vw,360px);max-height:60vh;overflow-y:auto;padding:6px;border-radius:14px;background:#10142cf7;border:1px solid #ffffff1f;box-shadow:0 16px 40px #000a}
+#tlPop.open{display:flex}#tlPop button{text-align:start;padding:9px 12px;border-radius:9px;color:var(--tx);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#tlPop button.on{background:var(--g);color:#05211d}
+/* teacher dock: slimmer + collapsible */
+#tb{bottom:8px;padding:3px;gap:1px;border-radius:14px;max-width:calc(100% - 64px)}
+#tb button:not(.sw){min-width:34px;height:34px;font-size:16px}
+#tb.min{display:none!important}
+#tbMin{position:absolute;left:10px;bottom:10px;z-index:61;width:34px;height:34px;border-radius:12px;background:#121623ee;border:1px solid var(--bd);color:var(--tx);font-size:15px;box-shadow:0 6px 20px #0008}
+@media(max-height:620px),(max-width:560px){#tb button:not(.sw){min-width:32px;height:32px;font-size:15px}#tb{bottom:4px}#tbMin{bottom:6px;left:6px}}
+/* student toolbar: fits between tab bar and bottom, wraps into columns */
+html body.stu.tbon .tb{display:grid!important;grid-auto-flow:column;grid-template-rows:repeat(var(--rows,12),30px);grid-auto-columns:30px;gap:3px;align-items:center;justify-items:center;top:calc(var(--stabH,0px) + 8px)!important;bottom:auto!important;right:6px;left:auto;transform:none!important;max-height:calc(100dvh - var(--stabH,0px) - 16px)!important;max-width:calc(100vw - 12px)!important;overflow:hidden!important;padding:5px;border-radius:14px}
+html body.stu.tbon .tb .asec{width:auto}html body.stu.tbon .tb #sz{width:30px}
+html body.stu.tbon .tb button{min-width:30px!important;width:30px!important;height:30px!important}
+html body.stu.tbon .tb .sw{width:18px!important;min-width:18px!important;height:18px!important}
+html body.stu.tbon .tb hr{display:none}
+/* perf */
+#rail>*{content-visibility:auto;contain-intrinsic-size:auto 90px}
+#panel,#rail{contain:layout style}
+@media(max-width:1100px){.top .btn{padding:6px 8px}.top .brand{display:none}}

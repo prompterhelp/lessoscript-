@@ -24,3 +24,6 @@ A free, private teaching assistant for online teachers: a teleprompter for your 
 
 ## Publish your own copy
 It is a static site: upload these files to GitHub Pages, Netlify or Cloudflare Pages. No server or build step. Bump the cache name in `sw.js` (`lesson-prompter-vN`) whenever you update so installed copies refresh.
+
+## Project structure
+The code is split so each feature is its own small file: `index.html` and `stage.html` hold only the markup, `js/` and `css/` hold the code. See `CLAUDE.md` for the file map and the editing rules. After any update, bump the cache name in `sw.js`.

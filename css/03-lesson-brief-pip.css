@@ -1,0 +1,25 @@
+/* ===== PRE-LESSON BRIEF ===== */
+#brief{position:fixed;inset:0;z-index:94;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px}
+#brief>div{background:var(--surface);color:var(--fg);border:2px solid var(--accent);border-radius:18px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:20px 22px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5)}
+#brief h2{margin:0 0 2px;font:800 1.3rem var(--font-display)}
+#brief .b-sub{color:var(--muted);font-size:.85rem;margin:0 0 12px}
+.b-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.b-cell{background:var(--surface-2);border-radius:12px;padding:10px;text-align:center}
+.b-cell b{display:block;font:800 1.3rem var(--font-display);color:var(--accent)}
+.b-cell span{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+#brief h3{margin:14px 0 6px;font:700 .95rem var(--font-display)}
+.b-key{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line);font-size:.88rem}
+.b-key b{color:var(--accent);font-size:.75rem;flex:none}
+.b-words{display:flex;flex-wrap:wrap;gap:6px}
+.b-w{background:var(--mark);color:var(--mark-ink);border-radius:999px;padding:3px 11px;font-weight:700;font-size:.85rem;cursor:pointer;border:0}
+.b-foot{display:flex;gap:8px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.b-foot label{display:flex;gap:6px;align-items:center;font-size:.8rem;color:var(--muted);margin-left:auto}
+/* ===== EYE-CONTACT PiP CAM ===== */
+#pip{position:fixed;z-index:65;width:150px;aspect-ratio:4/3;border-radius:14px;overflow:hidden;border:2.5px solid var(--accent);box-shadow:0 10px 30px -8px rgba(0,0,0,.5);background:#000;cursor:grab;touch-action:none}
+#pip video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+#pip .pbar{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.55));opacity:0;transition:opacity .2s}
+#pip:hover .pbar{opacity:1}
+#pip .pbar button{background:rgba(0,0,0,.5);color:#fff;border:0;border-radius:6px;font-size:.75rem;padding:2px 7px;cursor:pointer}
+body.presenter #pip{border-color:var(--good)}
+
+

@@ -1,0 +1,141 @@
+/* ===== FULL TEXT MODE: continuous script, no boxes ===== */
+body.fulltext .stage{gap:0; padding-bottom:45vh}
+body.fulltext .fl-head{margin:26px 0 8px; padding:8px 0 6px; border-bottom:2px solid var(--accent); display:flex; justify-content:space-between; gap:10px; align-items:baseline}
+body.fulltext .fl-head:first-child{margin-top:4px}
+body.fulltext .fl-head b{font:700 1.1rem var(--font-display); color:var(--accent)}
+body.fulltext .fl-head span{font-size:.78rem; color:var(--muted); white-space:nowrap}
+body.fulltext .line{background:none; border:0; box-shadow:none; border-radius:10px; padding:8px 10px; opacity:1; cursor:pointer; animation:none; border-left:4px solid transparent}
+body.fulltext .line.done{opacity:.5; padding:8px 10px}
+body.fulltext .line.done .txt{display:block; -webkit-line-clamp:unset; font-size:calc(1.3rem * var(--fs)); overflow:visible}
+body.fulltext .line.done .items{display:block}
+body.fulltext .line.next{background:none; border:0; border-left:4px solid transparent; opacity:1}
+body.fulltext .line .txt{font-size:calc(1.3rem * var(--fs)); line-height:var(--lh,1.55); margin-top:2px}
+body.fulltext .line.next .txt{font-size:calc(1.3rem * var(--fs))}
+body.fulltext .line .items{font-size:calc(1.15rem * var(--fs)); line-height:var(--lh,1.55)}
+body.fulltext .line .badge{font-size:.58rem; padding:3px 7px; opacity:.85}
+body.fulltext .line.now{background:var(--mark); color:var(--mark-ink); border-left-color:var(--kind); padding:12px 12px 14px; box-shadow:0 6px 20px -14px rgba(0,0,0,.4)}
+body.fulltext .line.now .txt{font-size:calc(1.3rem * var(--fs)); margin-top:6px}
+body.fulltext .line.now .items{font-size:calc(1.15rem * var(--fs))}
+body.fulltext .line.k-pause:not(.now){padding-block:4px}
+body.fulltext .line.k-pause:not(.now) .txt{font-size:.9rem!important; color:var(--muted); font-style:italic}
+body.fulltext .line.k-ask .txt{font-weight:600}
+
+/* ===== Compact modern header ===== */
+.top{flex-wrap:wrap; gap:6px 8px; padding-block:6px 4px}
+.lesson h1{font-size:.95rem; -webkit-line-clamp:1}
+.eyebrow{font-size:.6rem}
+.time{font-size:1.15rem}
+.time .of{font-size:.68rem}
+.pace{font-size:.66rem; padding:1px 7px; margin-top:2px}
+.clock{gap:6px}
+#toggleTimer{min-height:34px; min-width:64px; padding:4px 12px}
+.btn.icon{min-height:34px; min-width:34px}
+.strip{height:24px}
+.seg{font-size:.72rem; border-radius:6px}
+.tab{padding:7px 2px 6px; font-size:.85rem}
+.menu{position:absolute; right:0; top:calc(100% + 4px); z-index:30; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:8px; display:grid; grid-template-columns:1fr 1fr; gap:6px; min-width:min(300px,92vw); box-shadow:0 14px 40px -10px rgba(0,0,0,.55)}
+.menu .pace{grid-column:1/-1; text-align:center; margin:0; padding:4px}
+.menu .btn.icon{justify-content:flex-start; padding:6px 10px; font-size:.82rem; width:100%}
+.toolbar{padding:4px 0 6px; align-items:center}
+.toolbar .tools{gap:4px}
+.toolbar .btn.small{min-height:30px; padding:2px 8px}
+.tools-extra{display:none; flex-basis:100%; justify-content:flex-end; gap:4px; flex-wrap:wrap; order:9}
+.tools-extra.open{display:flex}
+body.fulltext .toolbar .ttl .name{display:none}
+body.fulltext .toolbar .ttl{flex:1 1 90px}
+
+/* ===== BOOK LAYOUT ===== */
+body.fulltext{--font-book:var(--font-body)}
+body.fulltext .stage{max-width:720px; width:100%; margin-inline:auto; font-family:var(--font-book); padding-bottom:55vh}
+body.fulltext .line{padding:3px 10px; margin:0 0 .3em; border-left:0}
+body.fulltext .line .txt,body.fulltext .line .items{font-family:var(--font-book)}
+body.fulltext .line .txt,body.fulltext .line.done .txt,body.fulltext .line.next .txt,body.fulltext .line.now .txt{font-size:calc(1.3rem * var(--fs)); line-height:1.9; margin:0}
+body.fulltext .line.k-speak:not(.now) .line-top{display:none}
+body.fulltext .line.k-speak .badge{display:none}
+body.fulltext .line.now .line-top{justify-content:flex-end; margin-bottom:2px}
+body.fulltext .line.now{padding:8px 12px 10px; border-radius:12px}
+body.fulltext .line.k-ask:not(.now){border-left:3px solid var(--ask); margin:.9em 0; padding-left:14px}
+body.fulltext .line.k-ask:not(.now) .txt{font-style:italic}
+body.fulltext .line.k-ask .badge{font-size:.55rem}
+body.fulltext .line.k-pause:not(.now) .badge{display:none}
+body.fulltext .line.k-pause:not(.now) .txt{font-size:.85rem!important; line-height:1.4}
+body.fulltext .fl-head{display:block; text-align:center; border:0; margin:46px 0 16px; padding:0}
+body.fulltext .fl-head:first-child{margin-top:10px}
+body.fulltext .fl-head b{display:block; font:700 1.45rem/1.3 var(--font-book); color:var(--fg)}
+body.fulltext .fl-head b::before{content:"❖"; display:block; color:var(--accent); font-size:1rem; margin-bottom:6px}
+body.fulltext .fl-head span{display:block; margin-top:4px}
+
+body.fulltext .fl-head.mini{display:flex; align-items:center; gap:10px; text-align:left; margin:20px 0 8px}
+body.fulltext .fl-head.mini:first-child{margin-top:4px}
+body.fulltext .fl-head.mini::after{content:""; flex:1; height:1px; background:var(--line)}
+body.fulltext .fl-head.mini b{display:inline; font:700 .68rem var(--font-body); letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+body.fulltext .fl-head.mini b::before{content:none}
+
+/* ===== TRUE ONE-PAGE FLOW: spoken lines run together like book paragraphs ===== */
+body.fulltext .stage{display:block}
+body.fulltext .stage .fl-gap{height:.9em}
+body.fulltext .stage .fl-gap:first-child{display:none}
+body.fulltext .stage .line.k-speak,body.fulltext .stage .line.k-other{display:inline; padding:0; margin:0; border-radius:6px; background:none; box-shadow:none; -webkit-box-decoration-break:clone; box-decoration-break:clone}
+body.fulltext .stage .line.k-speak::after,body.fulltext .stage .line.k-other::after{content:" "}
+body.fulltext .stage .line.k-speak .txt,body.fulltext .stage .line.k-other .txt{display:inline; -webkit-line-clamp:unset; overflow:visible; margin:0; font-size:calc(1.3rem * var(--fs)); line-height:1.95}
+body.fulltext .stage .line.k-speak .line-top,body.fulltext .stage .line.k-other .line-top{display:inline; margin:0 6px 0 0}
+body.fulltext .stage .line.k-speak .line-top>div{display:inline}
+body.fulltext .stage .line.now.k-speak,body.fulltext .stage .line.now.k-other{background:var(--mark); color:var(--mark-ink); padding:2px 5px}
+body.fulltext .stage .line.done.k-speak{opacity:.55}
+body.fulltext .stage .line.k-speak .opt-tag{display:none}
+body.fulltext .stage .line.k-ask,body.fulltext .stage .line.k-pause{display:block}
+body.fulltext .stage .line.k-ask:not(.now){margin:.7em 0}
+body.nodiv .strip{display:none}
+body.nodiv .prog{height:5px; margin-top:4px}
+
+/* ===== CALM, STABLE READING (full page) ===== */
+body{background:var(--bg)!important}
+.lesson h1{background:none; -webkit-background-clip:initial; background-clip:initial; color:var(--fg)}
+.go{background:var(--accent); box-shadow:none}
+body.fulltext .stage{max-width:680px; color:color-mix(in srgb,var(--fg) 90%,var(--bg)); font-size:1rem}
+body.fulltext .stage .txt strong{font-weight:inherit; text-decoration:none}
+body.fulltext .stage .txt em{font-style:italic}
+body.fulltext .stage .ar{font-weight:400; line-height:1.6; font-size:1.08em}
+body.fulltext .stage .line,body.fulltext .stage .line.now{animation:none!important; transition:none}
+body.fulltext .stage .line.k-speak .txt,body.fulltext .stage .line.k-other .txt{font-size:calc(1.22rem * var(--fs)); line-height:1.9; letter-spacing:0; word-spacing:0}
+body.fulltext .stage .line.k-speak .line-top,body.fulltext .stage .line.k-other .line-top{display:none}
+body.fulltext .stage .line.now.k-speak,body.fulltext .stage .line.now.k-other{background:color-mix(in srgb,var(--accent) 17%,transparent); color:inherit; padding:0; box-shadow:none}
+body.fulltext .stage .line.done.k-speak,body.fulltext .stage .line.done.k-other{opacity:.62}
+body.tracking .line.now .w.cur{box-shadow:none!important; background:color-mix(in srgb,var(--accent) 38%,transparent)!important; color:inherit!important; border-radius:3px}
+body.tracking .line.now .w.said{opacity:.6}
+body.tracking .line.now .w.nxt{text-decoration:none}
+body.fulltext .stage .line.k-ask{background:none!important; border-left:3px solid var(--ask); padding:2px 0 2px 14px; margin:1em 0; color:inherit; opacity:1}
+body.fulltext .stage .line.k-ask .txt{font-size:calc(1.15rem * var(--fs)); font-style:normal; font-weight:500; line-height:1.7}
+body.fulltext .stage .line.k-ask.now{background:color-mix(in srgb,var(--ask) 12%,transparent)!important}
+body.fulltext .stage .line.k-pause.now{background:color-mix(in srgb,var(--pause) 10%,transparent); color:inherit; padding:10px 14px; margin:.6em 0}
+body.fulltext .stage .line.k-pause.now .txt{font-size:1rem}
+body.fulltext .stage .fl-gap{height:1.1em}
+
+/* ===== ARRANGED + CONSTANT: every line is its own paragraph with identical geometry ===== */
+body.fulltext .stage .line.k-speak,body.fulltext .stage .line.k-other,body.fulltext .stage .line.k-ask,body.fulltext .stage .line.k-pause{display:block; padding:7px 14px; margin:0 0 .4em; border:0; border-left:3px solid transparent; border-radius:8px; background:none; color:inherit; box-decoration-break:slice}
+body.fulltext .stage .line.k-speak::after,body.fulltext .stage .line.k-other::after{content:none}
+body.fulltext .stage .line.k-speak .txt,body.fulltext .stage .line.k-other .txt,body.fulltext .stage .line.k-ask .txt{display:block; margin:0; font-size:calc(1.22rem * var(--fs)); line-height:1.85; font-weight:400; font-style:normal}
+body.fulltext .stage .line.k-ask{border-left-color:var(--ask); margin:.9em 0 .4em}
+body.fulltext .stage .line.k-ask .txt{font-weight:600}
+body.fulltext .stage .line.now.k-speak,body.fulltext .stage .line.now.k-other{background:color-mix(in srgb,var(--accent) 12%,transparent); border-left-color:var(--accent); padding:7px 14px}
+body.fulltext .stage .line.now.k-ask{background:color-mix(in srgb,var(--ask) 12%,transparent)!important}
+body.fulltext .stage .line.k-pause:not(.now){padding:2px 14px}
+body.fulltext .stage .line.k-pause.now{padding:10px 14px}
+/* one font everywhere in the reader */
+body.fulltext .stage,body.fulltext .stage .line,body.fulltext .stage .txt,body.fulltext .stage .txt *:not(.ar),body.fulltext .stage .items,body.fulltext .stage .items *:not(.ar){font-family:var(--font-body)}
+body.fulltext .stage .ar{font-family:var(--font-ar); font-size:1em; line-height:inherit; font-weight:400}
+body.fulltext .stage{padding-bottom:14vh!important}
+body.fulltext .stage::after{content:"— End of script —"; display:block; text-align:center; color:var(--muted); font-size:.8rem; letter-spacing:.08em; padding:22px 0 0}
+/* ===== user text look: colour / boldness (brightness is a filter on the stage) ===== */
+body.has-tc .stage .line .txt, body.has-tc .stage .line .items, body.has-tc .stage .line .items li, body.has-tc .stage .line .txt strong, body.has-tc .stage .line .txt em{color:var(--txt-c)!important}
+body.has-fw .stage .line .txt, body.has-fw .stage .line .txt *:not(strong), body.has-fw .stage .line .items, body.has-fw .stage .line .items li, body.has-fw .stage .line .ar{font-weight:var(--fw)!important}
+body.has-fw .stage .line .txt strong{font-weight:var(--fwb)!important}
+.swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);padding:0}
+.swatch[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:2px}
+
+/* ===== PRESENTER MODE: zero clutter, pure prompter ===== */
+body.presenter .qa-chips, body.presenter #ans, body.presenter [data-act="dictate"], body.presenter .opt-tag{display:none!important}
+body.presenter .line.now.k-pause{padding:14px 16px}
+body.presenter .line.now.k-pause .head .lbl{font-size:.9rem;opacity:.9}
+body.presenter .wait{font-size:2.2rem}
+body.presenter .controls .back{min-height:48px}
