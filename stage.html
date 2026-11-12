@@ -197,7 +197,7 @@ function stroke(s,g){const z=S.v.z;cx.save();cx.lineCap=cx.lineJoin='round';cx.s
  if(s.k=='rect')cx.rect(a[0],a[1],b[0]-a[0],b[1]-a[1]);else if(s.k=='line'){cx.moveTo(a[0],a[1]);cx.lineTo(b[0],b[1])}
  else{cx.moveTo(a[0],a[1]);if(Q.length==1)cx.lineTo(a[0]+.1,a[1]);for(let i=1;i<Q.length-1;i++)cx.quadraticCurveTo(Q[i][0],Q[i][1],(Q[i][0]+Q[i+1][0])/2,(Q[i][1]+Q[i+1][1])/2);if(Q.length>1)cx.lineTo(b[0],b[1])}
  cx.stroke();cx.restore()}
-function ensurePg(i){for(const k of[i,i+1,i-1]){const p=S.pages[k];if(p&&!p.bmp&&!p.dec&&p.blob){p.dec=1;createImageBitmap(p.blob).then(b=>{p.bmp=b;need=1}).catch(()=>{p.dec=0})}}}
+function ensurePg(i){for(const k of[i,i+1,i-1,i+2]){const p=S.pages[k];if(p&&!p.bmp&&!p.dec&&p.blob){p.dec=1;createImageBitmap(p.blob).then(b=>{p.bmp=b;need=1}).catch(()=>{p.dec=0})}}}
 function draw(){need=0;cx.setTransform(D,0,0,D,0,0);cx.clearRect(0,0,W,H);cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';const g=geo();if(!g||S.blank){if(S.blank&&STU){cx.fillStyle='#000';cx.fillRect(0,0,W,H)}return}
  const[x,y]=toS(g,0,0);if(!g.p.bmp){ensurePg(S.i);return}const dw=g.bw*S.v.z,dh=g.bh*S.v.z,bm=g.p.bmp,ix=Math.max(0,x),iy=Math.max(0,y),ex=Math.min(W,x+dw),ey=Math.min(H,y+dh);cx.imageSmoothingQuality=(performance.now()-(S.mvT||0)<160||S.live||S.ptr)?'low':'high';if(ex>ix&&ey>iy){const kx=bm.width/dw,ky=bm.height/dh;cx.drawImage(bm,(ix-x)*kx,(iy-y)*ky,(ex-ix)*kx,(ey-iy)*ky,ix,iy,ex-ix,ey-iy)}g.p.strokes.forEach(s=>stroke(s,g));if(S.live)stroke(S.live,g);
  const q=S.ptr;if(q){const[px,py]=toS(g,q.x,q.y);if(q.m=='spot'){const r=Math.min(W,H)*.16;cx.fillStyle='rgba(0,0,0,.78)';cx.beginPath();cx.rect(0,0,W,H);cx.arc(px,py,r,0,7);cx.fill('evenodd')}
@@ -1500,12 +1500,14 @@ d.onclick=e=>{if(e.target===d)cl()};
 /* ===== sharper pages, smoother on tablets, page box on student screen ===== */
 (function(){
 // fast low-res copy used only while moving; full quality returns when you stop
-setInterval(()=>{if(!S.pages.length)return;for(const k of [S.i,S.i+1,S.i-1]){const p=S.pages[k];if(p&&p.bmp&&!p.mip&&!p.mp){p.mp=1;const w=Math.min(1400,p.bmp.width),h=Math.max(1,Math.round(p.bmp.height*w/p.bmp.width)),c=document.createElement('canvas');c.width=w;c.height=h;try{c.getContext('2d').drawImage(p.bmp,0,0,w,h);createImageBitmap(c).then(m=>{p.mip=m;p.mp=0}).catch(()=>p.mp=0)}catch(e){p.mp=0}}}
+setInterval(()=>{if(!S.pages.length)return;for(const k of [S.i,S.i+1,S.i-1]){const p=S.pages[k];if(p&&p.bmp&&!p.mip&&!p.mp&&p.bmp.width>1400){p.mp=1;const w=Math.min(1400,p.bmp.width),h=Math.max(1,Math.round(p.bmp.height*w/p.bmp.width)),c=document.createElement('canvas');c.width=w;c.height=h;try{c.getContext('2d').drawImage(p.bmp,0,0,w,h);createImageBitmap(c).then(m=>{p.mip=m;p.mp=0}).catch(()=>p.mp=0)}catch(e){p.mp=0}}}
  S.pages.forEach((p,k)=>{if(p.mip&&Math.abs(k-S.i)>3){try{p.mip.close()}catch(e){}p.mip=null}})},500);
 const _dr3=draw;draw=function(){const mv=performance.now()-(S.mvT||0)<220||!!S.live||!!S.ptr,sw=[];
  if(mv)for(const d of[-1,0,1]){const p=S.pages[S.i+d];if(p&&p.mip&&p.bmp){sw.push([p,p.bmp]);p.bmp=p.mip}}
  try{_dr3()}finally{sw.forEach(([p,b])=>p.bmp=b)}
  if(mv){clearTimeout(S._mt);S._mt=setTimeout(()=>{need=1},240)}};
+// decode the new page and its neighbours right away on every page change
+{const _ue=ui;ui=function(){_ue();try{ensurePg(S.i)}catch(e){}}}
 // page number box on the student screen
 if(STU){const tb=$('tb'),g=document.createElement('input');g.type='number';g.min=1;g.className='gps';g.title='Go to page, press Enter';
  const upd=()=>{g.placeholder=S.pages.length?(S.i+1)+'/'+S.pages.length:'Page'};
