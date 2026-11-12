@@ -565,7 +565,7 @@ ui();
 /* ===== fix: black / slow slides ===== */
 ensurePg=function(i){for(let k=i-1;k<=i+2;k++){const p=S.pages[k];if(p&&!p.bmp&&!p.dec&&p.blob){p.dec=1;createImageBitmap(p.blob).then(b=>{p.bmp=b;need=1}).catch(()=>{}).finally(()=>{p.dec=0})}}};
 function needPg(i){const m={t:'need',i,n:Math.random()};try{if(BCOK)ch.postMessage(m);else if(opener)opener.postMessage(m,'*')}catch(e){}}
-(function(){const prev=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='need'){if(!STU&&S.pages[m.i]){const nw=performance.now(),T=window._nt=window._nt||{};if(!(nw-(T[m.i]||0)<1500)){T[m.i]=nw;if(window.wantAt)window.wantAt(m.i);sendPage(m.i)}}return}return prev(ev)}})();
+(function(){const prev=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='need'){if(!STU&&S.pages[m.i]){const nw=performance.now(),T=window._nt=window._nt||{};if(!(nw-(T[m.i]||0)<400)){T[m.i]=nw;if(window.wantAt)window.wantAt(m.i);sendPage(m.i)}}return}return prev(ev)}})();
 setInterval(()=>{const n=S.pages.length;if(!n)return;
  if(STU)for(let k=Math.max(0,S.i-2);k<Math.min(n,S.i+6);k++){const p=S.pages[k];if(!p||!p.blob)needPg(k)}
  const c=S.pages[S.i];if(c&&c.blob){ensurePg(S.i);if(!c.bmp)need=1}
@@ -1508,6 +1508,11 @@ const _dr3=draw;draw=function(){const mv=performance.now()-(S.mvT||0)<220||!!S.l
  if(mv){clearTimeout(S._mt);S._mt=setTimeout(()=>{need=1},240)}};
 // decode the new page and its neighbours right away on every page change
 {const _ue=ui;ui=function(){_ue();try{ensurePg(S.i)}catch(e){}}}
+// teacher pushes the next pages to the student as soon as they are ready; student asks at once on every page change
+{const sent=new WeakSet();
+ if(!STU)setInterval(()=>{if(document.hidden||!S.pages.length)return;for(const k of[S.i,S.i+1,S.i+2,S.i+3,S.i-1]){const p=S.pages[k];if(p&&p.blob&&!sent.has(p.blob)){sent.add(p.blob);try{sendPage(k)}catch(e){}break}}},120);
+ else{const ask=()=>{for(const k of[S.i,S.i+1,S.i+2,S.i-1]){const p=S.pages[k];if(k>=0&&k<S.pages.length&&(!p||!p.blob))needPg(k)}};
+  const _ua=ui;ui=function(){_ua();ask()};setInterval(()=>{if(!document.hidden)ask()},300)}}
 // page number box on the student screen
 if(STU){const tb=$('tb'),g=document.createElement('input');g.type='number';g.min=1;g.className='gps';g.title='Go to page, press Enter';
  const upd=()=>{g.placeholder=S.pages.length?(S.i+1)+'/'+S.pages.length:'Page'};
