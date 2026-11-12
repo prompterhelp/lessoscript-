@@ -581,7 +581,7 @@ const _ui=ui;ui=function(){_ui();fixRail()};
 function fixRail(){if(STU)return;const r=$('rail');[...r.children].forEach((d,i)=>{const p=S.pages[i],im=d.firstChild;if(p&&im&&im.style&&!p.blob){im.style.aspectRatio=p.w+'/'+p.h;im.style.background='#111'}})}
 function pump(){while(act<MAXC&&q.length){const p=q.shift();if(p.blob||p.rend||!p.lazy)continue;doR(p)}}
 async function doR(p){p.rend=1;act++;try{
- const L=p.lazy;p.pdf={doc:L.doc,n:L.n};const pg=await L.doc.getPage(L.n),w0=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(5,PW()/w0)}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+ const L=p.lazy;p.pdf={doc:L.doc,n:L.n};const pg=await L.doc.getPage(L.n),v0=pg.getViewport({scale:1}),w0=v0.width,vp=pg.getViewport({scale:Math.min(5,PW()/w0,Math.sqrt(6e6/(w0*v0.height)))}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
  await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
  p.text=await pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'');
  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95)),i=S.pages.indexOf(p);
@@ -1511,7 +1511,7 @@ const _dr3=draw;draw=function(){const mv=performance.now()-(S.mvT||0)<220||!!S.l
 // teacher pushes the next pages to the student as soon as they are ready; student asks at once on every page change
 {const sent=new WeakSet();
  if(!STU)setInterval(()=>{if(document.hidden||!S.pages.length)return;for(const k of[S.i,S.i+1,S.i+2,S.i+3,S.i-1]){const p=S.pages[k];if(p&&p.blob&&!sent.has(p.blob)){sent.add(p.blob);try{sendPage(k)}catch(e){}break}}},120);
- else{const ask=()=>{for(const k of[S.i,S.i+1,S.i+2,S.i-1]){const p=S.pages[k];if(k>=0&&k<S.pages.length&&(!p||!p.blob))needPg(k)}};
+ else{const ask=()=>{for(const k of[S.i,S.i+1,S.i+2,S.i-1]){const p=S.pages[k];if(k>=0&&k<S.pages.length&&(!p||!p.blob)&&!(p&&p.lr))needPg(k)}};
   const _ua=ui;ui=function(){_ua();ask()};setInterval(()=>{if(!document.hidden)ask()},300)}}
 // page number box on the student screen
 if(STU){const tb=$('tb'),g=document.createElement('input');g.type='number';g.min=1;g.className='gps';g.title='Go to page, press Enter';
@@ -1672,6 +1672,7 @@ if(STU){
  let gotT=0;const nt=setInterval(()=>{if(gotT)clearInterval(nt);else send({t:'needtabs'})},1200);
  const _p=ch.onmessage;
  ch.onmessage=async ev=>{const m=ev&&ev.data;if(!m)return _p(ev);
+  if(m.t==='page'&&m.p){const lp=S.pages[m.i];if(lp&&lp.lr){lp.strokes=m.p.strokes||lp.strokes;need=1;return}}
   if(m.t==='pages'){const r=await _p(ev);curId=m.id||null;if(m.id)C[m.id]=Object.assign(C[m.id]||{},{pages:S.pages});return r}
   if(m.t==='usedeck'){const c=C[m.id];if(c&&c.pages){curId=m.id;S.pages=c.pages;S.i=Math.min(S.i,S.pages.length-1);S.live=null;ui();ensurePg(S.i);need=1}else send({t:'needdeck',id:m.id});return}
   if(m.t==='src'){const c=C[m.id]=C[m.id]||{};(async()=>{try{c.doc=await pdfjsLib.getDocument({data:await m.f.arrayBuffer()}).promise}catch(e){}})();return}
@@ -1679,6 +1680,12 @@ if(STU){
   if(m.t==='mcur'){M=m.off?null:m;kick();return}
   if(m.t==='mkill'){window.__mkill(m.k);return}
   return _p(ev)};
+ /* student renders its own pages from the PDF it already received, so it never waits for the teacher screen */
+ let lrAct=0;
+ const lrRun=async(p,k,c)=>{p.lr=1;lrAct++;try{const pg=await c.doc.getPage(k+1),v0=pg.getViewport({scale:1}),vp=pg.getViewport({scale:Math.min(5,PW()/v0.width,Math.sqrt(6e6/(v0.width*v0.height)))}),cv=document.createElement('canvas');cv.width=Math.round(vp.width);cv.height=Math.round(vp.height);await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.9));cv.width=cv.height=0;if(S.pages[k]!==p||p.blob||!blob){p.lr=0;return}Object.assign(p,{blob,w:vp.width,h:vp.height,bmp:null,mip:null,hi:null,dec:0});p.url=URL.createObjectURL(blob);need=1;try{ensurePg(S.i)}catch(e){}}catch(e){p.lr=0}finally{lrAct--}};
+ const lrPump=()=>{const c=C[curId];if(!c||!c.doc||!c.pages||c.pages!==S.pages||document.hidden)return;for(const d of[0,1,2,-1,3,4]){if(lrAct>=2)break;const k=S.i+d,p=S.pages[k];if(p&&!p.blob&&!p.lr)lrRun(p,k,c)}};
+ {const _ul=ui;ui=function(){lrPump();_ul()}}
+ setInterval(lrPump,300);
  /* sharp zoom: give each page its PDF so the visible part re-renders at screen resolution; prefetch + release memory */
  setInterval(()=>{const c=C[curId];if(c&&c.doc&&c.pages)c.pages.forEach((p,i)=>{if(!p.pdf&&!p.r)p.pdf={doc:c.doc,n:i+1}});
   if(!S.pages.length)return;try{ensurePg(S.i);ensurePg(S.i+2)}catch(e){}
