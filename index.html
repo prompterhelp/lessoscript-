@@ -4775,11 +4775,21 @@ function ctImpParse(src,name,id){
   const t=doc.querySelector('title');
   return {id:id,n:name||(t&&t.textContent.trim())||'Imported template',imp:1,sc:sc,css:ctImpScope(css,sc),html:root.outerHTML,fonts:fonts,tx:tx,c1:v('c1')||'#0C463C',c2:v('c2')||'#C4A25A'};
 }
+function ctImpBind(d){
+  if(!d||!d.imp||d.bound||!d.html) return d; d.bound=1;
+  try{ const t=document.createElement('template'); t.innerHTML=d.html; const r=t.content.firstElementChild; if(!r) return d;
+    r.querySelectorAll('[data-tx]').forEach(el=>{ const i=el.getAttribute('data-tx'); let k='';
+      if(el.matches('.cx-name')) k='{name}';
+      else { const lb=[].filter.call(el.parentElement?el.parentElement.children:[],x=>x!==el&&x.tagName!=='BR').map(x=>x.textContent).join(' ');
+        if(/معلّ?م|teacher/i.test(lb)) k='{teacher}'; else if(/تاريخ|date/i.test(lb)) k='{date}'; }
+      if(k) d.tx[i]=k; });
+  }catch(e){} return d; }
 function ctImpHTML(c,d){
+  ctImpBind(d);
   const o=(c.ix&&c.ix[d.id])||{}, tk={'{name}':c.name,'{date}':rpDMY(c.date),'{teacher}':c.teacher,'{academy}':c.academy};
   const t=document.createElement('template'); t.innerHTML=d.html; const r=t.content.firstElementChild;
   r.querySelectorAll('[data-tx]').forEach(el=>{ const i=el.getAttribute('data-tx'), v=o[i]||{}; let tx=v.t!=null?v.t:d.tx[i];
-    if(/\{(name|date|teacher|academy)\}/.test(tx)) tx=tx.replace(/\{(name|date|teacher|academy)\}/g,(m)=>tk[m]||m);
+    if(/\{(name|date|teacher|academy)\}/.test(tx)) tx=tx.replace(/\{(name|date|teacher|academy)\}/g,(m)=>tk[m]!=null?tk[m]:m);
     if(v.t!=null||tx!==d.tx[i]){ el.textContent=''; tx.split('\n').forEach((ln,k)=>{ if(k) el.appendChild(document.createElement('br')); el.appendChild(document.createTextNode(ln)); }); }
     if(v.f) el.style.fontFamily="'"+v.f+"',serif"; if(v.c){ el.style.color=v.c; el.style.webkitTextFillColor=v.c; } });
   return '<div class="'+d.sc+'" style="position:relative;width:1123px;height:794px;'+(c.c1?'--c1:'+c.c1+';':'')+(c.c2?'--c2:'+c.c2+';':'')+'">'+r.outerHTML+'</div>';
@@ -4793,7 +4803,7 @@ function ctImpFonts(d){ return d&&d.imp?(d.fonts||[]):[]; }
   try{ rpJ('lp.ct.imp',[]).forEach(x=>{ if(x&&x.id&&x.html&&!CT_DES.some(d=>d.id===x.id)) CT_DES.push(x); }); }catch(e){}
   ctImpStyle(); })();
 function ctImpPanel(){
-  const box=$('ctImpBox'); if(!box) return; const d=ctDes(CT.design); const db=document.querySelector('#rpCertPane [data-ca=del]'); if(db) db.hidden=!(d.imp&&!d.builtin); if(!d.imp){ box.innerHTML=''; return; }
+  const box=$('ctImpBox'); if(!box) return; const d=ctDes(CT.design); ctImpBind(d); const db=document.querySelector('#rpCertPane [data-ca=del]'); if(db) db.hidden=!(d.imp&&!d.builtin); if(!d.imp){ box.innerHTML=''; return; }
   const o=(CT.ix&&CT.ix[d.id])||{}, opt=(v,t,s)=>'<option value="'+rpEsc(v)+'"'+(s?' selected':'')+'>'+rpEsc(t)+'</option>';
   const fl=CT_AFONTS.concat(CT_EFONTS,RP_FONTS.filter(f=>!f.sys)); const gs=[...new Set(fl.map(f=>f.g))];
   box.innerHTML='<details class="rp-card" open><summary style="cursor:pointer;font-weight:800">&#9998; Texts in this template</summary><p class="help">Edit each text, its font and its color. Type {name}, {date}, {teacher} or {academy} to fill a text from the fields above.</p>'
