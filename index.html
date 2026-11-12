@@ -316,7 +316,7 @@ details pre{margin:0 0 12px; padding:10px; border-radius:8px; background:var(--s
 .lesson h1{background:linear-gradient(90deg,var(--fg),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
 .prog{height:4px;border-radius:4px;background:var(--surface-2);margin-top:6px;overflow:hidden}
 .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--speak));transition:width .35s}
-.line.now{animation:pop .25s ease-out,glow 3s ease-in-out infinite}
+.line.now{animation:pop .25s ease-out}
 @keyframes pop{from{transform:scale(.985);opacity:.4}to{transform:none;opacity:1}}
 @keyframes glow{50%{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent),0 10px 28px -16px rgba(0,0,0,.35)}}
 .go{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#000));box-shadow:0 6px 18px -8px var(--accent)}
@@ -329,7 +329,7 @@ details pre{margin:0 0 12px; padding:10px; border-radius:8px; background:var(--s
 body.mirror .stage{transform:scaleX(-1)}
 
 body{background:radial-gradient(circle at 15% -10%,color-mix(in srgb,var(--accent) 20%,var(--bg)),var(--bg) 55%) fixed}
-.top{position:sticky;top:0;z-index:5;backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg) 70%,transparent);border-radius:0 0 14px 14px}
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 96%,transparent);border-radius:0 0 14px 14px}
 .stage.slide-in{animation:slin .35s ease-out}
 @keyframes slin{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:8px 0 14px}
@@ -4868,7 +4868,7 @@ function ctHTML0(c,desId){
 }
 function ctFonts(c){ const d=ctDes(c.design); let a=[rpFam(c.font||d.f),rpFam(c.afont||d.af)].concat(ctImpFonts(d)); if(d.imp){ const o=(c.ix&&c.ix[d.id])||{}; Object.keys(o).forEach(k=>{ if(o[k]&&o[k].f) a.push(rpFam(o[k].f)); }); } try{ const S=PVE.S.cert; Object.keys(S).forEach(k=>{ if(k==='_x') S._x.forEach(i=>{ if(i.ff) a.push(rpFam(i.ff)); }); else if(S[k]&&S[k].ff) a.push(rpFam(S[k].ff)); }); }catch(e){} return a.filter(Boolean); }
 function ctLoadFonts(){
-  rpLoadFontLinks([].concat.apply([],CT_DES.map(d=>[rpFam(d.f),rpFam(d.af)].concat(ctImpFonts(d)))).concat(ctFonts(CT)).filter(Boolean));
+  const ric=window.requestIdleCallback||(f=>setTimeout(f,300)); ric(()=>rpLoadFontLinks([].concat.apply([],CT_DES.map(d=>[rpFam(d.f),rpFam(d.af)].concat(ctImpFonts(d)))).concat(ctFonts(CT)).filter(Boolean)));
 }
 function ctFit(){
   document.querySelectorAll('#rpCertPane [data-ctfit]').forEach(w=>{ const c=w.firstElementChild; if(!c) return; const s=w.clientWidth/1123; if(!s) return; c.style.transformOrigin='top left'; c.style.transform='scale('+s+')'; w.style.height=(794*s)+'px'; });
@@ -5080,7 +5080,7 @@ document.addEventListener('click',e=>{ if(e.target.closest('#rpPasteBtn')) rpPas
     const cb=(sc&&sc!==document.body&&sc!==root)?sc.getBoundingClientRect().top:0;
     { const th=document.body.classList.contains('split')?'0px':Math.max(0,Math.round(hd.getBoundingClientRect().bottom-cb))+'px'; if(root.style.getPropertyValue('--topH')!==th) root.style.setProperty('--topH',th); }
     const was=v.classList.contains('rp-wide'), wide=v.clientWidth>=900; if(was!==wide){ v.classList.toggle('rp-wide',wide); try{ ctFit(); }catch(e){} } }
-  window.addEventListener('resize',stk); setInterval(()=>{ const v=$('view-reports'); if(document.hidden||!v||v.hidden) return; stk(); },1500); setTimeout(stk,200);
+  window.addEventListener('resize',stk); setInterval(()=>{ const v=$('view-reports'); if(document.hidden||!v||v.hidden) return; stk(); },4000); setTimeout(stk,200);
   if(window.ResizeObserver){ const hd=document.querySelector('header.top'); if(hd) new ResizeObserver(stk).observe(hd); }
 })();
 
@@ -5574,14 +5574,14 @@ function sync(){
    b.addEventListener('click',e=>{e.stopPropagation();setView(k)});bar.appendChild(b)});
   v.insertBefore(bar,v.firstChild)})
 }
-setInterval(function(){if(!document.hidden)sync()},1200);sync();
+setInterval(function(){if(!document.hidden)sync()},4000);sync();
 document.addEventListener('click',function(){setTimeout(sync,80)},true);
 new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
 })();
 </script>
-<script id="ptH-fix">(function(){function m(){var b=document.querySelector('body.split .ptabs');if(!b)return;var h=Math.ceil(b.getBoundingClientRect().height)+8;var r=document.documentElement;if(r.style.getPropertyValue('--ptH')!==h+'px')r.style.setProperty('--ptH',h+'px')}addEventListener('resize',m);setInterval(function(){if(!document.hidden)m()},1000);
+<script id="ptH-fix">(function(){function m(){var b=document.querySelector('body.split .ptabs');if(!b)return;var h=Math.ceil(b.getBoundingClientRect().height)+8;var r=document.documentElement;if(r.style.getPropertyValue('--ptH')!==h+'px')r.style.setProperty('--ptH',h+'px')}addEventListener('resize',m);setInterval(function(){if(!document.hidden)m()},4000);
 var last=new WeakMap();document.addEventListener('scroll',function(e){var v=e.target;if(!v||!v.classList||!v.classList.contains('view')||!document.body.classList.contains('split')||v.id==='view-stage')return;var y=v.scrollTop,p=last.get(v)||0;last.set(v,y);if(y<24||y<p-4)v.classList.remove('ptoff');else if(y>p+4&&y>80)v.classList.add('ptoff')},true);
-setInterval(function(){document.querySelectorAll('.ptabs button').forEach(function(b){if(!b.title){var sp=b.querySelector('span');if(sp)b.title=sp.textContent}})},1500);new MutationObserver(m).observe(document.body,{attributes:true,attributeFilter:['class']})})();</script>
+setInterval(function(){if(document.hidden)return;document.querySelectorAll('.ptabs button').forEach(function(b){if(!b.title){var sp=b.querySelector('span');if(sp)b.title=sp.textContent}})},5000);new MutationObserver(m).observe(document.body,{attributes:true,attributeFilter:['class']})})();</script>
 <style id="lp-fancy-tabs">
 /* split-pane tab bars: every tab always reachable, nothing cut or hidden */
 body.split .ptabs{display:flex!important;flex-wrap:nowrap;align-items:stretch;gap:3px!important;padding:4px!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x proximity;border-radius:16px!important;background:color-mix(in srgb,var(--surface-2) 92%,transparent)!important;box-shadow:inset 0 0 0 1px var(--line)}
@@ -5600,7 +5600,7 @@ body.split .ptabs button.on span{display:inline!important}
 body.split .ptabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 body.split .ptabs button:active{transform:scale(.96)}
 </style>
-<script id="lp-fancy-tabs-js">(function(){setInterval(function(){if(document.hidden)return;document.querySelectorAll('.ptabs button.on').forEach(function(b){if(b._lp)return;b._lp=1;try{b.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}})},1000)})();</script>
+<script id="lp-fancy-tabs-js">(function(){setInterval(function(){if(document.hidden)return;document.querySelectorAll('.ptabs button.on').forEach(function(b){if(b._lp)return;b._lp=1;try{b.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}})},3000)})();</script>
 
 <script id="lp-stage-preload">(function(){
 function pre(){var f=document.getElementById('stageFrame');if(f&&!f.getAttribute('src'))f.src='stage.html'}
