@@ -591,7 +591,7 @@ async function doR(p){p.rend=1;act++;try{
  need=1}catch(e){p.rend=0}finally{act--;p.rend=0;pump()}}
 function want(){const l=[4,3,2,-2,-1,1,0];for(const k of l){const p=S.pages[S.i+k];if(p&&p.lazy&&!p.blob&&!p.rend){q=q.filter(x=>x!==p);q.unshift(p)}}pump()}
 window.want=want;window.wantAt=function(i){const p=S.pages[i];if(p&&p.lazy&&!p.blob&&!p.rend){q=q.filter(x=>x!==p);q.unshift(p);pump()}};const _go=go;go=function(i){_go(i);want()};
-setInterval(want,300);
+setInterval(()=>{if(!document.hidden)want()},300);
 const _bc=buildCards;buildCards=async function(m){if(S.pages.some(p=>p.lazy&&!p.blob)){toast('Reading all pages first…');while(S.pages.some(p=>p.lazy&&!p.blob))await new Promise(r=>setTimeout(r,300))}return _bc(m)};
 addFiles=async function(fs,fromLib){
  for(const f of fs){const n=f.name||'File';
@@ -659,7 +659,7 @@ const RB=document.getElementById('rbar'),RT=document.getElementById('rtog');
 if(RB&&RT){RB.style.display='flex';RT.onclick=()=>RB.classList.toggle('hide')}
 const L=document.getElementById('fxl'),rnd=(a,b)=>a+Math.random()*(b-a);
 /* ===== timer side-state ===== */
-setInterval(()=>{const e=$('tmr');if(!e)return;const on=e.style.display==='block';document.body.classList.toggle('tmron',on);e.classList.toggle('low',!!S.end&&S.end-Date.now()<30000)},300);
+setInterval(()=>{if(document.hidden)return;const e=$('tmr');if(!e)return;const on=e.style.display==='block';document.body.classList.toggle('tmron',on);e.classList.toggle('low',!!S.end&&S.end-Date.now()<30000)},300);
 document.querySelectorAll('.mu').forEach(x=>{if(/top-centre/.test(x.textContent))x.textContent='Preview: students see a compact timer at the side, so content stays clear'});
 /* ===== YouTube / video: full sync (play, pause, seek, volume, mute, speed) ===== */
 const mst={t:0,d:0,p:0};
@@ -913,7 +913,7 @@ $('stage').addEventListener('wheel',e=>{if(S.flow||e.ctrlKey||S.media)return;e.p
  if(S.v.z>1.001){S.v.cy+=e.deltaY/(g.bh*S.v.z);S.v.cx+=e.deltaX/(g.bw*S.v.z);clampV();need=1;st()}
  else{const n=Date.now();if(n-wl<350||Math.abs(e.deltaY)<4)return;wl=n;go(S.i+(e.deltaY>0?1:-1))}},{capture:true,passive:false});
 if(STU){let lv='';const _s=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='st'){const k=JSON.stringify([m.i,m.v]);if(k!==lv){lv=k;if(!S.follow){S.follow=1;const b=$('fol');if(b)b.style.display='none'}}}return _s(ev)}}
-setInterval(()=>{const n=document.querySelector('#media iframe#mn');if(!n||n._ld)return;n._ld=1;const o=document.createElement('div');o.id='lsload';o.style.cssText='position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:#0b0d14;color:#8b95b5;font:600 18px Inter,sans-serif';o.textContent='Loading page…';$('media').appendChild(o);const done=()=>o.remove();n.addEventListener('load',done);setTimeout(done,3500)},50);
+setInterval(()=>{if(document.hidden)return;const n=document.querySelector('#media iframe#mn');if(!n||n._ld)return;n._ld=1;const o=document.createElement('div');o.id='lsload';o.style.cssText='position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:#0b0d14;color:#8b95b5;font:600 18px Inter,sans-serif';o.textContent='Loading page…';$('media').appendChild(o);const done=()=>o.remove();n.addEventListener('load',done);setTimeout(done,3500)},50);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)return;const n=document.querySelector('#media iframe#mn');if(!n)return;n.style.opacity='.99';requestAnimationFrame(()=>requestAnimationFrame(()=>n.style.opacity=''))});
 })();
 </script>
@@ -927,7 +927,7 @@ tb.appendChild(t)})();
 /* student screen = read-only mirror: its own zoom/pan can no longer break the sync */
 (function(){return;const stg=document.getElementById('stage');
 ['pointerdown','dblclick','wheel','touchstart'].forEach(t=>stg.addEventListener(t,e=>{if(e.target.closest&&e.target.closest('#media'))return;e.stopPropagation();if(t==='wheel')e.preventDefault()},{capture:true,passive:false}));
-setInterval(()=>{if(!S.follow){S.follow=1;const b=document.getElementById('fol');if(b)b.style.display='none'}},300)})();
+setInterval(()=>{if(document.hidden)return;if(!S.follow){S.follow=1;const b=document.getElementById('fol');if(b)b.style.display='none'}},300)})();
 </script>
 <script>
 /* zoom stays centred; view can never leave the page (no half-blank sides) */
@@ -938,7 +938,7 @@ clampV=function(){const v=S.v;v.z=Math.max(1,Math.min(10,v.z));const g=geo();if(
  const _c=ch.onmessage;ch.onmessage=async ev=>{const r=await _c(ev);const m=ev&&ev.data;if(STU&&m&&m.t==='st'){clampV();need=1}return r};})();
 </script>
 <script>
-setInterval(()=>{const b=document.getElementById('stopShare');if(b)b.style.display=(!STU&&(S.media||LV))?'':'none'},300);
+setInterval(()=>{if(document.hidden)return;const b=document.getElementById('stopShare');if(b)b.style.display=(!STU&&(S.media||LV))?'':'none'},300);
 </script>
 <script>
 /* Stop sharing button: visible on the teacher screen while anything is shown to students */
@@ -946,7 +946,7 @@ setInterval(()=>{const b=document.getElementById('stopShare');if(b)b.style.displ
 b.style.cssText='position:absolute;top:14px;right:14px;z-index:9;display:none;padding:9px 16px;border-radius:12px;border:0;background:#ff4d6d;color:#fff;font:700 14px Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer';
 b.onclick=()=>{try{closeMedia()}catch(e){try{mClose(1)}catch(_){}}b.style.display='none';toast('Stopped sharing with students')};
 document.getElementById('stage').appendChild(b);
-setInterval(()=>{b.style.display=(S.media||LV)?'block':'none'},300)})();
+setInterval(()=>{if(document.hidden)return;b.style.display=(S.media||LV)?'block':'none'},300)})();
 </script>
 <script>
 /* proportional zoom v2: student mirrors the teacher's visible area; student can never zoom by itself */

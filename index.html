@@ -4931,12 +4931,21 @@ function ctBuild(){
   }
   setTimeout(ctFit,50);
 }
+const CT_PG=`.ct-mid>*,.ct-in>*{max-width:100%;overflow-wrap:anywhere}
+.rc-row,.rc-subh,.rc-info b{overflow-wrap:anywhere}
+div.ct:not(.both) .ct-mid{gap:8px}
+div.ct:not(.both) .ct-t,div.ct:not(.both) .ct-ta{margin-top:0;line-height:1.3}
+div.ct:not(.both) .ct-p,div.ct:not(.both) .ct-pa{margin-top:8px;line-height:1.5}
+div.ct:not(.both) .ct-name{margin-top:14px;margin-bottom:6px}
+div.ct:not(.both) .ct-ach,div.ct:not(.both) .ct-acha{margin-top:14px;line-height:1.6}
+div.ct:not(.both) .ct-dua{margin-top:12px}
+div.ct:not(.both) .ct-msg{margin-top:10px}`;
 function ctPrint(){
   const all=[].concat.apply([],CT_DES.map(d=>[rpFam(d.f),rpFam(d.af)].concat(ctImpFonts(d)))).concat(ctFonts(CT)).filter(Boolean), u=rpFontURL(all);
-  pvPrintDoc('<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+ctImpCSS()+'@page{size:A4 landscape;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;width:1123px}</style></head><body>'+pvExport(ctHTML(CT),0,'cert')+'</body></html>');
+  pvPrintDoc('<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+CT_PG+ctImpCSS()+'@page{size:A4 landscape;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;width:1123px}</style></head><body>'+pvExport(ctHTML(CT),0,'cert')+'</body></html>');
 }
 async function ctPng(){
-  window.RP_XF=ctFonts(CT); window.RP_XCSS=CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+ctImpCSS(); window.RP_XPAD=0;
+  window.RP_XF=ctFonts(CT); window.RP_XCSS=CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+CT_PG+ctImpCSS(); window.RP_XPAD=0;
   window.PV_FORCE='cert';
   try{ await rpToPng(ctHTML(CT),1123,'Certificate_'+(CT.name||'student')); } finally { window.PV_FORCE=null; window.RP_XF=null; window.RP_XCSS=''; window.RP_XPAD=null; }
 }
