@@ -1,0 +1,31 @@
+name: Apply update zip
+on:
+  push:
+    paths:
+      - '*.zip'
+permissions:
+  contents: write
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip updates
+        run: |
+          shopt -s nullglob
+          for z in *.zip; do
+            rm -rf /tmp/up && mkdir /tmp/up
+            unzip -o "$z" -d /tmp/up
+            rm "$z"
+            cd /tmp/up
+            if [ "$(ls -A | wc -l)" = "1" ] && [ -d "$(ls -A)" ]; then cd "$(ls -A)"; fi
+            cp -a . "$GITHUB_WORKSPACE/"
+            cd "$GITHUB_WORKSPACE"
+          done
+      - name: Commit
+        run: |
+          git config user.name "update-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A
+          git commit -m "Apply update zip" || exit 0
+          git push
