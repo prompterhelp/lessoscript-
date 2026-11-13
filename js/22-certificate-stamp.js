@@ -125,7 +125,7 @@
     var html='<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+css
       +'@page{size:'+wm+'mm '+hm+'mm;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;width:'+pw+'px;height:'+(ph-2)+'px;overflow:hidden}'
       +'#cw{position:absolute;left:50%;top:50%;width:1123px;height:794px;margin:-397px 0 0 -561.5px;transform:scale('+k+');transform-origin:center center}</style></head><body><div id="cw">'
-      +pvExport(ctHTML(CT),0,'cert')+'</div></body></html>';
+      +(ctLiveHTML()||pvExport(ctHTML(CT),0,'cert'))+'</div></body></html>';
     var f=document.createElement('iframe');
     f.style.cssText='position:fixed;left:-9999px;top:0;width:'+pw+'px;height:'+ph+'px;border:0;visibility:hidden'; document.body.appendChild(f);
     var w=f.contentWindow, d=w.document; d.open(); d.write(html); d.close();
@@ -135,4 +135,29 @@
   };
   /* if the Certificate tab is already open, add the card now */
   try{ if(document.getElementById('ctPv')) ctBuild(); }catch(e){}
+})();
+
+
+/* ---- Print / Picture copy exactly what the certificate preview shows ---- */
+function ctLiveHTML(){
+  try{
+    var pv=document.getElementById('ctPv'); if(!pv||!pv.firstElementChild) return '';
+    var d=document.createElement('div'); d.innerHTML=pv.innerHTML;
+    d.querySelectorAll('.pv-guide').forEach(function(x){ x.remove(); });
+    d.querySelectorAll('[contenteditable]').forEach(function(x){ x.removeAttribute('contenteditable'); });
+    d.querySelectorAll('[class]').forEach(function(x){
+      var k=String(x.getAttribute('class')).split(/\s+/).filter(function(c){ return c&&!/^pv-/.test(c); }).join(' ');
+      if(k) x.setAttribute('class',k); else x.removeAttribute('class');
+    });
+    return d.innerHTML;
+  }catch(e){ return ''; }
+}
+(function(){
+  var _png=ctPng;
+  ctPng=async function(){
+    var live=ctLiveHTML(); if(!live) return _png.apply(this,arguments);
+    window.RP_XF=ctFonts(CT); window.RP_XCSS=CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+CT_PG+ctImpCSS(); window.RP_XPAD=0;
+    window.PV_FORCE='live';
+    try{ await rpToPng(live,1123,'Certificate_'+(CT.name||'student')); } finally { window.PV_FORCE=null; window.RP_XF=null; window.RP_XCSS=''; window.RP_XPAD=null; }
+  };
 })();
