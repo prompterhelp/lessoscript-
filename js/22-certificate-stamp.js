@@ -16,7 +16,9 @@
     if(real) s+='<rect x="48" y="48" width="'+(W-96)+'" height="'+(H-96)+'" rx="32" fill="none" stroke="'+col+'" stroke-width="2.5"/>';
     [-1,0,1].forEach(function(i){ s+='<rect x="-7" y="-7" width="14" height="14" rx="3" fill="'+col+'" transform="translate('+(cx+i*44)+',78) rotate(45)"/>'; });
     s+='<text x="'+cx+'" y="178" text-anchor="middle" dominant-baseline="central" direction="'+dir+'" font-family="'+f+'" font-size="'+ns+'" font-weight="700" fill="'+col+'">'+esc(name)+'</text>';
-    s+='<rect x="'+(cx-200)+'" y="245" width="400" height="3" fill="'+col+'"/>';
+    var gid='stF'+String(col).replace(/[^a-z0-9]/gi,'');
+    s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="'+col+'" stop-opacity="0"/><stop offset="0.5" stop-color="'+col+'"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs>';
+    s+='<rect x="'+(cx-220)+'" y="258" width="440" height="2.5" fill="url(#'+gid+')"/>';
     s+='<text x="'+cx+'" y="308" text-anchor="middle" dominant-baseline="central" direction="'+dir+'" font-family="'+f+'" font-size="'+ts+'" font-weight="700" fill="'+col+'">'+esc(title)+'</text>';
     if(real) s+='</g>';
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="28 28 '+(W-56)+' '+(H-56)+'" width="100%" height="100%" style="display:block;overflow:visible">'+s+'</svg>';
