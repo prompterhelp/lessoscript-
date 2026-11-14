@@ -132,8 +132,12 @@
     f.style.cssText='position:fixed;left:-9999px;top:0;width:'+pw+'px;height:'+ph+'px;border:0;visibility:hidden'; document.body.appendChild(f);
     var w=f.contentWindow, d=w.document; d.open(); d.write(html); d.close();
     var go=function(){ try{ w.focus(); w.print(); }catch(e){ try{ toast('Print failed - use Picture instead'); }catch(_){} } setTimeout(function(){ f.remove(); },120000); };
-    var fr=(d.fonts&&d.fonts.ready)?Promise.race([d.fonts.ready,new Promise(function(r){ setTimeout(r,2500); })]):Promise.resolve();
-    fr.then(function(){ setTimeout(go,350); });
+    /* wait for the font stylesheet, then the fonts, then re-fit the middle block with the print fonts (same fit as the preview) */
+    var lk=d.querySelector('link[rel=stylesheet]'), ls=lk?new Promise(function(r){ lk.onload=lk.onerror=r; setTimeout(r,4000); }):Promise.resolve();
+    ls.then(function(){
+      var fam=(d.fonts&&d.fonts.load)?Array.prototype.map.call(d.querySelectorAll('.ct *'),function(n){ return w.getComputedStyle(n).fontFamily; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).slice(0,30).map(function(f){ return d.fonts.load('20px '+f,'\u0627Aa').catch(function(){}); }):[];
+      return Promise.race([Promise.all(fam).then(function(){ return d.fonts.ready; }),new Promise(function(r){ setTimeout(r,4000); })]);
+    }).then(function(){ try{ ctFitMid(d.querySelector('.ct')); }catch(e){} setTimeout(go,350); });
   };
   /* if the Certificate tab is already open, add the card now */
   try{ if(document.getElementById('ctPv')) ctBuild(); }catch(e){}
