@@ -51,9 +51,9 @@ async function rpToPng(html,w,name,text){
     toast('Preparing picture…'); const fc=await rpFontCSS(html);
     const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><style><![CDATA['+fc+css+']]></style>'+inner+'</div></foreignObject></svg>';
     const img=new Image(); img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg); await img.decode();
-    const k=Math.max(1,Math.min(st.q,Math.sqrt(16e6/(w*H))));
-    const c=document.createElement('canvas'); c.width=Math.round(w*k); c.height=Math.round(H*k); const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.scale(k,k); x.drawImage(img,0,0,w,H);
-    const mime=window.RP_PDF?'image/jpeg':{png:'image/png',jpg:'image/jpeg',webp:'image/webp'}[st.f], b0=await new Promise(r=>c.toBlob(r,mime,.95)); if(!b0) throw 0;
+    const k=Math.max(1,Math.min(Math.max(st.q,window.RP_MINQ||1),Math.sqrt(16e6/(w*H))));
+    const c=document.createElement('canvas'); c.width=Math.round(w*k); c.height=Math.round(H*k); const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.imageSmoothingQuality='high'; x.scale(k,k); x.drawImage(img,0,0,w,H);
+    const mime=window.RP_PDF?'image/jpeg':{png:'image/png',jpg:'image/jpeg',webp:'image/webp'}[window.RP_FMT||st.f], b0=await new Promise(r=>c.toBlob(r,mime,.95)); if(!b0) throw 0;
     const b=window.RP_PDF?await rpMakePdf(b0,c.width,c.height,w,H):b0;
     const ext=b.type==='application/pdf'?'pdf':b.type==='image/jpeg'?'jpg':b.type==='image/webp'?'webp':'png';
     const fname=(name||'report').replace(/[^\w\u0600-\u06FF-]+/g,'_')+'.'+ext;

@@ -132,7 +132,9 @@
     f.style.cssText='position:fixed;left:-9999px;top:0;width:'+pw+'px;height:'+ph+'px;border:0;visibility:hidden'; document.body.appendChild(f);
     var w=f.contentWindow, d=w.document; d.open(); d.write(html); d.close();
     var go=function(){ try{ w.focus(); w.print(); }catch(e){ try{ toast('Print failed - use Picture instead'); }catch(_){} } setTimeout(function(){ f.remove(); },120000); };
-    var fr=(d.fonts&&d.fonts.ready)?Promise.race([d.fonts.ready,new Promise(function(r){ setTimeout(r,2500); })]):Promise.resolve();
+    /* wait until the stylesheet AND every font used is really loaded, so the printed text is the same font/size as the preview (late fonts were moving items) */
+    var lk=d.querySelector('link[rel=stylesheet]'), sheet=lk?new Promise(function(r){ lk.onload=lk.onerror=r; setTimeout(r,4000); }):Promise.resolve();
+    var fr=Promise.race([sheet.then(function(){ return Promise.all(all.map(function(n){ return d.fonts.load('40px "'+n+'"','\u0639Aa').catch(function(){}); })); }).then(function(){ return d.fonts.ready; }),new Promise(function(r){ setTimeout(r,6000); })]);
     fr.then(function(){ setTimeout(go,350); });
   };
   /* if the Certificate tab is already open, add the card now */
@@ -160,8 +162,8 @@ function ctLiveHTML(){
   var _png=ctPng;
   ctPng=async function(){
     var live=ctLiveHTML(); if(!live) return _png.apply(this,arguments);
-    window.RP_XF=ctFonts(CT); window.RP_XCSS=ctCssLikePreview(); window.RP_XPAD=0;
+    window.RP_XF=ctFonts(CT); window.RP_XCSS=ctCssLikePreview(); window.RP_XPAD=0; window.RP_MINQ=3; window.RP_FMT='png';
     window.PV_FORCE='live';
-    try{ await rpToPng(live,1123,'Certificate_'+(CT.name||'student')); } finally { window.PV_FORCE=null; window.RP_XF=null; window.RP_XCSS=''; window.RP_XPAD=null; }
+    try{ await rpToPng(live,1123,'Certificate_'+(CT.name||'student')); } finally { window.PV_FORCE=null; window.RP_XF=null; window.RP_XCSS=''; window.RP_XPAD=null; window.RP_MINQ=0; window.RP_FMT=null; }
   };
 })();

@@ -298,6 +298,33 @@ function ctImpBind(d){
         if(/معلّ?م|teacher/i.test(lb)) k='{teacher}'; else if(/تاريخ|date/i.test(lb)) k='{date}'; }
       if(k) d.tx[i]=k; });
   }catch(e){} return d; }
+
+/* "Emerald panel II · Auto" (the original Emerald panel II stays untouched) follows the same certificate fields as every other design: language (Arabic / English / both), what was completed, grade, gender, du'a, message, seal and basmala. A text you edit by hand in "Texts in this template" always wins. */
+function ctEm2Fill(r,c,o){
+  const L=c.lang||'both', en=L!=='ar', ar=L!=='en', both=en&&ar, f=c.gender==='f', w=ctWhat(c), gr=CT_GR[c.grade]||null;
+  r.setAttribute('dir',ar&&!en?'rtl':'ltr'); /* Arabic: teacher on the right, date on the left (same as the other designs) */
+  const own=el=>{ const i=el&&el.getAttribute('data-tx'); return !!(o[i]&&o[i].t!=null); };
+  const put=(sel,lines,fs,latin)=>{ const el=r.querySelector(sel); if(!el) return null; if(own(el)) return el; const arr=[].concat(lines).filter(x=>x!=null&&x!==''); el.textContent='';
+    arr.forEach((ln,k)=>{ if(arr.length>1){ const sp=document.createElement('span'); sp.style.display='block'; sp.setAttribute('dir','auto'); sp.textContent=ln; el.appendChild(sp); } else el.appendChild(document.createTextNode(ln)); }); el.setAttribute('dir','auto');
+    if(fs) el.style.fontSize=fs+'px'; if(latin&&!ar&&!(o[el.getAttribute('data-tx')]||{}).f) el.style.fontFamily="'Amiri',serif"; return el; };
+  const hide=el=>{ if(el) el.style.display='none'; };
+  if(both){ const inn=r.querySelector('.cx-ct-in'); if(inn){ inn.style.gap='7px'; inn.style.paddingTop='72px'; inn.style.paddingBottom='80px'; } }
+  const bis=r.querySelector('.cx-head small'); if(bis){ if(c.nobis) hide(bis); else if(!own(bis)) bis.textContent=c.bisTxt||'بسم الله الرحمن الرحيم'; }
+  const ac=r.querySelector('.cx-head b'); if(ac){ if(!own(ac)) ac.textContent=c.academy||''; if(!ac.textContent.trim()) hide(ac); }
+  put('.cx-title',[ar?(c.tAr||w.t[1]):null,en?(c.tEn||w.t[0]):null],both?42:52,1);
+  put('.cx-lead',[ar?(c.pAr||'بكل فخر واعتزاز، تقدَّم هذه الشهادة إلى '+(f?'الطالبة':'الطالب')):null,en?(c.pEn||'This certificate is proudly presented to'):null],both?19:null,0);
+  const nm=r.querySelector('.cx-name'); if(nm&&!own(nm)){ nm.textContent=c.name||(ar&&!en?'اسم الطالب':'Student Name'); nm.setAttribute('dir','auto'); if(both) nm.style.fontSize='54px'; }
+  put('.cx-body',[ar&&w.ar?w.ar:null,ar&&w.ar&&c.verb?'وما '+(f?'أظهرته':'أظهره')+' من اجتهاد ومثابرة والتزام وإتقان':null,en&&w.en?w.en:null],both?19:null,1);
+  const dua=(()=>{ const v=c.dua||'auto'; if(v==='none') return null; return CT_DUAS.find(x=>x.id===v)||CT_DUAS.find(x=>x.id===(CT_DUA_AUTO[c.kind]||'barak')); })();
+  const de=r.querySelector('.cx-dua'); if(de&&!own(de)){ const lines=[]; if(dua){ if(ar) lines.push(dua.ar); if(en) lines.push(dua.en); } if(c.msg) lines.push(c.msg);
+    if(!lines.length) hide(de); else put('.cx-dua',lines,both?16:null,1); }
+  const sg=r.querySelectorAll('.cx-foot .cx-sig'), lab=(a,b)=>(ar?a:'')+(both?' · ':'')+(en?b:'');
+  if(sg[0]){ const b=sg[0].querySelector('b'), sp=sg[0].querySelector('span'); if(b&&!own(b)) b.textContent=c.teacher||''; if(sp&&!own(sp)) sp.textContent=lab('المعلّم','Teacher'); }
+  if(sg[1]){ const b=sg[1].querySelector('b'), sp=sg[1].querySelector('span'); if(b&&!own(b)) b.textContent=rpDMY(c.date); if(sp&&!own(sp)) sp.textContent=lab('التاريخ','Date'); }
+  const seal=r.querySelector('.cx-seal'); if(seal){ if(c.noseal) seal.style.visibility='hidden'; else { const sm=seal.querySelector('small'), sp=seal.querySelector(':scope > span');
+    if(sm&&!own(sm)) sm.textContent=lab('التقدير','Grade'); if(sp&&!own(sp)){ const t=c.sealTxt||(gr?(ar?gr[1]:'')+(both?' · ':'')+(en?gr[0]:''):''); if(t){ if(both&&!c.sealTxt&&gr){ sp.textContent=''; sp.appendChild(document.createTextNode(gr[1])); sp.appendChild(document.createElement('br')); sp.appendChild(document.createTextNode(gr[0])); sp.style.fontSize='13px'; sp.style.lineHeight='1.15'; } else sp.textContent=t; } else hide(sp); } } }
+}
+function ctImpCur(d,i){ try{ const t=document.createElement('div'); t.innerHTML=ctImpHTML(CT,d); const el=t.querySelector('[data-tx="'+i+'"]'); return el?[].map.call(el.childNodes,x=>x.nodeType===3?x.textContent:x.tagName==='BR'?'\n':'').join('').trim():''; }catch(e){ return ''; } }
 function ctImpHTML(c,d){
   ctImpBind(d);
   const o=(c.ix&&c.ix[d.id])||{}, tk={'{name}':c.name,'{date}':rpDMY(c.date),'{teacher}':c.teacher,'{academy}':c.academy};
@@ -306,6 +333,7 @@ function ctImpHTML(c,d){
     if(/\{(name|date|teacher|academy)\}/.test(tx)) tx=tx.replace(/\{(name|date|teacher|academy)\}/g,(m)=>tk[m]!=null?tk[m]:m);
     if(v.t!=null||tx!==d.tx[i]){ el.textContent=''; tx.split('\n').forEach((ln,k)=>{ if(k) el.appendChild(document.createElement('br')); el.appendChild(document.createTextNode(ln)); }); }
     if(v.f) el.style.fontFamily="'"+v.f+"',serif"; if(v.c){ el.style.color=v.c; el.style.webkitTextFillColor=v.c; } });
+  if(d.id==='emeraldii2'){ try{ ctEm2Fill(r,c,o); }catch(e){} }
   return '<div class="'+d.sc+'" style="position:relative;width:1123px;height:794px;'+(c.c1?'--c1:'+c.c1+';':'')+(c.c2?'--c2:'+c.c2+';':'')+'">'+r.outerHTML+'</div>';
 }
 function ctImpCSS(){ return CT_DES.filter(d=>d.imp).map(d=>d.css).join('\n'); }
@@ -313,18 +341,28 @@ function ctImpStyle(){ let s=document.getElementById('ctImpStyle'); if(!s){ s=do
 function ctImpSaveList(){ lsSet('lp.ct.imp',JSON.stringify(CT_DES.filter(d=>d.imp&&!d.builtin))); }
 function ctImpAdd(d){ const k=CT_DES.findIndex(x=>x.id===d.id); if(k>=0) CT_DES[k]=d; else CT_DES.push(d); ctImpSaveList(); ctImpStyle(); }
 function ctImpFonts(d){ return d&&d.imp?(d.fonts||[]):[]; }
-(function(){ try{ const k=CT_DES.findIndex(d=>d.id==='chamfer'); const b=ctImpParse(CT_EMII,'Emerald panel II','emeraldii'); b.builtin=1; CT_DES.splice(k+1,0,b); }catch(e){}
+(function(){ try{ const k=CT_DES.findIndex(d=>d.id==='chamfer'); const b=ctImpParse(CT_EMII,'Emerald panel II','emeraldii'); b.builtin=1; CT_DES.splice(k+1,0,b); const b2=ctImpParse(CT_EMII,'Emerald panel II · Auto','emeraldii2'); b2.builtin=1; CT_DES.splice(k+2,0,b2); }catch(e){}
   try{ rpJ('lp.ct.imp',[]).forEach(x=>{ if(x&&x.id&&x.html&&!CT_DES.some(d=>d.id===x.id)) CT_DES.push(x); }); }catch(e){}
   ctImpStyle(); })();
+let ctImpOpen=false;
 function ctImpPanel(){
   const box=$('ctImpBox'); if(!box) return; const d=ctDes(CT.design); ctImpBind(d); const db=document.querySelector('#rpCertPane [data-ca=del]'); if(db) db.hidden=!(d.imp&&!d.builtin); if(!d.imp){ box.innerHTML=''; return; }
+  const prev=box.querySelector('details'); if(prev) ctImpOpen=prev.open;
+  const ar=(typeof RPL!=='undefined'&&RPL==='ar'), T=(a,b)=>ar?b:a;
   const o=(CT.ix&&CT.ix[d.id])||{}, opt=(v,t,s)=>'<option value="'+rpEsc(v)+'"'+(s?' selected':'')+'>'+rpEsc(t)+'</option>';
   const fl=CT_AFONTS.concat(CT_EFONTS,RP_FONTS.filter(f=>!f.sys)); const gs=[...new Set(fl.map(f=>f.g))];
-  box.innerHTML='<details class="rp-card" open><summary style="cursor:pointer;font-weight:800">&#9998; Texts in this template</summary><p class="help">Edit each text, its font and its color. Type {name}, {date}, {teacher} or {academy} to fill a text from the fields above.</p>'
-   +d.tx.map((t,i)=>{ const v=o[i]||{}, val=v.t!=null?v.t:t;
-     return '<div class="rp-card" style="padding:10px;margin-top:8px"><textarea class="field" rows="'+Math.min(4,val.split('\n').length+(val.length>60?1:0))+'" dir="auto" data-ix="'+i+'" data-k="t">'+rpEsc(val)+'</textarea>'
-     +'<div class="rp-grid" style="margin-top:6px;grid-template-columns:1fr auto auto;align-items:center;gap:6px"><select class="field" data-ix="'+i+'" data-k="f" aria-label="Font">'+opt('','Template font',!v.f)+gs.map(g=>'<optgroup label="'+g+'">'+fl.filter(f=>f.g===g).map(f=>opt(f.n,f.n,f.n===v.f)).join('')+'</optgroup>').join('')+'</select>'
-     +'<input class="field" type="color" data-ix="'+i+'" data-k="c" value="'+(v.c||'#000000')+'" style="width:46px;padding:2px" aria-label="Color"><button class="btn small" type="button" data-ixr="'+i+'" title="Reset" aria-label="Reset">↺</button></div></div>'; }).join('')+'</details>';
+  const tpl=document.createElement('template'); tpl.innerHTML=d.html; const role=i=>{ const el=tpl.content.querySelector('[data-tx="'+i+'"]'); if(!el) return '#'+(+i+1); const c=(el.getAttribute('class')||'').replace(/cx-/g,''), pc=el.parentElement?(el.parentElement.getAttribute('class')||'').replace(/cx-/g,''):'', tg=el.tagName.toLowerCase();
+    const m={title:['Title','العنوان'],lead:['Presented to','تُمنح إلى'],name:['Student name','اسم الطالب'],body:['Achievement','الإنجاز'],dua:['Duʿa / message','الدعاء / الرسالة']}[c]; if(m) return T(m[0],m[1]);
+    if(/head/.test(pc)) return tg==='small'?T('Basmala','البسملة'):T('Academy','الأكاديمية'); if(/seal/.test(c+pc)) return tg==='small'?T('Seal label','عنوان الختم'):T('Grade','التقدير'); if(/sig/.test(pc)) return tg==='b'?T('Name / date','الاسم / التاريخ'):T('Label','العنوان'); return '#'+(+i+1); };
+  const sty='<style>#ctImpBox .ctx{display:grid;grid-template-columns:1fr auto;gap:4px 6px;align-items:center;padding:6px 8px;margin-top:6px}#ctImpBox .ctx>b{grid-column:1/-1;font-size:.72rem;opacity:.7;font-weight:700}#ctImpBox .ctx textarea{grid-column:1/-1;min-height:34px;resize:vertical;padding:6px 8px}#ctImpBox .ctx .ctc{grid-column:1/-1;display:flex;gap:4px;align-items:center}#ctImpBox .ctx select{flex:1;min-width:0;padding:4px 6px;font-size:.8rem}#ctImpBox .ctx .btn.small{padding:4px 8px;min-width:0}</style>';
+  box.innerHTML=sty+'<details class="rp-card" style="padding:8px 12px"'+(ctImpOpen?' open':'')+'><summary style="cursor:pointer;font-weight:800">&#9998; '+T('Texts in this template','نصوص هذا القالب')+' <span style="font-weight:400;opacity:.6;font-size:.8rem">('+d.tx.length+')</span></summary><p class="help" style="margin:4px 0 0">'+T('Filled automatically from the fields above (language, surah, grade…). Edit a box to override it. ⧉ puts a movable copy on the certificate.','تُملأ تلقائيًا من الحقول أعلاه (اللغة، السورة، التقدير…). عدّل أي مربع لتغييره. ⧉ يضع نسخة قابلة للتحريك على الشهادة.')+'</p>'
+   +d.tx.map((t,i)=>{ const v=o[i]||{}, val=v.t!=null?v.t:(d.id==='emeraldii2'?ctImpCur(d,i):t);
+     return '<div class="rp-card ctx"><b>'+role(i)+'</b><textarea class="field" rows="'+Math.min(3,val.split('\n').length)+'" dir="auto" data-ix="'+i+'" data-k="t">'+rpEsc(val)+'</textarea>'
+     +'<div class="ctc"><select class="field" data-ix="'+i+'" data-k="f" aria-label="Font">'+opt('',T('Template font','خط القالب'),!v.f)+gs.map(g=>'<optgroup label="'+g+'">'+fl.filter(f=>f.g===g).map(f=>opt(f.n,f.n,f.n===v.f)).join('')+'</optgroup>').join('')+'</select>'
+     +'<input class="field" type="color" data-ix="'+i+'" data-k="c" value="'+(v.c||'#000000')+'" style="width:36px;height:28px;padding:1px" aria-label="Color">'
+     +'<button class="btn small" type="button" data-ixd="'+i+'" title="'+T('Duplicate on the certificate','نسخ على الشهادة')+'" aria-label="Duplicate">⧉</button>'
+     +'<button class="btn small" type="button" data-ixc="'+i+'" title="'+T('Copy text','نسخ النص')+'" aria-label="Copy">⎘</button>'
+     +'<button class="btn small" type="button" data-ixr="'+i+'" title="'+T('Reset','إعادة')+'" aria-label="Reset">↺</button></div></div>'; }).join('')+'</details>';
 }
 function ctImpEvt(e){ const t=e.target; if(!t.dataset||t.dataset.ix==null) return; const d=ctDes(CT.design); if(!d.imp) return;
   if(!CT.ix||typeof CT.ix!=='object') CT.ix={}; const o=CT.ix[d.id]=CT.ix[d.id]||{}, r=o[t.dataset.ix]=o[t.dataset.ix]||{}; r[t.dataset.k]=t.value;
@@ -337,7 +375,14 @@ function ctImportFile(f){ if(!f) return; const rd=new FileReader(); rd.onerror=(
       if(j.design&&j.design.imp){ j.design.builtin=0; ctImpAdd(j.design); } id=j.design&&j.design.id; Object.assign(CT,j.settings||{}); if(id&&CT_DES.some(d=>d.id===id)) CT.design=id; }
     else { const d=ctImpParse(txt,f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').trim(),null); ctImpAdd(d); CT.design=d.id; CT.c1=''; CT.c2=''; CT.ix=CT.ix&&typeof CT.ix==='object'?CT.ix:{}; delete CT.ix[d.id]; }
     ctSave(); ctBuild(); toast('Template imported'); }catch(err){ toast('Could not import this file'); } }; rd.readAsText(f); }
+function ctImpDup(i){ try{ const el=document.querySelector('#ctPv [data-tx="'+i+'"]'), box=document.querySelector('#ctPv > *'); if(!el||!box){ toast('Open the preview first'); return; }
+  const br=box.getBoundingClientRect(), er=el.getBoundingClientRect(), cs=getComputedStyle(el), W0=box.offsetWidth||1123, sc=(br.width/W0)||1, S=PVE.S.cert=PVE.S.cert||{}; S._x=S._x||[];
+  const it={id:'t'+Date.now().toString(36),k:'t',x:+Math.min(96,(er.left+er.width/2-br.left)/br.width*100+3).toFixed(2),y:+Math.min(96,(er.top+er.height/2-br.top)/br.height*100+3).toFixed(2),fs:+Math.max(1.2,Math.min(16,(parseFloat(cs.fontSize)||16)/W0*100)).toFixed(2),txt:(el.innerText||el.textContent||'').trim(),c:cs.color,bw:Math.max(10,Math.min(100,Math.round(er.width/sc/W0*100)+4))};
+  const ff=(cs.fontFamily||'').split(',')[0].replace(/["']/g,'').trim(); if(ff&&CT_AFONTS.concat(CT_EFONTS,RP_FONTS).some(f=>f.n===ff)) it.ff=ff;
+  S._x.push(it); PVE.sel={key:'cert',id:it.id}; pvSave(); PV_RR.cert(); toast('Duplicated on the certificate — drag it to place it'); }catch(e){ toast('Could not duplicate this text'); } }
 function ctImpClick(e){ const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.ixc!=null){ const ta=document.querySelector('#ctImpBox textarea[data-ix="'+b.dataset.ixc+'"]'); const tx=ta?ta.value:''; try{ navigator.clipboard.writeText(tx); toast('Copied ✓'); }catch(_){ try{ ta.select(); document.execCommand('copy'); toast('Copied ✓'); }catch(__){} } return; }
+  if(b.dataset.ixd!=null){ ctImpDup(b.dataset.ixd); return; }
   if(b.dataset.ixr!=null){ const d=ctDes(CT.design); if(CT.ix&&CT.ix[d.id]) delete CT.ix[d.id][b.dataset.ixr]; ctSave(); ctImpPanel(); ctRender(); return; }
   if(b.dataset.ca==='imp'){ $('ctImpF').click(); return; } if(b.dataset.ca==='exp'){ ctExport(); return; }
   if(b.dataset.ca==='del'){ const d=ctDes(CT.design); if(d.imp&&!d.builtin){ CT_DES.splice(CT_DES.indexOf(d),1); ctImpSaveList(); ctImpStyle(); CT.design='royal'; ctSave(); ctBuild(); } } }
