@@ -13,11 +13,14 @@ setInterval(()=>{const n=S.pages.length;if(!n)return;
 (function(){
 const orig=addFiles,PH='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 let q=[],act=0;const MAXC=3;
+/* a hidden teacher tab pauses requestAnimationFrame, which froze the PDF page rendering until the teacher came back: while pages are being rendered, run those frames through a message channel (not paused in the background) */
+if(!STU&&!window._rafMC){window._rafMC=1;const r0=window.requestAnimationFrame.bind(window),Q=[],mc=new MessageChannel();mc.port1.onmessage=()=>{const l=Q.splice(0);for(const f of l)try{f(performance.now())}catch(e){}};
+ window.requestAnimationFrame=cb=>{if(window._pdfR>0&&document.hidden){Q.push(cb);mc.port2.postMessage(0);return 0}return r0(cb)}}
 const _sp=sendPage;sendPage=function(i){const p=S.pages[i];if(p&&p.blob)_sp(i)};
 const _ui=ui;ui=function(){_ui();fixRail()};
 function fixRail(){if(STU)return;const r=$('rail');[...r.children].forEach((d,i)=>{const p=S.pages[i],im=d.firstChild;if(p&&im&&im.style&&!p.blob){im.style.aspectRatio=p.w+'/'+p.h;im.style.background='#111'}})}
 function pump(){while(act<MAXC&&q.length){const p=q.shift();if(p.blob||p.rend||!p.lazy)continue;doR(p)}}
-async function doR(p){p.rend=1;act++;try{
+async function doR(p){p.rend=1;act++;window._pdfR=(window._pdfR||0)+1;try{
  const L=p.lazy;p.pdf={doc:L.doc,n:L.n};const pg=await L.doc.getPage(L.n),v0=pg.getViewport({scale:1}),w0=v0.width,vp=pg.getViewport({scale:Math.min(5,PW()/w0,Math.sqrt(6e6/(w0*v0.height)))}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
  await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
  p.text=await pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'');
@@ -25,7 +28,7 @@ async function doR(p){p.rend=1;act++;try{
  p.w=c.width;p.h=c.height;if(i>=0&&Math.abs(i-S.i)<=3)p.bmp=await createImageBitmap(c);
  p.blob=blob;p.url=URL.createObjectURL(blob);p.lazy=null;
  if(i>=0){const d=$('rail').children[i];if(d&&d.firstChild){d.firstChild.src=p.url;d.firstChild.style.aspectRatio=''}sendPage(i)}
- need=1}catch(e){p.rend=0}finally{act--;p.rend=0;pump()}}
+ need=1}catch(e){p.rend=0}finally{act--;window._pdfR--;p.rend=0;pump()}}
 function want(){const l=[4,3,2,-2,-1,1,0];for(const k of l){const p=S.pages[S.i+k];if(p&&p.lazy&&!p.blob&&!p.rend){q=q.filter(x=>x!==p);q.unshift(p)}}pump()}
 window.want=want;window.wantAt=function(i){const p=S.pages[i];if(p&&p.lazy&&!p.blob&&!p.rend){q=q.filter(x=>x!==p);q.unshift(p);pump()}};const _go=go;go=function(i){_go(i);want()};
 setInterval(()=>{if(!document.hidden)want()},300);
