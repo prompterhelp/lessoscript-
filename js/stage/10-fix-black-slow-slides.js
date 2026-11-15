@@ -1,9 +1,11 @@
 /* ===== fix: black / slow slides ===== */
 ensurePg=function(i){for(let k=i-1;k<=i+2;k++){const p=S.pages[k];if(p&&!p.bmp&&!p.dec&&p.blob){p.dec=1;createImageBitmap(p.blob).then(b=>{p.bmp=b;need=1}).catch(()=>{}).finally(()=>{p.dec=0})}}};
 function needPg(i){const m={t:'need',i,n:Math.random()};try{if(BCOK)ch.postMessage(m);else if(opener)opener.postMessage(m,'*')}catch(e){}}
-(function(){const prev=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='need'){if(!STU&&S.pages[m.i]){const nw=performance.now(),T=window._nt=window._nt||{};if(!(nw-(T[m.i]||0)<400)){T[m.i]=nw;if(window.wantAt)window.wantAt(m.i);sendPage(m.i)}}return}return prev(ev)}})();
+(function(){const prev=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t==='need'){if(!STU)S.peerI=m.i;if(!STU&&S.pages[m.i]){const nw=performance.now(),T=window._nt=window._nt||{};if(!(nw-(T[m.i]||0)<400)){T[m.i]=nw;if(window.wantAt)window.wantAt(m.i);sendPage(m.i)}}return}return prev(ev)}})();
 setInterval(()=>{const n=S.pages.length;if(!n)return;
  if(STU)for(let k=Math.max(0,S.i-2);k<Math.min(n,S.i+6);k++){const p=S.pages[k];if(!p||!p.blob)needPg(k)}
+ /* student: keep asking for the nearest pages still missing (anywhere in the deck), so everything loads in the background */
+ if(STU){let c=0;for(let d=0;d<n&&c<2;d++)for(const k of d?[S.i+d,S.i-d]:[S.i]){if(k>=0&&k<n){const p=S.pages[k];if((!p||!p.blob)){needPg(k);c++}}}}
  const c=S.pages[S.i];if(c&&c.blob){ensurePg(S.i);if(!c.bmp)need=1}
  if(n>=12)S.pages.forEach((p,k)=>{if(p&&p.bmp&&Math.abs(k-S.i)>6){try{p.bmp.close()}catch(e){}p.bmp=null}})},700);
 

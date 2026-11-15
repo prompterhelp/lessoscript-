@@ -30,6 +30,6 @@ if(STU)setTimeout(()=>{const tb=$('tb');[...tb.children].forEach(h=>{if(h.tagNam
 (function(){const rs=()=>{try{pts.clear();pin=null;pan=null}catch(e){}};addEventListener('blur',rs);document.addEventListener('visibilitychange',()=>{if(document.hidden)rs()})})();
 /* while you are moving this window, ignore view updates coming from the other one (no tug of war) */
 /* (the update that was ignored is NOT lost: the newest one is applied right after you stop moving) */
-(function(){const pf=ch.onmessage;let late=null,lt=0;ch.onmessage=ev=>{const m=ev&&ev.data;
- if(m&&m.t=='st'){if(pts.size||performance.now()-(S.own||0)<500){late=ev;clearTimeout(lt);lt=setTimeout(()=>{const e=late;late=null;if(e&&!pts.size)pf(e)},560);return}late=null;clearTimeout(lt)}
+(function(){const pf=ch.onmessage;let late=null,lt=0,lk='';const K=m=>JSON.stringify([m.i,m.v,m.blank]);ch.onmessage=ev=>{const m=ev&&ev.data;
+ if(m&&m.t=='st'){const k=K(m);if(pts.size||performance.now()-(S.own||0)<500){/* the other window did not move: its position is old news and must not pull this window back (the sudden jump / magnet) */if(k===lk)return;late=ev;clearTimeout(lt);lt=setTimeout(()=>{const e=late;late=null;if(e&&!pts.size){lk=K(e.data);pf(e)}},560);return}late=null;clearTimeout(lt);lk=k}
  return pf(ev)}})();
