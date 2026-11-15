@@ -52,11 +52,11 @@ const _dr3=draw;draw=function(){const mv=performance.now()-(S.mvT||0)<220||!!S.l
 // teacher pushes the next pages to the student as soon as they are ready; student asks at once on every page change
 {const sent=new WeakSet();
  /* teacher: send pages to the student starting from where the STUDENT is (not where the teacher is), and keep going even when this window is hidden */
- if(!STU){setInterval(()=>{const n=S.pages.length;if(!n)return;const ref=S.peerI!=null?S.peerI:S.i,lim=document.hidden?3:1;let c=0;
+ if(!STU){setInterval(()=>{const n=S.pages.length;if(!n)return;const ref=S.peerI!=null?S.peerI:S.i,lim=1;let c=0;
    for(let d=0;d<n&&c<lim;d++)for(const k of d?[ref+d,ref-d]:[ref]){const p=S.pages[k];if(p&&p.blob&&!sent.has(p.blob)){sent.add(p.blob);try{sendPage(k)}catch(e){}if(++c>=lim)break}}},120);
   /* teacher: also prepare the PDF pages around the student's position in the background, so the student never waits for the teacher to scroll there */
-  setInterval(()=>{const n=S.pages.length;if(!n||!window.wantAt||S.pages.filter(p=>p.rend).length>1)return;const ref=S.peerI!=null?S.peerI:S.i;
-   for(let d=0;d<Math.min(n,40);d++)for(const k of d?[ref+d,ref-d]:[ref]){const p=S.pages[k];if(p&&p.lazy&&!p.blob&&!p.rend){window.wantAt(k);return}}},400)}
+  setInterval(()=>{const n=S.pages.length;if(!n||!window.wantAt||S.pages.some(p=>p.rend))return;const ref=S.peerI!=null?S.peerI:S.i;
+   for(let d=0;d<Math.min(n,40);d++)for(const k of d?[ref+d,ref-d]:[ref]){const p=S.pages[k];if(p&&p.lazy&&!p.blob&&!p.rend){window.wantAt(k);return}}},900)}
  else{const ask=()=>{for(const k of[S.i,S.i+1,S.i+2,S.i-1]){const p=S.pages[k];if(k>=0&&k<S.pages.length&&(!p||!p.blob)&&!(p&&p.lr))needPg(k)}};
   const _ua=ui;ui=function(){_ua();ask()};setInterval(()=>{if(!document.hidden)ask()},300)}}
 // page number box on the student screen

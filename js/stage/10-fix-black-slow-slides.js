@@ -5,7 +5,7 @@ function needPg(i){const m={t:'need',i,n:Math.random()};try{if(BCOK)ch.postMessa
 setInterval(()=>{const n=S.pages.length;if(!n)return;
  if(STU)for(let k=Math.max(0,S.i-2);k<Math.min(n,S.i+6);k++){const p=S.pages[k];if(!p||!p.blob)needPg(k)}
  /* student: keep asking for the nearest pages still missing (anywhere in the deck), so everything loads in the background */
- if(STU){let c=0;for(let d=0;d<n&&c<2;d++)for(const k of d?[S.i+d,S.i-d]:[S.i]){if(k>=0&&k<n){const p=S.pages[k];if((!p||!p.blob)){needPg(k);c++}}}}
+ if(STU){const nr=[];for(let k=Math.max(0,S.i-2);k<Math.min(n,S.i+6);k++)nr.push(k);if(nr.every(k=>S.pages[k]&&S.pages[k].blob)){let c=0;for(let d=6;d<n&&!c;d++)for(const k of[S.i+d,S.i-d]){if(k>=0&&k<n){const p=S.pages[k];if(!p||!p.blob){needPg(k);c=1;break}}}}}
  const c=S.pages[S.i];if(c&&c.blob){ensurePg(S.i);if(!c.bmp)need=1}
  if(n>=12)S.pages.forEach((p,k)=>{if(p&&p.bmp&&Math.abs(k-S.i)>6){try{p.bmp.close()}catch(e){}p.bmp=null}})},700);
 
