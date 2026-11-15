@@ -21,8 +21,15 @@ window.smoothWheel=function(e){if(e.target.closest&&e.target.closest('#media,#ov
  else{PY+=Math.max(-150,Math.min(150,e.deltaY*k))*.6;PX+=Math.max(-150,Math.min(150,e.deltaX*k))*.6}
  go1()}})();
 
-if(STU)setTimeout(()=>{const tb=$('tb');[...tb.children].forEach(h=>{if(h.tagName=='HR'){const p=h.previousElementSibling;if(!p||p.tagName=='HR')h.remove()}})},300)
-/* reactions sent while this window is hidden are dropped, not saved up */
-(function(){const pf=ch.onmessage;let pend=null;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t=='fx'&&(document.hidden||document.visibilityState==='hidden')){pend={m,t:Date.now()};return}return pf(ev)};document.addEventListener('visibilitychange',()=>{if(document.hidden||!pend)return;const p=pend;pend=null;if(Date.now()-p.t<4000)pf({data:{...p.m,n:Math.random()}})})})();
+if(STU)setTimeout(()=>{const tb=$('tb');[...tb.children].forEach(h=>{if(h.tagName=='HR'){const p=h.previousElementSibling;if(!p||p.tagName=='HR')h.remove()}})},300);
+/* reactions sent while this window is hidden: keep only the last 3 (different kinds), replay them one by one when you come back - never all at once */
+(function(){const pf=ch.onmessage;let q=[];
+ ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t=='fx'&&(document.hidden||document.visibilityState==='hidden')){q=q.filter(x=>x.m.k!==m.k);q.push({m,t:Date.now()});if(q.length>3)q.shift();return}return pf(ev)};
+ document.addEventListener('visibilitychange',()=>{if(document.hidden||!q.length)return;const L=q.filter(x=>Date.now()-x.t<6000);q=[];L.forEach((x,i)=>setTimeout(()=>{if(!document.hidden)pf({data:{...x.m,n:Math.random()}})},400+i*450))})})();
+/* a press/drag that was cut off by switching windows must not stay "held" (it made this window ignore the other window's page changes) */
+(function(){const rs=()=>{try{pts.clear();pin=null;pan=null}catch(e){}};addEventListener('blur',rs);document.addEventListener('visibilitychange',()=>{if(document.hidden)rs()})})();
 /* while you are moving this window, ignore view updates coming from the other one (no tug of war) */
-(function(){const pf=ch.onmessage;ch.onmessage=ev=>{const m=ev&&ev.data;if(m&&m.t=='st'&&(pts.size||performance.now()-(S.own||0)<500))return;return pf(ev)}})();
+/* (the update that was ignored is NOT lost: the newest one is applied right after you stop moving) */
+(function(){const pf=ch.onmessage;let late=null,lt=0;ch.onmessage=ev=>{const m=ev&&ev.data;
+ if(m&&m.t=='st'){if(pts.size||performance.now()-(S.own||0)<500){late=ev;clearTimeout(lt);lt=setTimeout(()=>{const e=late;late=null;if(e&&!pts.size)pf(e)},560);return}late=null;clearTimeout(lt)}
+ return pf(ev)}})();

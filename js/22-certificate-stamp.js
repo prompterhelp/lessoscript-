@@ -98,7 +98,7 @@
   };
 
   /* ---- drag the stamp on the preview ---- */
-  var st=document.createElement('style'); st.textContent='#rpCertPane .ct-stamp{cursor:grab}#rpCertPane .ct-stamp:hover{outline:1.5px dashed rgba(0,0,0,.45);outline-offset:3px}@media print{.ct-stamp{outline:none!important}}';
+  var st=document.createElement('style'); st.textContent='#rpCertPane .ct-stamp{cursor:grab}#rpCertPane .ct-stamp:hover{outline:1.5px dashed rgba(0,0,0,.45);outline-offset:3px}';
   document.head.appendChild(st);
   var drag=null; window.syncSl=window.syncSl||function(){};
   document.addEventListener('pointerdown',function(e){
@@ -121,103 +121,47 @@
   var PAPER={a4:[210,297],a3:[297,420],a5:[148,210],letter:[215.9,279.4],legal:[215.9,355.6]};
   ctPrint=function(){
     var p=PAPER[CT.paper]||PAPER.a4, land=(CT.orient||'l')!=='p', wm=land?p[1]:p[0], hm=land?p[0]:p[1];
-    var mm=96/25.4, pw=Math.round(wm*mm), ph=Math.round(hm*mm), k=Math.min(pw/1123,ph/794);
+    var mm=96/25.4, pw=Math.floor(wm*mm), ph=Math.floor(hm*mm), k=Math.min(pw/1123,ph/794);
     var all=[].concat.apply([],CT_DES.map(function(d){ return [rpFam(d.f),rpFam(d.af)].concat(ctImpFonts(d)); })).concat(ctFonts(CT)).filter(Boolean), u=rpFontURL(all);
-    
-    /* Strip conflicting @page rules from CT_PG so our paper size wins */
-    var basePg=(typeof CT_PG==='string')?CT_PG.replace(/@page\s*\{[^}]*\}/gi,''):'';
-    var css=CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+basePg+ctImpCSS();
-    var certMarkup=ctLiveHTML()||(typeof pvExport==='function'?pvExport(ctHTML(CT),0,'cert'):ctHTML(CT));
-
-    var html='<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'
-      +(u?'<link rel="stylesheet" href="'+u+'">':'')
-      +'<style>'+css
-      +'@page{size:'+wm+'mm '+hm+'mm;margin:0 !important;}'
-      +'*{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;box-sizing:border-box;}'
-      +'html,body{margin:0 !important;padding:0 !important;background:#fff !important;width:'+wm+'mm;height:'+hm+'mm;overflow:hidden !important;}'
-      +'#print-stage{position:relative;width:'+pw+'px;height:'+ph+'px;overflow:hidden;background:#fff;page-break-after:avoid;page-break-inside:avoid;}'
-      +'#cw{position:absolute;left:50%;top:50%;width:1123px;height:794px;transform-origin:center center;transform:translate(-50%,-50%);}'
-      +'.ct{width:1123px !important;height:794px !important;margin:0 !important;box-shadow:none !important;transform:none !important;}'
-      +'</style></head><body><div id="print-stage"><div id="cw">'+certMarkup+'</div></div></body></html>';
-
+    var css=ctCssLikePreview();
+    var html='<!doctype html><html lang="'+(document.documentElement.lang||'en')+'"><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+css
+      +'@page{size:'+wm+'mm '+hm+'mm;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;letter-spacing:.005em;width:'+pw+'px;height:'+(ph-2)+'px;overflow:hidden}'
+      +'#cw{position:absolute;left:50%;top:50%;width:1123px;height:794px;margin:-397px 0 0 -561.5px;transform:scale('+k+');transform-origin:center center}</style></head><body><div id="cw">'
+      +(ctLiveHTML()||pvExport(ctHTML(CT),0,'cert'))+'</div></body></html>';
     var f=document.createElement('iframe');
-    f.style.cssText='position:fixed;left:-9999px;top:0;width:1123px;height:794px;border:0;visibility:hidden;pointer-events:none';
-    document.body.appendChild(f);
+    f.style.cssText='position:fixed;left:-9999px;top:0;width:'+pw+'px;height:'+ph+'px;border:0;visibility:hidden'; document.body.appendChild(f);
     var w=f.contentWindow, d=w.document; d.open(); d.write(html); d.close();
-
-    var go=function(){
-      /* Apply scale AFTER ctFitMid has measured unscaled 1123x794 layout */
-      var cw=d.getElementById('cw');
-      if(cw) cw.style.transform='translate(-50%,-50%) scale('+k.toFixed(5)+')';
-      setTimeout(function(){
-        try{ w.focus(); w.print(); }catch(e){ try{ toast('Print failed - use Picture instead'); }catch(_){} }
-        setTimeout(function(){ f.remove(); },120000);
-      },150);
-    };
-
-    var lk=d.querySelector('link[rel=stylesheet]'), ls=lk?new Promise(function(r){ lk.onload=lk.onerror=r; setTimeout(r,3500); }):Promise.resolve();
-    ls.then(function(){
-      var fam=(d.fonts&&d.fonts.load)?Array.prototype.map.call(d.querySelectorAll('.ct *'),function(n){ return w.getComputedStyle(n).fontFamily; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).slice(0,30).map(function(fn){ return d.fonts.load('20px '+fn,'\u0627Aa').catch(function(){}); }):[];
-      return Promise.race([Promise.all(fam).then(function(){ return d.fonts.ready; }),new Promise(function(r){ setTimeout(r,3500); })]);
-    }).then(function(){
-      /* Only run ctFitMid if we fell back to raw ctHTML; live HTML already has fitted font sizes */
-      if(!ctLiveHTML()){ try{ ctFitMid(d.querySelector('.ct')); }catch(e){} }
-      go();
-    });
+    var go=function(){ try{ w.focus(); w.print(); }catch(e){ try{ toast('Print failed - use Picture instead'); }catch(_){} } setTimeout(function(){ f.remove(); },120000); };
+    var fr=(d.fonts&&d.fonts.ready)?Promise.race([d.fonts.ready,new Promise(function(r){ setTimeout(r,2500); })]):Promise.resolve();
+    fr.then(function(){ setTimeout(go,350); });
   };
   /* if the Certificate tab is already open, add the card now */
   try{ if(document.getElementById('ctPv')) ctBuild(); }catch(e){}
 })();
 
 
-/* ---- Print / Picture copy the clean certificate element without editor UI artifacts ---- */
+/* Print / Picture must use the SAME stylesheet order as the preview (reports css first, then design css, then imported) - otherwise gaps and widths differ from what you edited */
+function ctCssLikePreview(){ return CT_PG+CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+ctImpCSS(); }
+/* ---- Print / Picture copy exactly what the certificate preview shows ---- */
 function ctLiveHTML(){
   try{
-    var pv=document.getElementById('ctPv'); if(!pv) return '';
-    var ctNode=pv.querySelector('.ct'); if(!ctNode) return '';
-    var clone=ctNode.cloneNode(true);
-
-    /* Remove preview scaling/positioning styles on the root .ct element */
-    clone.style.transform='';
-    clone.style.transformOrigin='';
-    clone.style.margin='';
-    clone.style.boxShadow='';
-    clone.style.outline='';
-
-    /* Remove all editor guides, resize handles, toolbars, and badges */
-    clone.querySelectorAll('.pv-guide, .pv-handle, .pv-bar, .pv-badge, .pv-resizer, .ui-resizable-handle').forEach(function(x){ x.remove(); });
-
-    /* Strip editing attributes, dashed outlines, and pv-* state classes from all children */
-    var all=[clone].concat(Array.prototype.slice.call(clone.querySelectorAll('*')));
-    all.forEach(function(x){
-      x.removeAttribute('contenteditable');
-      x.removeAttribute('spellcheck');
-      x.removeAttribute('data-pv-sel');
-      x.removeAttribute('data-selected');
-      if(x.style){
-        x.style.outline='';
-        x.style.outlineOffset='';
-        x.style.cursor='';
-        if(x.style.boxShadow && /rgba?\(|#/.test(x.style.boxShadow) && x!==clone){
-          /* Clear selection ring box-shadows added by the preview editor */
-          if(x.className && typeof x.className==='string' && /pv-/.test(x.className)) x.style.boxShadow='';
-        }
-      }
-      if(x.hasAttribute('class')){
-        var k=String(x.getAttribute('class')).split(/\s+/).filter(function(c){ return c&&!/^pv-/.test(c)&&c!=='selected'&&c!=='active'&&c!=='editing'; }).join(' ');
-        if(k) x.setAttribute('class',k); else x.removeAttribute('class');
-      }
+    var pv=document.getElementById('ctPv'); if(!pv||!pv.firstElementChild) return '';
+    var d=document.createElement('div'); d.innerHTML=pv.innerHTML;
+    d.querySelectorAll('.pv-guide').forEach(function(x){ x.remove(); });
+    d.querySelectorAll('[contenteditable]').forEach(function(x){ x.removeAttribute('contenteditable'); });
+    d.querySelectorAll('[class]').forEach(function(x){
+      var k=String(x.getAttribute('class')).split(/\s+/).filter(function(c){ return c&&!/^pv-/.test(c); }).join(' ');
+      if(k) x.setAttribute('class',k); else x.removeAttribute('class');
     });
-    return clone.outerHTML;
+    return d.innerHTML;
   }catch(e){ return ''; }
 }
 (function(){
   var _png=ctPng;
   ctPng=async function(){
     var live=ctLiveHTML(); if(!live) return _png.apply(this,arguments);
-    window.RP_XF=ctFonts(CT); window.RP_XCSS=CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+CT_PG+ctImpCSS(); window.RP_XPAD=0;
+    window.RP_XF=ctFonts(CT); window.RP_XCSS=ctCssLikePreview(); window.RP_XPAD=0;
     window.PV_FORCE='live';
     try{ await rpToPng(live,1123,'Certificate_'+(CT.name||'student')); } finally { window.PV_FORCE=null; window.RP_XF=null; window.RP_XCSS=''; window.RP_XPAD=null; }
   };
 })();
-          
