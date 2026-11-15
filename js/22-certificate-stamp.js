@@ -125,8 +125,8 @@
     var all=[].concat.apply([],CT_DES.map(function(d){ return [rpFam(d.f),rpFam(d.af)].concat(ctImpFonts(d)); })).concat(ctFonts(CT)).filter(Boolean), u=rpFontURL(all);
     var css=CT_CSS+(typeof CT_CSS2!=='undefined'?CT_CSS2:'')+CT_PG+ctImpCSS();
     var html='<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title>'+(u?'<link rel="stylesheet" href="'+u+'">':'')+'<style>'+css
-      +'@page{size:'+wm+'mm '+hm+'mm;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;width:'+pw+'px;height:'+(ph-2)+'px;overflow:hidden}'
-      +'#cw{position:absolute;left:50%;top:50%;width:1123px;height:794px;margin:-397px 0 0 -561.5px;transform:scale('+k+');transform-origin:center center}</style></head><body><div id="cw">'
+      +'@page{size:'+wm+'mm '+hm+'mm;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff;width:'+pw+'px;height:'+(ph-2)+'px;overflow:hidden;display:block}'
+      +'#cw{position:absolute;left:50%;top:50%;width:1123px;height:794px;transform:translate(-50%,-50%) scale('+k+');transform-origin:center center}</style></head><body><div id="cw">'
       +(ctLiveHTML()||pvExport(ctHTML(CT),0,'cert'))+'</div></body></html>';
     var f=document.createElement('iframe');
     f.style.cssText='position:fixed;left:-9999px;top:0;width:'+pw+'px;height:'+ph+'px;border:0;visibility:hidden'; document.body.appendChild(f);
