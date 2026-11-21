@@ -12,12 +12,13 @@ window.txtAdd=function(x,y,ox,oy,g,ed){
  if(!ed){const t=hit(x,y,g);if(t){const b=bb(t,g),gx=x-t.p[0][0],gy=y-t.p[0][1];let mv=0;snap();const m=e=>{const q=toN(geo(),e.offsetX,e.offsetY);if(!mv&&Math.hypot((q[0]-x)*g.bw,(q[1]-y)*g.bh)<5)return;mv=1;t.p[0]=[q[0]-gx,q[1]-gy];need=1;send({t:'set',i:S.i,l:P().strokes})},u=()=>{cv.removeEventListener('pointermove',m);cv.removeEventListener('pointerup',u);cv.removeEventListener('pointercancel',u);if(mv){send({t:'set',i:S.i,l:P().strokes});return}S.hist.pop();const p=P();snap();p.strokes=p.strokes.filter(s=>s!==t);send({t:'set',i:S.i,l:p.strokes});need=1;const a=toS(geo(),t.p[0][0],t.p[0][1]);txtAdd(t.p[0][0],t.p[0][1],a[0],a[1],geo(),t)};cv.addEventListener('pointermove',m);cv.addEventListener('pointerup',u);cv.addEventListener('pointercancel',u);return}}
  const px=ed?Math.max(16,ed.f*g.bw*S.v.z):Math.max(16,Math.min(64,S.size*2.4)),ta=document.createElement('textarea'),r=cv.getBoundingClientRect();
  ta.dir='auto';ta.rows=1;
- ta.style.cssText='position:fixed;z-index:99999;left:'+(r.left+ox-7)+'px;top:'+(r.top+oy-3)+'px;width:'+(px*3)+'px;height:'+(px*1.25+4)+'px;box-sizing:content-box;padding:1px 6px;margin:0;border:1px dashed #4cc9f0;border-radius:4px;background:transparent;outline:0;resize:none;overflow:hidden;white-space:pre;font:600 '+px+'px system-ui,"Segoe UI",Tahoma,sans-serif;line-height:1.25;color:'+S.color+';text-shadow:0 0 3px rgba(0,0,0,.45)';
+ const SC=(w,h)=>'position:fixed!important;z-index:99999!important;left:'+(r.left+ox-7)+'px!important;top:'+(r.top+oy-3)+'px!important;width:'+w+'px!important;min-width:0!important;max-width:70vw!important;height:'+h+'px!important;min-height:0!important;box-sizing:content-box!important;padding:1px 6px!important;margin:0!important;border:1px dashed #4cc9f0!important;border-radius:4px!important;background:transparent!important;box-shadow:none!important;outline:0!important;resize:none!important;overflow:hidden!important;white-space:pre!important;font:600 '+px+'px system-ui,"Segoe UI",Tahoma,sans-serif!important;line-height:1.25!important;color:'+(ed?ed.c:S.color)+'!important;text-shadow:none!important';
+ ta.style.cssText=SC(px*3,px*1.25+4);
  ta.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();done(1)}else if(e.key==='Escape'){e.preventDefault();done(0)}};
  ta.onkeyup=e=>e.stopPropagation();
- ta.oninput=()=>{const L=ta.value.split('\n'),m=Math.max(...L.map(l=>l.length),3);ta.style.width=Math.min(innerWidth*.7,m*px*.7+px)+'px';ta.style.height=(L.length*px*1.25+4)+'px'};
+ ta.oninput=()=>{const L=ta.value.split('\n'),m=Math.max(...L.map(l=>l.length),3);ta.style.cssText=SC(Math.min(innerWidth*.7,m*px*.7+px),L.length*px*1.25+4)};
  ta.onblur=()=>done(1);
- if(ed){ta.value=ed.t;ta.style.color=ed.c;ta.oninput()}
+ if(ed){ta.value=ed.t;ta.oninput()}
  document.body.appendChild(ta);box={ta,x,y,f:px,c:ed&&ed.c};setTimeout(()=>ta.focus(),40)};
 {const od=cv.ondblclick;cv.ondblclick=function(e){if(S.tool==='text'){e.preventDefault();return}return od&&od.call(this,e)}}
 document.addEventListener('keydown',e=>{if((e.key==='t'||e.key==='T')&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!/^(INPUT|TEXTAREA|SELECT)$/.test((e.target||{}).tagName)&&!(e.target&&e.target.isContentEditable)){if(typeof setTool==='function')setTool('text')}});
