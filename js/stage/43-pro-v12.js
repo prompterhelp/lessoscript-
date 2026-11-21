@@ -9,4 +9,6 @@
   const r=await _p(ev);
   if(m&&m.t==='pages'&&m.id)DK[m.id]=S.pages;
   return r};
+ /* free decoded images of tabs that are not on screen (they decode again from the saved blob when you return) so many tab switches never run the window out of memory */
+ setInterval(()=>{if(document.hidden)return;for(const k in DK){const a=DK[k];if(a===S.pages||!a)continue;a.forEach(p=>{if(p.bmp&&p.blob){try{p.bmp.close()}catch(e){}p.bmp=null}if(p.mip){try{p.mip.close()}catch(e){}p.mip=null}if(p.hi){try{p.hi.bm.close()}catch(e){}p.hi=null}})}},3000);
 })();

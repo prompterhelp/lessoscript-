@@ -21,7 +21,7 @@ const _ui=ui;ui=function(){_ui();fixRail()};
 function fixRail(){if(STU)return;const r=$('rail');[...r.children].forEach((d,i)=>{const p=S.pages[i],im=d.firstChild;if(p&&im&&im.style&&!p.blob){im.style.aspectRatio=p.w+'/'+p.h;im.style.background='#111'}})}
 function pump(){while(act<MAXC&&q.length){const p=q.shift();if(p.blob||p.rend||!p.lazy)continue;doR(p)}}
 async function doR(p){p.rend=1;act++;window._pdfR=(window._pdfR||0)+1;try{
- const L=p.lazy;p.pdf={doc:L.doc,n:L.n};const pg=await L.doc.getPage(L.n),v0=pg.getViewport({scale:1}),w0=v0.width,vp=pg.getViewport({scale:Math.min(5,PW()/w0,Math.sqrt(6e6/(w0*v0.height)))}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+ const L=p.lazy;p.pdf={doc:L.doc,n:L.n};const pg=await L.doc.getPage(L.n),v0=pg.getViewport({scale:1}),w0=v0.width,vp=pg.getViewport({scale:Math.min(5,PW()/w0,Math.sqrt(4e6/(w0*v0.height)))}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
  await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
  p.text=await pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'');
  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95)),i=S.pages.indexOf(p);
