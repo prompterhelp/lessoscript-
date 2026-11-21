@@ -1,5 +1,5 @@
 /* Service worker: installable + offline. Pages load from the network but fall back to cache fast; CDN libraries are cached so Stage opens quickly */
-const CACHE = 'lesson-prompter-v58';
+const CACHE = 'lesson-prompter-v59';
 const ASSETS = ['./', './index.html', './stage.html', './manifest.json', './icon-192.png', './icon-512.png',
   './css/01-base-layout.css',
   './css/02-prompter-reading-modes.css',
@@ -61,6 +61,7 @@ const ASSETS = ['./', './index.html', './stage.html', './manifest.json', './icon
   './js/stage/45-pro-v13js.js',
   './js/stage/46-stage-sync.js',
   './js/stage/47-tb-dock.js',
+  './js/stage/58-text-tool.js',
   './js/stage/48-ux-fix-js.js',
   './js/stage/50-lp-fancy-v1-js.js',
   './js/stage/52-lp-theme-sync-js.js',

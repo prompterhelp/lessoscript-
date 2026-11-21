@@ -11,7 +11,7 @@ let _rw=0,_rh=0,_rt=0;new ResizeObserver(()=>{const r=$('stage').getBoundingClie
 const geo=()=>{const p=P();if(!p)return null;const f=Math.min(W/p.w,H/p.h);return{p,bw:p.w*f,bh:p.h*f}};
 const toS=(g,x,y)=>[W/2+(x-S.v.cx)*g.bw*S.v.z,H/2+(y-S.v.cy)*g.bh*S.v.z],toN=(g,x,y)=>[(x-W/2)/(g.bw*S.v.z)+S.v.cx,(y-H/2)/(g.bh*S.v.z)+S.v.cy];
 function clampV(){const v=S.v;v.z=Math.max(1,Math.min(10,v.z));v.cx=Math.max(0,Math.min(1,v.cx));v.cy=Math.max(0,Math.min(1,v.cy));if(v.z==1){v.cx=v.cy=.5}}
-function stroke(s,g){const z=S.v.z;cx.save();cx.lineCap=cx.lineJoin='round';cx.strokeStyle=s.c;cx.lineWidth=s.w*g.bw*z*(s.k=='hl'?4:1);if(s.k=='hl')cx.globalAlpha=.38;
+function stroke(s,g){const z=S.v.z;if(s.k=='text'){const q=toS(g,s.p[0][0],s.p[0][1]),fp=s.f*g.bw*z,L=String(s.t||'').split('\n');cx.save();cx.fillStyle=s.c;cx.font='600 '+fp+'px system-ui,"Segoe UI",Tahoma,sans-serif';cx.textBaseline='top';cx.textAlign='left';cx.direction=/[\u0590-\u08FF]/.test(s.t)?'rtl':'ltr';L.forEach((l,i)=>cx.fillText(l,q[0],q[1]+i*fp*1.25));cx.restore();return}cx.save();cx.lineCap=cx.lineJoin='round';cx.strokeStyle=s.c;cx.lineWidth=s.w*g.bw*z*(s.k=='hl'?4:1);if(s.k=='hl')cx.globalAlpha=.38;
  const Q=s.p.map(q=>toS(g,q[0],q[1])),a=Q[0],b=Q[Q.length-1];cx.beginPath();
  if(s.k=='rect')cx.rect(a[0],a[1],b[0]-a[0],b[1]-a[1]);else if(s.k=='line'){cx.moveTo(a[0],a[1]);cx.lineTo(b[0],b[1])}
  else{cx.moveTo(a[0],a[1]);if(Q.length==1)cx.lineTo(a[0]+.1,a[1]);for(let i=1;i<Q.length-1;i++)cx.quadraticCurveTo(Q[i][0],Q[i][1],(Q[i][0]+Q[i+1][0])/2,(Q[i][1]+Q[i+1][1])/2);if(Q.length>1)cx.lineTo(b[0],b[1])}
@@ -35,6 +35,7 @@ cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.of
  if((STU&&S.tool=='hand')||S.tool=='hand'||space||e.button==1){pan={x:e.offsetX,y:e.offsetY,cx:S.v.cx,cy:S.v.cy};cv.style.cursor='grabbing';return}
  const[x,y]=toN(g,e.offsetX,e.offsetY),t=S.tool;
  if(t=='eraser'){cur='e';er(x,y,g);return}
+ if(t=='text'){window.txtAdd&&window.txtAdd(x,y,e.offsetX,e.offsetY,g);return}
  if(t=='laser'||t=='spot'){cur='p';S.ptr={x,y,m:t};send({t:'ptr',p:S.ptr});need=1;return}
  cur={k:t,c:S.color,w:S.size/(g.bw*S.v.z),p:[[x,y]]};S.live=cur;need=1};
 cv.onpointermove=e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.offsetX,e.offsetY]);const g=geo();if(!g)return;
