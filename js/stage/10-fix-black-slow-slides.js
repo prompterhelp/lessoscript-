@@ -19,12 +19,12 @@ if(!STU&&!window._rafMC){window._rafMC=1;const r0=window.requestAnimationFrame.b
 const _sp=sendPage;sendPage=function(i){const p=S.pages[i];if(p&&p.blob)_sp(i)};
 const _ui=ui;ui=function(){_ui();fixRail()};
 function fixRail(){if(STU)return;const r=$('rail');[...r.children].forEach((d,i)=>{const p=S.pages[i],im=d.firstChild;if(p&&im&&im.style&&!p.blob){im.style.aspectRatio=p.w+'/'+p.h;im.style.background='#111'}})}
-function pump(){while(act<MAXC&&q.length){if(performance.now()-(S.mvT||0)<400&&q[0]!==S.pages[S.i])return;const p=q.shift();if(p.blob||p.rend||!p.lazy)continue;doR(p)}}
+function pump(){while(q.length){const p0=q[0];if(p0.blob||p0.rend||!p0.lazy){q.shift();continue}if(performance.now()-(S.mvT||0)<400&&p0!==S.pages[S.i])return;const near=Math.abs(S.pages.indexOf(p0)-S.i)<=5;if(act>=(near?MAXC:1))return;q.shift();doR(p0)}}
 async function doR(p){p.rend=1;act++;window._pdfR=(window._pdfR||0)+1;try{
  const L=p.lazy;p.pdf={doc:L.doc,n:L.n};const pg=await L.doc.getPage(L.n),v0=pg.getViewport({scale:1}),w0=v0.width,vp=pg.getViewport({scale:Math.min(5,PW()/w0,Math.sqrt(4e6/(w0*v0.height)))}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
  await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
  p.text=await pg.getTextContent().then(t=>{let o='',y=null;for(const it of t.items){const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)o+='\n';o+=it.str;y=yy}return o}).catch(()=>'');
- const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95)),i=S.pages.indexOf(p);
+ const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85)),i=S.pages.indexOf(p);
  p.w=c.width;p.h=c.height;if(i>=0&&Math.abs(i-S.i)<=3)p.bmp=await createImageBitmap(c);
  p.blob=blob;p.url=URL.createObjectURL(blob);p.lazy=null;
  if(i>=0){const d=$('rail').children[i];if(d&&d.firstChild){d.firstChild.src=p.url;d.firstChild.style.aspectRatio=''}sendPage(i)}

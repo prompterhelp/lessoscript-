@@ -17,7 +17,7 @@
    for(const k of[0,1,-1,2,3,4,-2]){if(k&&performance.now()-(S.mvT||0)<400)continue;const idx=S.i+k,t=S.pages[idx];if(!t||t.blob||t.srend)continue;t.srend=1;
     try{const pg=await d.doc.getPage(idx+1),v0=pg.getViewport({scale:1}),w0=v0.width,vp=pg.getViewport({scale:Math.min(5,PW()/w0,Math.sqrt(4e6/(w0*v0.height)))}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
      await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
-     if(!t.blob){t.blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.95));t.w=c.width;t.h=c.height;t.bmp=await createImageBitmap(c);t.pdf={doc:d.doc,n:idx+1};need=1;ui()}}
+     if(!t.blob){t.blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));t.w=c.width;t.h=c.height;t.bmp=await createImageBitmap(c);t.pdf={doc:d.doc,n:idx+1};need=1;ui()}}
     catch(e){}finally{t.srend=0}break}
   }finally{busy=0}},150);
 })();
